@@ -1,0 +1,19 @@
+[package]
+name = "file_endec"
+version = "1.0.0"
+authors = ["Mark <mverleg.noreply@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "file_endec"
+path = "src/lib.rs"
+
+[[bin]]
+name = "fileenc"
+path = "src/encrypt.rs"
+
+[[bin]]
+name = "filedec"
+path = "src/decrypt.rs"
+
+[dependencies]
