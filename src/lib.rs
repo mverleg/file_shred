@@ -1,3 +1,5 @@
+pub mod version;
+pub mod header;
 
 #[cfg(test)]
 mod tests {
