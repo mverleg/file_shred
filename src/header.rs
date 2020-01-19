@@ -2,7 +2,7 @@ use ::std::io::BufRead;
 
 use ::semver::Version;
 
-use crate::strategy::Strategy;
+use crate::strategy::{Strategy, get_version_strategy};
 use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -16,7 +16,7 @@ pub struct Header {
 const HEADER_MARKER: &str = "github.com/mverleg/file_endec";
 
 pub fn write_header() {
-
+    unimplemented!()
 }
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
@@ -54,12 +54,13 @@ fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> F
 
 fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Version> {
     read_line(reader, line, verbose)?;
-    let value_str = check_prefix(line, "v ", verbose)?;
-    match Version::parse(value_str) {
+    let verion_str = check_prefix(line, "v ", verbose)?;
+    match Version::parse(verion_str) {
         Ok(version) => Ok(version),
         Err(err) => Err(match verbose {
             true => "could not determine the version of fileenc that encrypted this file".to_owned(),
-            false => format!("could not determine the version of fileenc that encrypted this file; got {}", value_str),
+            false => format!("could not determine the version of fileenc that encrypted this file; \
+            got {} which is invalid, reason: {}", verion_str, err),
         }),
     }
 }
@@ -67,24 +68,25 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
 fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<u64> {
     read_line(reader, line, verbose)?;
     let salt_str = check_prefix(line, "salt ", verbose)?;
-    match Version::parse(line) {
-        Ok(version) => Ok(::str::u64::from_str_radix(salt_str, 32)),
+    match u64::from_str_radix(salt_str, 32) {
+        Ok(salt) => Ok(salt),
         Err(err) => Err(match verbose {
-            //TODO @mark:
-            true => "could not determine the version of fileenc that encrypted this file".to_owned(),
-            false => format!("could not determine the version of fileenc that encrypted this file; got {}", line),
+            true => "could not determine the salt used by fileenc that encrypted this file".to_owned(),
+            false => format!("could not determine the salt used by fileenc that encrypted this file; \
+            got {} which is invalid, reason: {}", salt_str, err),
         }),
     }
 }
 
 fn parse_checksum(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<u64> {
     read_line(reader, line, verbose)?;
-    let value_str = check_prefix(line, "check ", verbose)?;
-    match Version::parse(line) {
+    let checksum_str = check_prefix(line, "check ", verbose)?;
+    match u64::from_str_radix(checksum_str, 32) {
         Ok(version) => Ok(version),
         Err(err) => Err(match verbose {
-            true => "could not determine the version of fileenc that encrypted this file".to_owned(),
-            false => format!("could not determine the version of fileenc that encrypted this file; got {}", line),
+            true => "could not determine the checksum of the encrypted file".to_owned(),
+            false => format!("could not determine the checksum of the encrypted file; \
+            got {} which is invalid, reason: {}", checksum_str, err),
         }),
     }
 }
@@ -93,7 +95,15 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
     let mut line = String::new();
     parse_marker(reader, &mut line, verbose)?;
     let version = parse_version(reader, &mut line, verbose)?;
+    let strategy = get_version_strategy(&version, verbose)
+        .map_err(|e| format!("version used to encrypt: {}", e))?;
     let salt = parse_salt(reader, &mut line, verbose)?;
     let checksum = parse_checksum(reader, &mut line, verbose)?;
-    ()
+    Ok(Header {
+        version,
+        salt,
+        strategy,
+        checksum,
+    })
 }
+

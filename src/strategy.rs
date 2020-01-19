@@ -1,5 +1,6 @@
 use ::semver::Version;
 use ::lazy_static::lazy_static;
+use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CompressionAlg {
@@ -14,7 +15,7 @@ pub enum KeyHashAlg {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SymmetricEncryptionAlg {
-
+    None, //TODO @mark: TEMPORARY! REMOVE THIS!
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -35,7 +36,14 @@ lazy_static! {
     };
 }
 
-pub fn get_version_strategy(version: Version) -> &'static Strategy {
-    assert!(version >= Version::parse("1.0.0").unwrap());
-    &*STRATEGY_1_0_0
+/// Get the encryption strategy used for a specific code version.
+pub fn get_version_strategy(version: &Version, verbose: bool) -> FedResult<&'static Strategy> {
+    // This should return the strategy for all old versions - don't delete any, just add new ones!
+    if version < &Version::parse("1.0.0").unwrap() {
+        return Err(match verbose {
+            true => "non-existent version".to_owned(),
+            false => format!("non-existent version {} (minimum is 1.0.0)", version),
+        })
+    }
+    Ok(&*STRATEGY_1_0_0)
 }
