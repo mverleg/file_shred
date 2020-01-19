@@ -2,7 +2,7 @@ use ::lazy_static::lazy_static;
 use ::semver::Version;
 
 lazy_static! {
-    static ref CURRENT_VERSION: Version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
+    pub static ref CURRENT_VERSION: Version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
 }
 
 #[cfg(test)]

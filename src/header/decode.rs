@@ -2,22 +2,11 @@ use ::std::io::BufRead;
 
 use ::semver::Version;
 
-use crate::strategy::{Strategy, get_version_strategy};
+use crate::header::strategy::get_version_strategy;
+use crate::header::types::Header;
 use crate::util::FedResult;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Header {
-    version: Version,
-    salt: u64,
-    strategy: &'static Strategy,
-    checksum: u64,
-}
-
-const HEADER_MARKER: &str = "github.com/mverleg/file_endec";
-
-pub fn write_header() {
-    unimplemented!()
-}
+use crate::header::HEADER_MARKER;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
     line.clear();
@@ -46,7 +35,8 @@ fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> F
     if HEADER_MARKER != line {
         return Err(match verbose {
             true => "did not recognize encryption header; was this file really encrypted with fileenc?".to_owned(),
-            false => format!("did not recognize encryption header (expected '{}', got '{}'); was this file really encrypted with fileenc?", HEADER_MARKER, line),
+            false => format!("did not recognize encryption header (expected '{}', got '{}'); \
+            was this file really encrypted with fileenc?", HEADER_MARKER, line),
         });
     }
     Ok(())
@@ -99,11 +89,12 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
         .map_err(|e| format!("version used to encrypt: {}", e))?;
     let salt = parse_salt(reader, &mut line, verbose)?;
     let checksum = parse_checksum(reader, &mut line, verbose)?;
-    Ok(Header {
+    read_line(reader, &mut line, verbose)?;
+    check_prefix(&mut line, "data:", verbose).unwrap();
+    Ok(Header::new(
         version,
         salt,
         strategy,
         checksum,
-    })
+    ))
 }
-
