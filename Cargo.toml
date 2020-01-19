@@ -17,3 +17,16 @@ name = "filedec"
 path = "src/decrypt.rs"
 
 [dependencies]
+# command line interaction
+structopt = "^0.3.7"
+indicatif = "^0.13.0"
+
+# encyrption and decryption
+rand = "^0.7.2"
+rust-crypto = "^0.2.36"
+
+# headers
+arrayvec = "^0.5.1"
+
+# compression
+brotli = "^3.3.0"

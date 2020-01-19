@@ -7,8 +7,9 @@ Command line utility that encrypts and decrypts files.
 Functionality:
 
 * Encryption and decryption using established algorithms.
-* Key stretching
-* Salts
-* Checksums
-* Backward-compatibility
+* Compression.
+* Key stretching.
+* Salts.
+* Checksums.
+* Backward-compatibility.
 
