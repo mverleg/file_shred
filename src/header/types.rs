@@ -1,6 +1,7 @@
 use ::semver::Version;
 
-use crate::header::Strategy;
+use crate::header::{get_version_strategy, Strategy};
+use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Salt {
@@ -44,15 +45,17 @@ impl Header {
     pub fn new(
         version: Version,
         salt: Salt,
-        strategy: &'static Strategy,
         checksum: Checksum,
-    ) -> Self {
-        Header {
+        verbose: &bool,
+    ) -> FedResult<Self> {
+        let strategy = get_version_strategy(&version, *verbose)
+            .map_err(|e| format!("version used to encrypt: {}", e))?;
+        Ok(Header {
             version,
             salt,
             strategy,
             checksum,
-        }
+        })
     }
 
     pub fn version(&self) -> &Version {

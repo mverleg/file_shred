@@ -10,7 +10,6 @@ use crate::header::HEADER_DATA_MARKER;
 use crate::header::HEADER_MARKER;
 use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
-use crate::header::strategy::get_version_strategy;
 use crate::util::FedResult;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
@@ -90,16 +89,14 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
     let mut line = String::new();
     parse_marker(reader, &mut line, verbose)?;
     let version = parse_version(reader, &mut line, verbose)?;
-    let strategy = get_version_strategy(&version, verbose)
-        .map_err(|e| format!("version used to encrypt: {}", e))?;
     let salt = parse_salt(reader, &mut line, verbose)?;
     let checksum = parse_checksum(reader, &mut line, verbose)?;
     read_line(reader, &mut line, verbose)?;
     check_prefix(&mut line, HEADER_DATA_MARKER, verbose).unwrap();
-    Ok(Header::new(
+    Header::new(
         version,
         salt,
-        strategy,
         checksum,
-    ))
+        &verbose,
+    )
 }

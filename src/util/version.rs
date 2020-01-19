@@ -6,7 +6,7 @@ lazy_static! {
 }
 
 #[cfg(test)]
-mod tests {
+mod version {
     use super::*;
 
     #[test]
