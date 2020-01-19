@@ -10,7 +10,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_add() {
-        assert!(CURRENT_VERSION.clone() >= Version::parse("1.0.0").unwrap());
+    fn test_minimum_version() {
+        assert!(&*CURRENT_VERSION >= &Version::parse("1.0.0").unwrap());
+    }
+
+    #[test]
+    fn test_numbers_only() {
+        assert_eq!(0, CURRENT_VERSION.build.len());
+        assert_eq!(0, CURRENT_VERSION.pre.len());
     }
 }

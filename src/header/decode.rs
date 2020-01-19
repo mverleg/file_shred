@@ -2,11 +2,16 @@ use ::std::io::BufRead;
 
 use ::semver::Version;
 
-use crate::header::strategy::get_version_strategy;
-use crate::header::types::Header;
-use crate::util::FedResult;
-
+use crate::header::Checksum;
+use crate::header::Header;
+use crate::header::Salt;
+use crate::header::HEADER_CHECKSUM_MARKER;
+use crate::header::HEADER_DATA_MARKER;
 use crate::header::HEADER_MARKER;
+use crate::header::HEADER_SALT_MARKER;
+use crate::header::HEADER_VERSION_MARKER;
+use crate::header::strategy::get_version_strategy;
+use crate::util::FedResult;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
     line.clear();
@@ -44,7 +49,7 @@ fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> F
 
 fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Version> {
     read_line(reader, line, verbose)?;
-    let verion_str = check_prefix(line, "v ", verbose)?;
+    let verion_str = check_prefix(line, HEADER_VERSION_MARKER, verbose)?;
     match Version::parse(verion_str) {
         Ok(version) => Ok(version),
         Err(err) => Err(match verbose {
@@ -55,11 +60,11 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
     }
 }
 
-fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<u64> {
+fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Salt> {
     read_line(reader, line, verbose)?;
-    let salt_str = check_prefix(line, "salt ", verbose)?;
+    let salt_str = check_prefix(line, HEADER_SALT_MARKER, verbose)?;
     match u64::from_str_radix(salt_str, 32) {
-        Ok(salt) => Ok(salt),
+        Ok(salt) => Ok(Salt::new(salt)),
         Err(err) => Err(match verbose {
             true => "could not determine the salt used by fileenc that encrypted this file".to_owned(),
             false => format!("could not determine the salt used by fileenc that encrypted this file; \
@@ -68,11 +73,11 @@ fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> Fed
     }
 }
 
-fn parse_checksum(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<u64> {
+fn parse_checksum(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Checksum> {
     read_line(reader, line, verbose)?;
-    let checksum_str = check_prefix(line, "check ", verbose)?;
+    let checksum_str = check_prefix(line, HEADER_CHECKSUM_MARKER, verbose)?;
     match u64::from_str_radix(checksum_str, 32) {
-        Ok(version) => Ok(version),
+        Ok(checksum) => Ok(Checksum::new(checksum)),
         Err(err) => Err(match verbose {
             true => "could not determine the checksum of the encrypted file".to_owned(),
             false => format!("could not determine the checksum of the encrypted file; \
@@ -90,7 +95,7 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
     let salt = parse_salt(reader, &mut line, verbose)?;
     let checksum = parse_checksum(reader, &mut line, verbose)?;
     read_line(reader, &mut line, verbose)?;
-    check_prefix(&mut line, "data:", verbose).unwrap();
+    check_prefix(&mut line, HEADER_DATA_MARKER, verbose).unwrap();
     Ok(Header::new(
         version,
         salt,

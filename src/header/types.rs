@@ -3,19 +3,49 @@ use ::semver::Version;
 use crate::header::Strategy;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Salt {
+    value: u64,
+}
+
+impl Salt {
+    pub fn new(value: u64) -> Self {
+        Salt { value }
+    }
+
+    pub fn as_primitive(&self) -> u64 {
+        self.value
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Checksum {
+    value: u64,
+}
+
+impl Checksum {
+    pub fn new(value: u64) -> Self {
+        Checksum { value }
+    }
+
+    pub fn as_primitive(&self) -> u64 {
+        self.value
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Header {
     version: Version,
-    salt: u64,
+    salt: Salt,
     strategy: &'static Strategy,
-    checksum: u64,
+    checksum: Checksum,
 }
 
 impl Header {
     pub fn new(
         version: Version,
-        salt: u64,
+        salt: Salt,
         strategy: &'static Strategy,
-        checksum: u64,
+        checksum: Checksum,
     ) -> Self {
         Header {
             version,
@@ -24,6 +54,23 @@ impl Header {
             checksum,
         }
     }
+
+    pub fn version(&self) -> &Version {
+        &self.version
+    }
+    pub fn salt(&self) -> &Salt {
+        &self.salt
+    }
+    pub fn strategy(&self) -> &'static Strategy {
+        self.strategy
+    }
+    pub fn checksum(&self) -> &Checksum {
+        &self.checksum
+    }
 }
 
 pub const HEADER_MARKER: &str = "github.com/mverleg/file_endec";
+pub const HEADER_VERSION_MARKER: &str = "v ";
+pub const HEADER_SALT_MARKER: &str = "salt ";
+pub const HEADER_CHECKSUM_MARKER: &str = "check ";
+pub const HEADER_DATA_MARKER: &str = "data:";

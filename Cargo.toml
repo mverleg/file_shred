@@ -27,6 +27,7 @@ ring = "^0.16.9"
 
 # headers
 semver = "^0.9.0"
+data-encoding = "^2.1.2"
 
 # compression
 brotli = "^3.3.0"

@@ -1,6 +1,65 @@
+use ::std::error::Error;
+use ::std::io::Write;
 
-pub fn write_header() {
-    unimplemented!()
+use ::semver::Version;
+
+use crate::header::Checksum;
+use crate::header::Header;
+use crate::header::HEADER_CHECKSUM_MARKER;
+use crate::header::HEADER_DATA_MARKER;
+use crate::header::HEADER_MARKER;
+use crate::header::HEADER_SALT_MARKER;
+use crate::header::HEADER_VERSION_MARKER;
+use crate::header::Salt;
+use crate::util::FedResult;
+
+fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
+    if let Err(err) = res {
+        Err(match verbose {
+            true => "failed to write encryption header".to_owned(),
+            false => format!("failed to write encryption header, reason: {}", err),
+        })
+    } else {
+        Ok(())
+    }
+}
+
+fn write_line(writer: &mut dyn Write, prefix: &str, value: Option<String>, verbose: bool) -> FedResult<()> {
+    wrap_err(writer.write(prefix.as_bytes()), verbose);
+    if let Some(text) = value {
+        wrap_err(writer.write(value.as_bytes()), verbose);
+    }
+    wrap_err(writer.write("\n".as_bytes()), verbose);
+    Ok(())
+}
+
+fn write_marker(writer: &mut dyn Write, verbose: bool) -> FedResult<()> {
+    write_line(writer, HEADER_MARKER, None, verbose)
+}
+
+fn write_version(writer: &mut dyn Write, version: &Version, verbose: bool) -> FedResult<()> {
+    let version_str = format!("{}.{}.{}", version.major, version.minor, version.patch);
+    write_line(writer, HEADER_VERSION_MARKER, Some(version_str), verbose)
+}
+
+fn write_salt(writer: &mut dyn Write, salt: &Salt, verbose: bool) -> FedResult<()> {
+    let salt_str = format!("{}", salt.as_primitive());
+    write_line(writer, HEADER_SALT_MARKER, Some(salt_str), verbose)
+}
+
+fn write_checksum(writer: &mut dyn Write, checksum: &Checksum, verbose: bool) -> FedResult<()> {
+    let checksum_str = format!("{}", checksum.as_primitive());
+    write_line(writer, HEADER_CHECKSUM_MARKER, Some(checksum_str), verbose)
+}
+
+
+pub fn write_header(writer: &mut dyn Write, header: &Header, verbose: bool) -> FedResult<()> {
+    write_marker(writer, verbose)?;
+    write_version(writer, header.version(), verbose)?;
+    write_salt(writer, header.salt(), verbose)?;
+    write_checksum(writer, header.checksum(), verbose)?;
+    write_line(writer, HEADER_DATA_MARKER, None, verbose);
+    Ok(())
 }
 
 //fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
