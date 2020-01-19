@@ -18,7 +18,7 @@ path = "src/decrypt.rs"
 
 [dependencies]
 # command line interaction
-structopt = "^0.3.7"
+structopt = { version = "^0.3.7", default-features = false }
 indicatif = "^0.13.0"
 
 # encyrption and decryption
