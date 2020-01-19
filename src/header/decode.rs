@@ -11,6 +11,7 @@ use crate::header::HEADER_MARKER;
 use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
 use crate::util::FedResult;
+use crate::util::util::base64str_to_u64;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
     line.clear();
@@ -64,7 +65,7 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
 fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Salt> {
     read_line(reader, line, verbose)?;
     let salt_str = check_prefix(line, HEADER_SALT_MARKER, verbose)?;
-    match u64::from_str_radix(salt_str, 32) {
+    match base64str_to_u64(salt_str) {
         Ok(salt) => Ok(Salt::new(salt)),
         Err(err) => Err(match verbose {
             false => "could not determine the salt used by fileenc that encrypted this file".to_owned(),
@@ -77,7 +78,7 @@ fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> Fed
 fn parse_checksum(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Checksum> {
     read_line(reader, line, verbose)?;
     let checksum_str = check_prefix(line, HEADER_CHECKSUM_MARKER, verbose)?;
-    match u64::from_str_radix(checksum_str, 32) {
+    match base64str_to_u64(checksum_str) {
         Ok(checksum) => Ok(Checksum::new(checksum)),
         Err(err) => Err(match verbose {
             false => "could not determine the checksum of the encrypted file".to_owned(),
@@ -123,7 +124,7 @@ mod header {
         ).unwrap();
         let mut buf = input.as_bytes();
         let header = parse_header(&mut buf, true).unwrap();
-        assert_eq!(expected, header);
+        assert_eq!(header, expected);
     }
 
     #[test]
@@ -138,6 +139,6 @@ mod header {
         ).unwrap();
         let mut buf = input.as_bytes();
         let header = parse_header(&mut buf, true).unwrap();
-        assert_eq!(expected, header);
+        assert_eq!(header, expected);
     }
 }
