@@ -65,12 +65,29 @@ pub fn write_header(writer: &mut impl Write, header: &Header, verbose: bool) -> 
 #[cfg(test)]
 mod header {
     use super::write_header;
-    use crate::header::{Header, Salt, Checksum};
+    use crate::header::Header;
+    use crate::header::Salt;
+    use crate::header::Checksum;
     use semver::Version;
     use std::str::from_utf8;
 
     #[test]
-    fn write_v1_0_0() {
+    fn write_v1_0_0_one() {
+        let version = Version::parse("1.0.0").unwrap();
+        let header = Header::new(
+            version,
+            Salt::new(1),
+            Checksum::new(2),
+            &true,
+        ).unwrap();
+        let mut buf: Vec<u8> = Vec::new();
+        write_header(&mut buf, &header, true).unwrap();
+        let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck AgAAAAAAAAA\ndata:\n";
+        assert_eq!(expected, from_utf8(&buf).unwrap());
+    }
+
+    #[test]
+    fn write_v1_0_0_two() {
         let version = Version::parse("1.0.0").unwrap();
         let header = Header::new(
             version,

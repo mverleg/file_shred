@@ -14,13 +14,15 @@ use crate::util::FedResult;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
     line.clear();
-    if let Err(err) = reader.read_line(line) {
+    let res = reader.read_line(line);
+    if let Err(err) = res {
         //TODO @mark: verbose logging
         return Err(match verbose {
             true => "could not read file".to_owned(),
             false => format!("could not read file (error: {})", err),
         });
     }
+    line.pop();
     Ok(())
 }
 
@@ -38,8 +40,8 @@ fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> F
     read_line(reader, line, verbose)?;
     if HEADER_MARKER != line {
         return Err(match verbose {
-            true => "did not recognize encryption header; was this file really encrypted with fileenc?".to_owned(),
-            false => format!("did not recognize encryption header (expected '{}', got '{}'); \
+            false => "did not recognize encryption header; was this file really encrypted with fileenc?".to_owned(),
+            true => format!("did not recognize encryption header (expected '{}', got '{}'); \
             was this file really encrypted with fileenc?", HEADER_MARKER, line),
         });
     }
@@ -52,8 +54,8 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
     match Version::parse(verion_str) {
         Ok(version) => Ok(version),
         Err(err) => Err(match verbose {
-            true => "could not determine the version of fileenc that encrypted this file".to_owned(),
-            false => format!("could not determine the version of fileenc that encrypted this file; \
+            false => "could not determine the version of fileenc that encrypted this file".to_owned(),
+            true => format!("could not determine the version of fileenc that encrypted this file; \
             got {} which is invalid, reason: {}", verion_str, err),
         }),
     }
@@ -65,8 +67,8 @@ fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> Fed
     match u64::from_str_radix(salt_str, 32) {
         Ok(salt) => Ok(Salt::new(salt)),
         Err(err) => Err(match verbose {
-            true => "could not determine the salt used by fileenc that encrypted this file".to_owned(),
-            false => format!("could not determine the salt used by fileenc that encrypted this file; \
+            false => "could not determine the salt used by fileenc that encrypted this file".to_owned(),
+            true => format!("could not determine the salt used by fileenc that encrypted this file; \
             got {} which is invalid, reason: {}", salt_str, err),
         }),
     }
@@ -78,8 +80,8 @@ fn parse_checksum(reader: &mut dyn BufRead, line: &mut String, verbose: bool) ->
     match u64::from_str_radix(checksum_str, 32) {
         Ok(checksum) => Ok(Checksum::new(checksum)),
         Err(err) => Err(match verbose {
-            true => "could not determine the checksum of the encrypted file".to_owned(),
-            false => format!("could not determine the checksum of the encrypted file; \
+            false => "could not determine the checksum of the encrypted file".to_owned(),
+            true => format!("could not determine the checksum of the encrypted file; \
             got {} which is invalid, reason: {}", checksum_str, err),
         }),
     }
@@ -99,4 +101,43 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
         checksum,
         &verbose,
     )
+}
+
+#[cfg(test)]
+mod header {
+    use super::parse_header;
+    use crate::header::Header;
+    use crate::header::Salt;
+    use crate::header::Checksum;
+    use semver::Version;
+
+    #[test]
+    fn read_v1_0_0_one() {
+        let version = Version::parse("1.0.0").unwrap();
+        let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck AgAAAAAAAAA\ndata:\n";
+        let expected = Header::new(
+            version,
+            Salt::new(1),
+            Checksum::new(2),
+            &true,
+        ).unwrap();
+        let mut buf = input.as_bytes();
+        let header = parse_header(&mut buf, true).unwrap();
+        assert_eq!(expected, header);
+    }
+
+    #[test]
+    fn read_v1_0_0_two() {
+        let version = Version::parse("1.0.0").unwrap();
+        let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck ielVwgsAAAA\ndata:\n";
+        let expected = Header::new(
+            version,
+            Salt::new(123_456_789),
+            Checksum::new(050_505_050_505),
+            &true,
+        ).unwrap();
+        let mut buf = input.as_bytes();
+        let header = parse_header(&mut buf, true).unwrap();
+        assert_eq!(expected, header);
+    }
 }
