@@ -80,7 +80,6 @@ impl fmt::Display for EncryptArguments {
 
         f.write_str("  delete input files: ")?;
         f.write_str(if self.delete_input { if self.dry_run { "no (overridden by dry run)" } else { "yes" }} else { "no" })?;
-        f.write_str("\n")?;
 
         Ok(())
     }
