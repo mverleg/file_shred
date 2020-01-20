@@ -1,7 +1,9 @@
 use std::path::{Path, PathBuf};
 
-use crate::util::FedResult;
 use secstr::SecStr;
+
+pub use crate::key::KeySource;
+use crate::util::FedResult;
 
 pub mod util;
 pub mod header;
@@ -88,10 +90,10 @@ pub struct DecryptConfig {
 
 }
 
-pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
+pub fn encrypt(_config: &EncryptConfig) -> FedResult<()> {
     unimplemented!()  //TODO @mark:
 }
 
-pub fn decrypt(config: &EncryptConfig) -> FedResult<()> {
+pub fn decrypt(_config: &EncryptConfig) -> FedResult<()> {
     unimplemented!()  //TODO @mark:
 }

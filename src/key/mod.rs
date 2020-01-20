@@ -7,8 +7,6 @@ use std::str::FromStr;
 
 use ::secstr::SecStr;
 
-use ::structopt::clap::arg_enum;
-
 use crate::util::FedResult;
 
 #[derive(Debug)]
@@ -16,40 +14,37 @@ pub enum KeySource {
     CliArg(SecStr),
     EnvVar(String),
     File(PathBuf),
-    AskOnce,
     AskTwice,
+    AskOnce,
     Pipe,
 }
 
-//impl FromStr for KeySource {
-//    type Err = String;
-//
-//    fn from_str(txt: &str) -> Result<Self, Self::Err> {
-//        Ok(match txt {
-//            "arg" => KeySource::CliArg(unimplemented!()),
-//            "env" => KeySource::EnvVar(unimplemented!()),
-//            "file" => KeySource::File(unimplemented!()),
-//            "askonce" => KeySource::AskOnce,
-//            "ask" => KeySource::AskTwice,
-//            "pipe" => KeySource::Pipe,
-//            _ => Err("did not recognize key format; choose one of 'arg:...', 'env:...', \
-//            'file:...', 'askonce', 'ask', 'pipe'".to_owned())?,
-//        })
-//    }
-//}
-//
-//impl ToString for KeySource {
-//    fn to_string(&self) -> String {
-//        match self {
-//            KeySource::CliArg(_) => "arg",
-//            KeySource::EnvVar(_) => "env",
-//            KeySource::File(_) => "file",
-//            KeySource::AskOnce => "askonce",
-//            KeySource::AskTwice => "ask",
-//            KeySource::Pipe => "pipe",
-//        }.to_owned()
-//    }
-//}
+impl FromStr for KeySource {
+    type Err = String;
+
+    fn from_str(txt: &str) -> Result<Self, Self::Err> {
+        if txt.starts_with("arg:") {
+            return Ok(KeySource::CliArg(SecStr::from(txt[4..].to_owned())));
+        }
+        if txt.starts_with("env:") {
+            return Ok(KeySource::EnvVar(txt[4..].to_owned()));
+        }
+        if txt.starts_with("file:") {
+            return Ok(KeySource::File(PathBuf::from(txt[5..].to_owned())));
+        }
+        if txt == "ask" {
+            return Ok(KeySource::AskTwice);
+        }
+        if txt == "ask-once" {
+            return Ok(KeySource::AskOnce);
+        }
+        if txt == "pipe" {
+            return Ok(KeySource::Pipe);
+        }
+        Err(format!("key string was not recognized; got '{}', should be one of \
+        'arg:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'", txt))
+    }
+}
 
 fn key_from_env_var(env_var_name: &str) -> FedResult<SecStr> {
     match env::var(env_var_name) {

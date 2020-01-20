@@ -1,9 +1,13 @@
-use ::file_endec::EncryptConfig;
-use ::structopt::StructOpt;
-use ::std::path::PathBuf;
 use ::std::fmt;
-use secstr::SecStr;
-use file_endec::key::KeySource;
+use ::std::path::PathBuf;
+use ::std::process::exit;
+
+use ::structopt::StructOpt;
+
+use ::file_endec::EncryptConfig;
+use ::file_endec::KeySource;
+use file_endec::util::FedResult;
+use file_endec::encrypt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "FileEnc", author = "github.com/mverleg/file_endec", about = "Securely encrypt one or more files using the given key.")]
@@ -14,7 +18,7 @@ pub struct EncryptArguments {
 
     //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
     #[structopt(short = "k", long = "key", default_value = "ask", help = "Where to get the key; one of 'arg:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'")]
-    key_source: String,
+    key_source: KeySource,
 
     #[structopt(short = "v", long, env = "ENDEC_DEBUG", help = "Show debug information, especially on errors.")]
     debug: bool,
@@ -33,23 +37,6 @@ pub struct EncryptArguments {
 
     #[structopt(long, help = "Test encryption, but do not save encrypted files (nor delete input, if --delete-input).")]
     dry_run: bool,
-}
-
-impl From<EncryptArguments> for EncryptConfig {
-    fn from(args: EncryptArguments) -> Self {
-        let key: SecStr = args.key_source;
-        assert!(args.key.is_some(), "key must be set before calling 'from'/'into'");
-        EncryptConfig::new(
-            args.files,
-            key,
-            args.debug,
-            args.overwrite,
-            args.delete_input,
-            args.output_dir,
-            args.output_extension,
-            args.dry_run,
-        )
-    }
 }
 
 impl fmt::Display for EncryptArguments {
@@ -98,8 +85,27 @@ impl fmt::Display for EncryptArguments {
 }
 
 pub fn main() {
+    if let Err(err) = go() {
+        eprintln!("{}", err);
+        exit(1);
+    }
+}
+
+fn go() -> FedResult<()> {
     let args = EncryptArguments::from_args();
     if args.debug {
-        println!("arguments provided:\n{}", args);
+    println!("arguments provided:\n{}", args);
     }
+    let key = args.key_source.obtain_key()?;
+    let config = EncryptConfig::new(
+        args.files,
+        key,
+        args.debug,
+        args.overwrite,
+        args.delete_input,
+        args.output_dir,
+        args.output_extension,
+        args.dry_run,
+    );
+    encrypt(&config)
 }
