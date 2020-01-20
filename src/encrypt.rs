@@ -5,7 +5,7 @@ use ::std::process::exit;
 use ::structopt::StructOpt;
 
 use ::file_endec::encrypt;
-use ::file_endec::EncryptConfig;
+use ::file_endec::config::EncryptConfig;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
 
