@@ -20,10 +20,12 @@ path = "src/decrypt.rs"
 # command line interaction
 structopt = { version = "^0.3.7", default-features = false }
 indicatif = "^0.13.0"
+rpassword = "^4.0.4"
 
 # encyrption and decryption
 rand = "^0.7.2"
 ring = "^0.16.9"
+secstr = "^0.3.2"
 
 # headers
 semver = "^0.9.0"

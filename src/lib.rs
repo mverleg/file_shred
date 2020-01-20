@@ -1,14 +1,16 @@
 use std::path::{Path, PathBuf};
 
 use crate::util::FedResult;
+use secstr::SecStr;
 
 pub mod util;
 pub mod header;
+pub mod key;
 
 #[derive(Debug)]
 pub struct EncryptConfig {
     files: Vec<PathBuf>,
-    key: String,  //TODO @mark: change type
+    key: SecStr,
     debug: bool,
     overwrite: bool,
     delete_input: bool,
@@ -20,7 +22,7 @@ pub struct EncryptConfig {
 impl EncryptConfig {
     pub fn new(
         files: Vec<PathBuf>,
-        key: String,
+        key: SecStr,
         debug: bool,
         mut overwrite: bool,
         mut delete_input: bool,
@@ -49,7 +51,7 @@ impl EncryptConfig {
         &self.files
     }
 
-    pub fn key(&self) -> &str {
+    pub fn key(&self) -> &SecStr {
         &self.key
     }
 
