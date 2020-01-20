@@ -2,11 +2,12 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use crate::key::Key;
+use crate::header::{Strategy, get_version_strategy};
 
 #[derive(Debug)]
 pub struct EncryptConfig {
     files: Vec<PathBuf>,
-    key: Key,
+    raw_key: Key,
     debug: bool,
     overwrite: bool,
     delete_input: bool,
@@ -18,7 +19,7 @@ pub struct EncryptConfig {
 impl EncryptConfig {
     pub fn new(
         files: Vec<PathBuf>,
-        key: Key,
+        raw_key: Key,
         debug: bool,
         mut overwrite: bool,
         mut delete_input: bool,
@@ -33,7 +34,7 @@ impl EncryptConfig {
         }
         EncryptConfig {
             files,
-            key,
+            raw_key,
             debug,
             overwrite,
             delete_input,
@@ -47,8 +48,8 @@ impl EncryptConfig {
         &self.files
     }
 
-    pub fn key(&self) -> &Key {
-        &self.key
+    pub fn raw_key(&self) -> &Key {
+        &self.raw_key
     }
 
     pub fn debug(&self) -> bool {
