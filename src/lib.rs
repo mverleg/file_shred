@@ -1,9 +1,7 @@
 use ::std::path::{Path, PathBuf};
 
-use ::secstr::SecUtf8;
-use ::zxcvbn::zxcvbn;
-
 use crate::util::FedResult;
+use crate::key::Key;
 
 pub mod util;
 pub mod header;
@@ -12,7 +10,7 @@ pub mod key;
 #[derive(Debug)]
 pub struct EncryptConfig {
     files: Vec<PathBuf>,
-    key: SecUtf8,
+    key: Key,
     debug: bool,
     overwrite: bool,
     delete_input: bool,
@@ -24,7 +22,7 @@ pub struct EncryptConfig {
 impl EncryptConfig {
     pub fn new(
         files: Vec<PathBuf>,
-        key: SecUtf8,
+        key: Key,
         debug: bool,
         mut overwrite: bool,
         mut delete_input: bool,
@@ -53,7 +51,7 @@ impl EncryptConfig {
         &self.files
     }
 
-    pub fn key(&self) -> &SecUtf8 {
+    pub fn key(&self) -> &Key {
         &self.key
     }
 
@@ -91,6 +89,7 @@ pub struct DecryptConfig {
 }
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
+
     unimplemented!()  //TODO @mark:
 }
 

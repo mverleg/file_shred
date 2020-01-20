@@ -22,8 +22,8 @@ impl FromStr for KeySource {
     type Err = String;
 
     fn from_str(txt: &str) -> Result<Self, Self::Err> {
-        if txt.starts_with("argpass") {
-            return Ok(KeySource::CliArg(SecUtf8::from(txt[5..].to_owned())));
+        if txt.starts_with("pass") {
+            return Ok(KeySource::CliArg(Key::new(&txt[5..])));
         }
         if txt.starts_with("env:") {
             return Ok(KeySource::EnvVar(txt[4..].to_owned()));
@@ -40,14 +40,19 @@ impl FromStr for KeySource {
         if txt == "pipe" {
             return Ok(KeySource::Pipe);
         }
+        let txt_snip = if txt.len() > 5 {
+            format!("{}...", txt[..4].to_owned())
+        } else {
+            format!("{}", txt[..5].to_owned())
+        };
         Err(format!("key string was not recognized; got '{}', should be one of \
-        'arg:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'", txt))
+        'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'", txt_snip))
     }
 }
 
-fn key_from_env_var(env_var_name: &str) -> FedResult<SecUtf8> {
+fn key_from_env_var(env_var_name: &str) -> FedResult<Key> {
     match env::var(env_var_name) {
-        Ok(env_var_value) => Ok(SecUtf8::from(env_var_value.trim())),
+        Ok(env_var_value) => Ok(Key::new(env_var_value.trim())),
         Err(err) => match err {
             env::VarError::NotPresent => Err(format!(
                 "could not find environment variable named '{}' (which is \
@@ -60,22 +65,22 @@ fn key_from_env_var(env_var_name: &str) -> FedResult<SecUtf8> {
     }
 }
 
-fn key_from_file(file_path: &Path) -> FedResult<SecUtf8> {
+fn key_from_file(file_path: &Path) -> FedResult<Key> {
     match fs::read_to_string(file_path) {
-        Ok(content) => Ok(SecUtf8::from(content.trim())),
+        Ok(content) => Ok(Key::new(content.trim())),
         Err(io_err) => Err(format!("failed to read encryption key from \
                         file '{}'; reason: {}", file_path.to_string_lossy(), io_err)),
     }
 }
 
-fn ask_key_from_prompt(message: &str) -> FedResult<SecUtf8> {
+fn ask_key_from_prompt(message: &str) -> FedResult<Key> {
     match rpassword::read_password_from_tty(Some(message)) {
-        Ok(pw) => Ok(SecUtf8::from(pw.trim())),
+        Ok(pw) => Ok(Key::new(pw.trim())),
         Err(_) => Err(format!("failed to get password from interactive console")),
     }
 }
 
-fn key_from_prompt(ask_twice: bool) -> FedResult<SecUtf8> {
+fn key_from_prompt(ask_twice: bool) -> FedResult<Key> {
     if ask_twice {
         let pw1 = ask_key_from_prompt("key: ")?;
         let pw2 = ask_key_from_prompt("repeat key: ")?;
@@ -88,11 +93,11 @@ fn key_from_prompt(ask_twice: bool) -> FedResult<SecUtf8> {
     }
 }
 
-fn key_from_pipe() -> FedResult<SecUtf8> {
+fn key_from_pipe() -> FedResult<Key> {
     let mut pw = String::new();
     match stdin().lock().read_line(&mut pw) {
         Ok(count) => match count >= 1 {
-            true => Ok(SecUtf8::from(pw.trim())),
+            true => Ok(Key::new(pw.trim())),
             false => Err("no key was piped into the program".to_owned()),
         },
         Err(_) => Err("failed to read data piped into the program".to_owned()),
@@ -101,7 +106,7 @@ fn key_from_pipe() -> FedResult<SecUtf8> {
 
 impl KeySource {
     /// Obtain the key, which might involve IO.
-    pub fn obtain_key(self) -> FedResult<SecUtf8> {
+    pub fn obtain_key(self) -> FedResult<Key> {
         match self {
             KeySource::CliArg(pw) => Ok(pw),
             KeySource::EnvVar(env_var_name) => key_from_env_var(&env_var_name),

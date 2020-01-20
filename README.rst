@@ -12,4 +12,6 @@ Functionality:
 * Salts.
 * Checksums.
 * Backward-compatibility.
+* Pass keys by prompt, argument, environment, file or pipe.
+* Warnings for weak keys.
 

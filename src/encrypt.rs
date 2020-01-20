@@ -4,10 +4,10 @@ use ::std::process::exit;
 
 use ::structopt::StructOpt;
 
+use ::file_endec::encrypt;
 use ::file_endec::EncryptConfig;
-use ::file_endec::KeySource;
-use file_endec::util::FedResult;
-use file_endec::encrypt;
+use ::file_endec::key::KeySource;
+use ::file_endec::util::FedResult;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "FileEnc", author = "github.com/mverleg/file_endec", about = "Securely encrypt one or more files using the given key.")]
@@ -37,6 +37,9 @@ pub struct EncryptArguments {
 
     #[structopt(long, help = "Test encryption, but do not save encrypted files (nor delete input, if --delete-input).")]
     dry_run: bool,
+
+    #[structopt(long, help = "Suppress warning if the encryption key is not strong.")]
+    accept_weak_key: bool,
 }
 
 impl fmt::Display for EncryptArguments {
@@ -59,7 +62,6 @@ impl fmt::Display for EncryptArguments {
         f.write_str("\n")?;
 
         f.write_str("  extension: ")?;
-        //TODO @mark: absolute path?
         f.write_str(&self.output_extension)?;
         f.write_str("\n")?;
 
@@ -97,6 +99,12 @@ fn go() -> FedResult<()> {
     println!("arguments provided:\n{}", args);
     }
     let key = args.key_source.obtain_key()?;
+    if args.debug {
+        println!("approximate time to crack key: {}", key.time_to_crack());
+    }
+    if !args.accept_weak_key && !key.is_strong() {
+        eprintln!("warning: the encryption key is not strong (it might be cracked in {})", key.time_to_crack());
+    }
     let config = EncryptConfig::new(
         args.files,
         key,
