@@ -17,10 +17,10 @@ pub struct EncryptArguments {
     files: Vec<PathBuf>,
 
     //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
-    #[structopt(short = "k", long = "key", default_value = "ask", help = "Where to get the key; one of 'arg:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'")]
+    #[structopt(short = "k", long = "key", default_value = "ask", help = "Where to get the key; one of 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'")]
     key_source: KeySource,
 
-    #[structopt(short = "v", long, env = "ENDEC_DEBUG", help = "Show debug information, especially on errors.")]
+    #[structopt(short = "v", long, help = "Show debug information, especially on errors.")]
     debug: bool,
 
     #[structopt(short = "f", long, help = "Overwrite output files if they exist.")]
@@ -32,7 +32,7 @@ pub struct EncryptArguments {
     #[structopt(parse(from_os_str), short = "o", long, help = "Alternative output directory. If not given, output is saved alongside input.")]
     output_dir: Option<PathBuf>,
 
-    #[structopt(short = "e", long, env = "ENDEC_EXTENSION", default_value = ".enc", help = "Extension added to encrypted files.")]
+    #[structopt(short = "e", long, default_value = ".enc", help = "Extension added to encrypted files.")]
     output_extension: String,
 
     #[structopt(long, help = "Test encryption, but do not save encrypted files (nor delete input, if --delete-input).")]
