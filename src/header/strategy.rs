@@ -1,5 +1,6 @@
-use ::semver::Version;
 use ::lazy_static::lazy_static;
+use ::semver::Version;
+
 use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -20,10 +21,10 @@ pub enum SymmetricEncryptionAlg {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Strategy {
-    stretch_count: u64,
-    compression_algorithm: CompressionAlg,
-    key_hash_algorithms: Vec<KeyHashAlg>,
-    symmetric_algorithms: Vec<SymmetricEncryptionAlg>,
+    pub stretch_count: u64,
+    pub compression_algorithm: CompressionAlg,
+    pub key_hash_algorithms: Vec<KeyHashAlg>,
+    pub symmetric_algorithms: Vec<SymmetricEncryptionAlg>,
 }
 
 lazy_static! {

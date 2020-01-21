@@ -2,7 +2,6 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use crate::key::Key;
-use crate::header::{Strategy, get_version_strategy};
 
 #[derive(Debug)]
 pub struct EncryptConfig {
