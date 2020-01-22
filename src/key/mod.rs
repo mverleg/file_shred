@@ -1,5 +1,6 @@
 pub mod key;
 pub mod source;
+pub mod hash;
 pub mod stretch;
 pub mod salt;
 

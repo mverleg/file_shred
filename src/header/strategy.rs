@@ -11,6 +11,8 @@ pub enum CompressionAlg {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KeyHashAlg {
+    SCrypt,
+    Argon2id,
     Sha256,
 }
 
