@@ -1,13 +1,6 @@
 use ::criterion::criterion_main;
 use ::criterion::criterion_group;
 
-//#[cfg(test)]
-//fn main() {
-//    scrypt_benchmark();
-//    argon2id_benchmark();
-//    sha256_benchmark();
-//}
-
 #[cfg(test)]
 mod hash {
     use ::criterion::black_box;

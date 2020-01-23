@@ -1,4 +1,5 @@
 use ::secstr::SecUtf8;
+use ::secstr::SecVec;
 use ::zxcvbn::Entropy;
 use ::zxcvbn::zxcvbn;
 
@@ -33,3 +34,16 @@ impl PartialEq for Key {
 }
 
 impl Eq for Key {}
+
+#[derive(Debug)]
+pub struct StretchKey {
+    pub key_data: SecVec<u8>,
+}
+
+impl StretchKey {
+    pub fn new(key_data: &[u8]) -> Self {
+        StretchKey {
+            key_data: SecVec::<u8>::from(key_data),
+        }
+    }
+}
