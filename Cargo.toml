@@ -17,8 +17,8 @@ name = "filedec"
 path = "src/decrypt.rs"
 
 [[bench]]
-name = "hash_bench"
-path = "src/key/hash.rs"
+name = "file_endec_bench"
+path = "src/bench.rs"
 harness = false
 
 

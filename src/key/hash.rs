@@ -32,8 +32,6 @@ mod tests {
     use ::criterion::black_box;
     use ::criterion::Criterion;
     use ::criterion::criterion_group;
-    use ::criterion::criterion_main;
-    use ::lazy_static::lazy_static;
 
     use super::*;
 
@@ -42,20 +40,26 @@ mod tests {
     }
 
     pub fn scrypt_benchmark(c: &mut Criterion) {
+        let mut data = get_data();
         c.bench_function("scrypt", |b| b.iter(
             || hash_scrypt(black_box(&mut data))));
     }
 
     pub fn argon2id_benchmark(c: &mut Criterion) {
+        let mut data = get_data();
         c.bench_function("argon2id", |b| b.iter(
             || hash_argon2id(black_box(&mut data))));
     }
 
     pub fn sha256_benchmark(c: &mut Criterion) {
+        let mut data = get_data();
         c.bench_function("sha256", |b| b.iter(
             || ash_sha256(black_box(&mut data))));
     }
 
-    criterion_group!(hash_benches, scrypt_benchmark);
-    criterion_main!(hash_benches);
+    criterion_group!(hash_bench,
+            scrypt_benchmark,
+            argon2id_benchmark,
+            sha256_benchmark,
+    );
 }
