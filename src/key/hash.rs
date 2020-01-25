@@ -30,6 +30,26 @@ pub fn hash_argon2id(data: &[u8], salt: &[u8]) -> Vec<u8> {
 #[inline]
 pub fn hash_sha256(data: &[u8], salt: &[u8]) -> Vec<u8> {
     let mut output = vec![0; 32];
-    derive(PBKDF2_HMAC_SHA256, NonZeroU32::new(100).unwrap(), salt, data, &mut output);
+    derive(PBKDF2_HMAC_SHA256, NonZeroU32::new(3000).unwrap(), salt, data, &mut output);
     output
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_hash_scrypt() {
+        hash_scrypt(&vec![1; 32], &vec![2; 32]);
+    }
+
+    #[test]
+    fn test_hash_argon2id() {
+        hash_argon2id(&vec![1; 32], &vec![2; 32]);
+    }
+
+    #[test]
+    fn test_hash_sha256() {
+        hash_sha256(&vec![1; 32], &vec![2; 32]);
+    }
 }

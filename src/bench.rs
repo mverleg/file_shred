@@ -38,8 +38,8 @@ mod hash {
 }
 
 criterion_group!(hash_bench,
-    hash::scrypt_benchmark,
-    hash::argon2id_benchmark,
+//    hash::scrypt_benchmark,
+//    hash::argon2id_benchmark,
     hash::sha256_benchmark,
 );
 
