@@ -9,4 +9,8 @@ impl Salt {
         //TODO @mark:
         unimplemented!()
     }
+
+    pub fn static_for_test(salt: u64) -> Self {
+        Salt { salt }
+    }
 }

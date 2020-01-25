@@ -4,7 +4,7 @@ use crate::key::Key;
 use crate::key::key::StretchKey;
 use crate::key::Salt;
 
-pub fn stretch_key(raw_key: &Key, salt: &Salt, stretch_count: u64, key_hash_algorithms: &Vec::<KeyHashAlg>) -> StretchKey {
+pub fn stretch_key(raw_key: &Key, salt: &Salt, stretch_count: u64, key_hash_algorithms: &[KeyHashAlg]) -> StretchKey {
     assert!(key_hash_algorithms.len() >= 1);
     let salt_bytes = salt.salt.to_le_bytes();
     let mut data = raw_key.key_data.clone().unsecure().as_bytes().to_owned();
@@ -20,4 +20,23 @@ pub fn stretch_key(raw_key: &Key, salt: &Salt, stretch_count: u64, key_hash_algo
         }
     }
     StretchKey::new(&data)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::header::get_version_strategy;
+    use crate::header::strategy::get_current_version_strategy;
+
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        let strat = get_current_version_strategy(true);
+        stretch_key(
+            &Key::new(&"MY secret p@ssw0rd"),
+            &Salt::static_for_test(123_456_789),
+            strat.stretch_count,
+            &strat.key_hash_algorithms,
+        );
+    }
 }
