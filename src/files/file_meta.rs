@@ -9,7 +9,7 @@ pub struct FileInfo<'a> {
     pub size_kb: u64,
 }
 
-pub fn inspect_files<'a>(files: &'a [PathBuf], verbose: bool) -> FedResult<Vec<FileInfo>> {
+pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo>> {
     let mut not_found_cnt = 0;
     let mut infos = Vec::with_capacity(files.len());
     for file in files {
@@ -42,3 +42,5 @@ pub fn inspect_files<'a>(files: &'a [PathBuf], verbose: bool) -> FedResult<Vec<F
     }
     Ok(infos)
 }
+
+//TODO @mark: test
