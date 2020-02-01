@@ -6,7 +6,7 @@ mod hash {
     use ::criterion::black_box;
     use ::criterion::Criterion;
 
-    use ::file_endec::key::hash::hash_argon2id;
+    use ::file_endec::key::hash::hash_argon2i;
     use ::file_endec::key::hash::hash_scrypt;
     use ::file_endec::key::hash::hash_sha256;
 
@@ -27,7 +27,7 @@ mod hash {
     pub fn argon2id_benchmark(c: &mut Criterion) {
         let mut data = get_data();
         c.bench_function("argon2id", |b| b.iter(
-            || hash_argon2id(black_box(&mut data), &get_salt())));
+            || hash_argon2i(black_box(&mut data), &get_salt())));
     }
 
     pub fn sha256_benchmark(c: &mut Criterion) {
