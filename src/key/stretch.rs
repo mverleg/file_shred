@@ -9,12 +9,8 @@ pub fn stretch_key(raw_key: &Key, salt: &Salt, stretch_count: u64, key_hash_algo
     let salt_bytes = salt.salt.to_le_bytes();
     let mut data = raw_key.key_data.clone().unsecure().as_bytes().to_owned();
     for key_hash_alg in key_hash_algorithms {
-        println!("alg {:?} init", key_hash_alg);  //TODO @mark: TEMPORARY! REMOVE THIS!
-        data.extend(&salt_bytes);
         data = hash(&mut data, &salt_bytes, key_hash_alg);
         for i in 0 .. stretch_count {
-            println!("alg {:?} i = {}", key_hash_alg, i);  //TODO @mark: TEMPORARY! REMOVE THIS!
-            data.extend(&salt_bytes);
             data.extend(&i.to_le_bytes());
             data = hash(&mut data, &salt_bytes, key_hash_alg);
         }
@@ -30,7 +26,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_add() {
+    fn stratch_test_password() {
         let strat = get_current_version_strategy(true);
         stretch_key(
             &Key::new(&"MY secret p@ssw0rd"),

@@ -105,7 +105,7 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
 }
 
 #[cfg(test)]
-mod header {
+mod tests {
     use super::parse_header;
     use crate::header::Header;
     use crate::header::Salt;

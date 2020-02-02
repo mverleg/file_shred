@@ -17,7 +17,7 @@ pub fn base64str_to_u64(base64_str: &str) -> FedResult<u64> {
 }
 
 #[cfg(test)]
-mod data_base_encoding {
+mod tests {
     use super::u64_to_base64str;
     use super::base64str_to_u64;
 

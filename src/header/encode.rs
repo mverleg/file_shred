@@ -63,7 +63,7 @@ pub fn write_header(writer: &mut impl Write, header: &Header, verbose: bool) -> 
 }
 
 #[cfg(test)]
-mod header {
+mod tests {
     use super::write_header;
     use crate::header::Header;
     use crate::header::Salt;

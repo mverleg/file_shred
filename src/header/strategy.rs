@@ -33,7 +33,7 @@ pub struct Strategy {
 lazy_static! {
     static ref STRATEGY_1_0_0: Strategy = Strategy {
         //TODO @mark: more algorithms
-        stretch_count: 1,
+        stretch_count: 5,
         compression_algorithm: CompressionAlg::Brotli,
         key_hash_algorithms: vec![KeyHashAlg::SCrypt, KeyHashAlg::Argon2i, KeyHashAlg::Sha512],
         symmetric_algorithms: vec![SymmetricEncryptionAlg::None],

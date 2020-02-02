@@ -6,16 +6,16 @@ lazy_static! {
 }
 
 #[cfg(test)]
-mod version {
+mod tests {
     use super::*;
 
     #[test]
-    fn test_minimum_version() {
+    fn minimum_version() {
         assert!(&*CURRENT_VERSION >= &Version::parse("1.0.0").unwrap());
     }
 
     #[test]
-    fn test_numbers_only() {
+    fn numbers_only() {
         assert_eq!(0, CURRENT_VERSION.build.len());
         assert_eq!(0, CURRENT_VERSION.pre.len());
     }
