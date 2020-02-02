@@ -13,8 +13,8 @@ pub struct FileInfo<'a> {
 }
 
 impl <'a> FileInfo<'a> {
-    pub fn q(&self) -> &str {
-        &self.to_string_lossy()
+    pub fn path_str(&self) -> String {
+        self.path.to_string_lossy().to_string()
     }
 }
 

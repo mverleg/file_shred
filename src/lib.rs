@@ -8,6 +8,7 @@ use crate::key::Salt;
 use crate::key::stretch::stretch_key;
 use crate::symmetric::encrypt::encrypt_file;
 use crate::util::FedResult;
+use crate::util::util::wrap_io;
 
 pub mod util;
 pub mod header;
@@ -25,12 +26,12 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     //TODO @mark: progress logging
     for file in files_info {
         if config.debug() {
-            println!("encrypting {}", file.path.to_string_lossy());
+            println!("encrypting {}", file.path_str());
         }
         if file.size_kb > 1024*1024 {
-            eprintln!("warning: reading {} Mb file {} into RAM", file.size_kb / 1024, file.path.to_string_lossy());
+            eprintln!("warning: reading {} Mb file {} into RAM", file.size_kb / 1024, file.path_str());
         }
-        let mut data = fs::read_to_string(file);
+        let mut data = wrap_io(fs::read(file.path))?;
         data = compress_file(&data, &strategy.compression_algorithm)?;
         data = encrypt_file(&data, &stretched_key, &strategy.symmetric_algorithms)?;
     }
