@@ -6,7 +6,7 @@ use crate::key::Salt;
 
 pub fn stretch_key(raw_key: &Key, salt: &Salt, stretch_count: u64, key_hash_algorithms: &[KeyHashAlg]) -> StretchKey {
     assert!(key_hash_algorithms.len() >= 1);
-    let salt_bytes = salt.salt.to_le_bytes();
+    let salt_bytes = salt.salt;
     let mut data = raw_key.key_data.clone().unsecure().as_bytes().to_owned();
     for key_hash_alg in key_hash_algorithms {
         data = hash(&mut data, &salt_bytes, key_hash_alg);

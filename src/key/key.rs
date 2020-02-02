@@ -23,7 +23,7 @@ impl Key {
     }
 
     pub fn time_to_crack(&self) -> String {
-        format!("{}", self.strength.crack_times().offline_fast_hashing_1e10_per_second())
+        format!("{}", self.strength.crack_times().offline_slow_hashing_1e4_per_second())
     }
 }
 

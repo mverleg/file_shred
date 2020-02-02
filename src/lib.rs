@@ -1,11 +1,9 @@
 use crate::config::enc::EncryptConfig;
 use crate::files::file_meta::inspect_files;
-use crate::header::get_version_strategy;
 use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;
 use crate::util::FedResult;
-use crate::util::version::CURRENT_VERSION;
 
 pub mod util;
 pub mod header;

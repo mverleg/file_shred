@@ -7,6 +7,8 @@ use crate::util::FedResult;
 pub struct FileInfo<'a> {
     pub path: &'a Path,
     pub size_kb: u64,
+    //TODO @mark: make sure encrypted file has same permissions and owner as original
+    pub permissions: (),
 }
 
 pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo>> {
@@ -34,6 +36,7 @@ pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo
         infos.push(FileInfo {
             path: file.as_path(),
             size_kb: meta.len() / 1024,
+            permissions: (),
         });
     }
     if not_found_cnt > 0 {
@@ -42,5 +45,3 @@ pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo
     }
     Ok(infos)
 }
-
-//TODO @mark: test
