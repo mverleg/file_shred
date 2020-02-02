@@ -32,7 +32,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
             eprintln!("warning: reading {} Mb file {} into RAM", file.size_kb / 1024, file.path_str());
         }
         let mut data = wrap_io(fs::read(file.path))?;
-        data = compress_file(&data, &strategy.compression_algorithm)?;
+        data = compress_file(data, &strategy.compression_algorithm)?;
         data = encrypt_file(&data, &stretched_key, &strategy.symmetric_algorithms)?;
     }
     unimplemented!()
