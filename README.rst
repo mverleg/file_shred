@@ -25,4 +25,4 @@ Future plans:
 * Recursively encrypt and decrypt all files in a directory.
 * Add a flag to use file's last modified date as salt, so that encrypting twice gives the same result.
 * Give the encrypted / decrypted file the same owner and permissions as the original.
-
+* Handle files that do not fit in RAM.

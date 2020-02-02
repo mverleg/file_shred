@@ -19,7 +19,8 @@ pub enum KeyHashAlg {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SymmetricEncryptionAlg {
-    None, //TODO @mark: TEMPORARY! REMOVE THIS!
+    Aes512,
+    Blowfish,
 }
 
 #[derive(Debug, PartialEq, Eq)]

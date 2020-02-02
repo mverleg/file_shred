@@ -51,4 +51,9 @@ mod tests {
         let debug = format!("{:?}", salt);
         assert_eq!(&debug, "salt[199...15]");
     }
+
+    #[test]
+    fn generate_salt() {
+        Salt::generate_random();
+    }
 }

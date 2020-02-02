@@ -4,11 +4,18 @@ use ::std::path::PathBuf;
 
 use crate::util::FedResult;
 
+#[derive(Debug)]
 pub struct FileInfo<'a> {
     pub path: &'a Path,
     pub size_kb: u64,
     //TODO @mark: make sure encrypted file has same permissions and owner as original
     pub permissions: (),
+}
+
+impl <'a> FileInfo<'a> {
+    pub fn q(&self) -> &str {
+        &self.to_string_lossy()
+    }
 }
 
 pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo>> {
