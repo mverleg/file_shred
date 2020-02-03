@@ -19,8 +19,8 @@ pub enum KeyHashAlg {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SymmetricEncryptionAlg {
-    Aes512,
-    Twofish,
+    Aes256,
+    Blowfish,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -37,7 +37,7 @@ lazy_static! {
         stretch_count: 5,
         compression_algorithm: CompressionAlg::Brotli,
         key_hash_algorithms: vec![KeyHashAlg::SCrypt, KeyHashAlg::Argon2i, KeyHashAlg::Sha512],
-        symmetric_algorithms: vec![SymmetricEncryptionAlg::Aes512, SymmetricEncryptionAlg::Twofish],
+        symmetric_algorithms: vec![SymmetricEncryptionAlg::Aes256, SymmetricEncryptionAlg::Blowfish],
     };
 }
 

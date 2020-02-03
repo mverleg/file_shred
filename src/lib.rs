@@ -33,7 +33,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         }
         let mut data = wrap_io(fs::read(file.path))?;
         data = compress_file(data, &strategy.compression_algorithm)?;
-        data = encrypt_file(&data, &stretched_key, &strategy.symmetric_algorithms)?;
+        data = encrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
     }
     unimplemented!()
 }

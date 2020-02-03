@@ -44,7 +44,7 @@ pub fn brotli_decompress(data: &[u8]) -> FedResult<Vec<u8>> {
     let mut decompress = brotli::Decompressor::new(data, 4096);
     let mut output = Vec::with_capacity(data.len());
     match decompress.read_to_end(&mut output) {
-        Ok(len) => Ok(output),
+        Ok(_) => Ok(output),
         Err(err) => Err(format!("Brotli error: {}", err)),
     }
 }

@@ -20,7 +20,6 @@ pub fn stretch_key(raw_key: &Key, salt: &Salt, stretch_count: u64, key_hash_algo
 
 #[cfg(test)]
 mod tests {
-    use crate::header::get_version_strategy;
     use crate::header::strategy::get_current_version_strategy;
 
     use super::*;

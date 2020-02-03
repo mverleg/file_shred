@@ -1,6 +1,4 @@
 
-//TODO @mark: change to &mut [u8]? does that work with all algorithms?
-
 use ::std::num::NonZeroU32;
 
 use ::argon2rs::Argon2;
@@ -74,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn test_hash_argon2id() {
+    fn test_hash_argon2i() {
         let hashed = hash_argon2i(&vec![1; 32], &vec![2; 32]);
         let expected: Vec<u8> = vec![114, 139, 48, 2, 98, 196, 133, 19, 232, 144, 6, 149, 44, 68, 116, 152, 233, 120, 110, 205, 15, 29, 180, 181, 4, 86, 84, 153, 228, 231, 106, 225];
         assert_eq!(expected, hashed);

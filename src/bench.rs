@@ -62,6 +62,8 @@ mod hash {
     }
 }
 
+//TODO @mark: fully encrypt and decrypt large file
+
 criterion_group!(hash_bench,
 //    hash::scrypt_benchmark,
 //    hash::argon2id_benchmark,
