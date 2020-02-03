@@ -21,7 +21,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     let strategy = get_current_version_strategy(config.debug());
     let files_info = inspect_files(config.files(), config.debug())?;
     let total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
-    let salt = Salt::generate_random();
+    let salt = Salt::generate_random()?;
     let stretched_key = stretch_key(config.raw_key(), &salt, strategy.stretch_count, &strategy.key_hash_algorithms);
     //TODO @mark: progress logging
     for file in files_info {

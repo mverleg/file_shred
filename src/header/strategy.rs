@@ -12,7 +12,7 @@ pub enum CompressionAlg {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KeyHashAlg {
-    SCrypt,
+    BCrypt,
     Argon2i,
     Sha512,
 }
@@ -36,7 +36,7 @@ lazy_static! {
         //TODO @mark: more algorithms
         stretch_count: 5,
         compression_algorithm: CompressionAlg::Brotli,
-        key_hash_algorithms: vec![KeyHashAlg::SCrypt, KeyHashAlg::Argon2i, KeyHashAlg::Sha512],
+        key_hash_algorithms: vec![KeyHashAlg::BCrypt, KeyHashAlg::Argon2i, KeyHashAlg::Sha512],
         symmetric_algorithms: vec![SymmetricEncryptionAlg::Aes256, SymmetricEncryptionAlg::Blowfish],
     };
 }

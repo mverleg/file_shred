@@ -2,13 +2,31 @@ use ::std::fmt::Debug;
 use ::std::fmt::Error;
 use ::std::fmt::Formatter;
 
-use ::rand::Rng;
+use ::rand::RngCore;
+use ::rand::rngs::OsRng;
+
+use crate::util::FedResult;
 
 const SALT_LEN: usize = 128;  // multiple of 32
 
 #[derive(Clone, Copy)]
 pub struct Salt {
     pub salt: [u8; SALT_LEN],
+}
+
+impl PartialEq for Salt {
+    fn eq(&self, other: &Self) -> bool {
+        if self.salt.len() != other.salt.len() {
+            // Perhaps this is redundant, since they're currently statically sized...
+            return false;
+        }
+        for i in 0..self.salt.len() {
+            if self.salt[i] != other.salt[i] {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 impl Debug for Salt {
@@ -22,12 +40,10 @@ impl Debug for Salt {
 }
 
 impl Salt {
-    pub fn generate_random() -> Self {
+    pub fn generate_random() -> FedResult<Self> {
         let mut long = [0u8; SALT_LEN];
-        for i in 0..SALT_LEN {
-            long[i] = rand::thread_rng().gen::<u8>();
-        }
-        Salt { salt: long }
+        OsRng.fill_bytes(&mut long);
+        Ok(Salt { salt: long })
     }
 
     pub fn static_for_test(salt: u64) -> Self {
@@ -53,7 +69,25 @@ mod tests {
     }
 
     #[test]
-    fn generate_salt() {
-        Salt::generate_random();
+    fn generate_salt_entropy() {
+        // Fails if all bytes are the same (or if generation fails).
+        // This test could theoretically fail in extremely rare cases.
+        let salt = Salt::generate_random().unwrap();
+        let r = salt.salt[0];
+        for i in 0..salt.salt.len() {
+            if salt.salt[i] != r {
+                return;
+            }
+        }
+        assert!(false);  // Should have returned before here.
+    }
+
+    #[test]
+    fn generate_salt_different() {
+        // Fails if two subsequent salts are identical (or if generation fails).
+        // This test could theoretically fail in extremely rare cases.
+        let salt1 = Salt::generate_random().unwrap();
+        let salt2 = Salt::generate_random().unwrap();
+        assert!(salt1 != salt2);
     }
 }

@@ -7,7 +7,7 @@ mod hash {
     use ::criterion::Criterion;
 
     use ::file_endec::key::hash::hash_argon2i;
-    use ::file_endec::key::hash::hash_scrypt;
+    use ::file_endec::key::hash::hash_bcrypt;
     use ::file_endec::key::hash::hash_sha256;
     use criterion::Benchmark;
     use std::time::Duration;
@@ -24,9 +24,9 @@ mod hash {
     }
 
     pub fn scrypt_benchmark(c: &mut Criterion) {
-        c.bench("scrypt",
-            Benchmark::new("scrypt", |b| b.iter(||
-                hash_scrypt(black_box(&mut get_data()), &get_salt()))
+        c.bench("bcrypt",
+            Benchmark::new("bcrypt", |b| b.iter(||
+                hash_bcrypt(black_box(&mut get_data()), &get_salt()))
             ).sample_size(20),
         );
     }
@@ -56,7 +56,8 @@ mod hash {
                         &Salt::static_for_test(123_456_789),
                         strat.stretch_count,
                         &strat.key_hash_algorithms,
-                    )}),
+                    )
+                }),
                 ).sample_size(5),
         );
     }
