@@ -1,9 +1,14 @@
-use std::fmt::Display;
-use std::fmt::Error;
-use std::fmt::Formatter;
-use crate::util::FedResult;
-use crate::util::util::{u8s_to_base64str, base64str_to_u8s};
+use ::std::fmt::Display;
+use ::std::fmt::Error;
+use ::std::fmt::Formatter;
+use ::std::num::NonZeroU32;
+use ::std::hash::Hasher;
 
+use ::twox_hash::XxHash64;
+use ring::pbkdf2::{derive, PBKDF2_HMAC_SHA512};
+
+use crate::util::FedResult;
+use crate::util::util::{base64str_to_u8s, u8s_to_base64str};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChecksumType {
@@ -66,13 +71,24 @@ impl Display for Checksum {
 }
 
 pub fn calculate_checksum(data: &[u8]) -> Checksum {
-    unimplemented!()
+    let mut hasher = XxHash64::with_seed(5_771_919_056_451_745_621);
+    for b in data {
+        hasher.write_u8(*b);
+    }
+    let xxhash = hasher.finish().to_le_bytes();
+    let mut shahash = vec![0; 16];
+    derive(PBKDF2_HMAC_SHA512, NonZeroU32::new(1).unwrap(), &[], &xxhash, &mut shahash);
+    Checksum {
+        typ: ChecksumType::Xxhash_Sha256_b64,
+        value: shahash,
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::files::mockfile::generate_test_file_content_for_test;
+
+    use super::*;
 
     #[test]
     fn parse() {
@@ -86,6 +102,6 @@ mod tests {
     fn calculate() {
         let data = generate_test_file_content_for_test(15_001);
         let checksum = calculate_checksum(&data);
-        assert_eq!(checksum.value, vec![0]);
+        assert_eq!(checksum.value, vec![219, 36, 108, 103, 132, 201, 242, 88, 202, 217, 207, 138, 186, 93, 68, 203]);
     }
 }
