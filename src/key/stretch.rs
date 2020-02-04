@@ -24,6 +24,7 @@ mod tests {
 
     use super::*;
 
+    #[cfg(not(debug_assertions))]
     #[test]
     fn stratch_test_password() {
         let strat = get_current_version_strategy(true);
@@ -33,5 +34,12 @@ mod tests {
             strat.stretch_count,
             &strat.key_hash_algorithms,
         );
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[ignore]
+    fn stratch_test_password() {
+        assert!(false, "Test skipped in debug mode, because it is really slow");
     }
 }

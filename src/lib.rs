@@ -1,9 +1,9 @@
 use ::std::fs;
 
 use crate::config::enc::EncryptConfig;
+use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
-use crate::header::checksum::calculate_checksum;
 use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;

@@ -33,7 +33,7 @@ secstr = "^0.3.2"
 zxcvbn = "^2.0.1"
 
 # encyrption and decryption
-aes = "^0.3.2"
+aes-ctr = "^0.3.0"
 
 # hashing
 ring = "^0.16.9"

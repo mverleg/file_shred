@@ -2,7 +2,7 @@ use ::std::io::BufRead;
 
 use ::semver::Version;
 
-use crate::header::Checksum;
+use crate::files::Checksum;
 use crate::header::Header;
 use crate::header::Salt;
 use crate::header::HEADER_CHECKSUM_MARKER;
@@ -102,8 +102,8 @@ mod tests {
     use super::parse_header;
     use crate::header::Header;
     use crate::header::Salt;
-    use crate::header::Checksum;
     use semver::Version;
+    use crate::files::Checksum;
 
     #[test]
     fn read_v1_0_0_one() {

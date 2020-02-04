@@ -3,7 +3,7 @@ use ::std::io::Write;
 
 use ::semver::Version;
 
-use crate::header::checksum::Checksum;
+use crate::files::Checksum;
 use crate::header::Header;
 use crate::header::HEADER_CHECKSUM_MARKER;
 use crate::header::HEADER_DATA_MARKER;
@@ -67,7 +67,7 @@ mod tests {
 
     use semver::Version;
 
-    use crate::header::Checksum;
+    use crate::files::Checksum;
     use crate::header::Header;
     use crate::header::Salt;
 

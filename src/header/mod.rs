@@ -3,9 +3,7 @@ pub mod strategy;
 pub mod types;
 pub mod encode;
 pub mod decode;
-pub mod checksum;
 
-pub use checksum::Checksum;
 pub use decode::parse_header;
 pub use encode::write_header;
 pub use strategy::CompressionAlg;

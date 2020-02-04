@@ -1,7 +1,8 @@
-
-use ::aes::Aes256;
-use ::aes::block_cipher_trait::BlockCipher;
-use ::aes::block_cipher_trait::generic_array::GenericArray;
+use ::aes_ctr::Aes256Ctr;
+use ::aes_ctr::stream_cipher::generic_array::GenericArray;
+use ::aes_ctr::stream_cipher::NewStreamCipher;
+use ::aes_ctr::stream_cipher::SyncStreamCipher;
+use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
 
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
@@ -20,9 +21,21 @@ pub fn encrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
 }
 
 pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
-    let key_ga = GenericArray::clone_from_slice(&key.key_data.unsecure());
-    let cipher = Aes256::new(&key_ga);
+    //let key_ga = GenericArray::clone_from_slice(&key.key_data.unsecure());
+    //let cipher = Aes256::new(&key_ga);
     //cipher.encrypt_block(&data);
+
+    println!("C") ; //TODO @mark: TEMPORARY! REMOVE THIS!
+    let key = GenericArray::from_slice(&key.key_data.unsecure());
+    println!("D") ; //TODO @mark: TEMPORARY! REMOVE THIS!
+    let nonce = GenericArray::from_slice(&salt.salt);
+    println!("E") ; //TODO @mark: TEMPORARY! REMOVE THIS!
+    let mut cipher = Aes256Ctr::new(&key, &nonce);
+    println!("F") ; //TODO @mark: TEMPORARY! REMOVE THIS!
+    cipher.apply_keystream(&mut data);
+    println!("G") ; //TODO @mark: TEMPORARY! REMOVE THIS!
+    assert_eq!(data, [6, 245, 126, 124, 180, 146, 37]);
+
     unimplemented!()
 }
 
@@ -36,6 +49,7 @@ mod tests {
 
     #[test]
     fn aes256_small() {
+        println!("A") ; //TODO @mark: TEMPORARY! REMOVE THIS!
         let key = StretchKey::new("s3cr3t!".as_bytes());
         let salt = Salt::static_for_test(123_456_789);
         let input = vec![
@@ -45,7 +59,9 @@ mod tests {
             48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
             64, 65, 66, 67, 68, 69, 70,
         ];
+        println!("B") ; //TODO @mark: TEMPORARY! REMOVE THIS!
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
+        dbg!(&actual);  //TODO @mark: TEMPORARY! REMOVE THIS!
         let expected: Vec<u8> = vec![];
         assert_eq!(actual, expected);
     }

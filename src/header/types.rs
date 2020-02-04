@@ -1,6 +1,8 @@
 use ::semver::Version;
 
-use crate::header::{get_version_strategy, Strategy, Checksum};
+use crate::files::Checksum;
+use crate::header::get_version_strategy;
+use crate::header::Strategy;
 use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
