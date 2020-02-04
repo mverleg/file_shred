@@ -2,7 +2,7 @@ use std::fmt::Display;
 use std::fmt::Error;
 use std::fmt::Formatter;
 use crate::util::FedResult;
-use crate::util::util::u8s_to_base64str;
+use crate::util::util::{u8s_to_base64str, base64str_to_u8s};
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -46,7 +46,13 @@ impl Checksum {
     }
 
     pub fn parse(input: &str) -> FedResult<Self> {
-        unimplemented!()
+        if &input[..9] == "xx_sha256" {
+            return Ok(Checksum {
+                typ: ChecksumType::Xxhash_Sha256_b64,
+                value: base64str_to_u8s(&input[10..])?,
+            });
+        }
+        Err(format!("failed to parse checksum format: {}", input.split(" ").next().unwrap()))
     }
 }
 
@@ -61,4 +67,25 @@ impl Display for Checksum {
 
 pub fn calculate_checksum(data: &[u8]) -> Checksum {
     unimplemented!()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::files::mockfile::generate_test_file_content_for_test;
+
+    #[test]
+    fn parse() {
+        let input = "xx_sha256 AQIDBAAABQYHCP-qWg";
+        let parsed = Checksum::parse(input).unwrap();
+        let expected = Checksum::fixed_for_test(vec![1, 2, 3, 4, 0, 0, 5, 6, 7, 8, 255, 170, 90]);
+        assert_eq!(parsed, expected);
+    }
+
+    #[test]
+    fn calculate() {
+        let data = generate_test_file_content_for_test(15_001);
+        let checksum = calculate_checksum(&data);
+        assert_eq!(checksum.value, vec![0]);
+    }
 }

@@ -84,7 +84,7 @@ mod tests {
         ).unwrap();
         let mut buf: Vec<u8> = Vec::new();
         write_header(&mut buf, &header, true).unwrap();
-        let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck AgAAAAAAAAA\ndata:\n";
+        let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck xx_sha256 Ag\ndata:\n";
         assert_eq!(from_utf8(&buf).unwrap(), expected);
     }
 
@@ -99,7 +99,7 @@ mod tests {
         ).unwrap();
         let mut buf: Vec<u8> = Vec::new();
         write_header(&mut buf, &header, true).unwrap();
-        let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck ielVwgsAAAA\ndata:\n";
+        let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck xx_sha256 AAUABQAFAAUABQAF\ndata:\n";
         assert_eq!(from_utf8(&buf).unwrap(), expected);
     }
 }

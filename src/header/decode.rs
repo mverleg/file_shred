@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn read_v1_0_0_one() {
         let version = Version::parse("1.0.0").unwrap();
-        let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck AgAAAAAAAAA\ndata:\n";
+        let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck xx_sha256 Ag\ndata:\n";
         let expected = Header::new(
             version,
             Salt::new(1),
@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn read_v1_0_0_two() {
         let version = Version::parse("1.0.0").unwrap();
-        let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck ielVwgsAAAA\ndata:\n";
+        let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck xx_sha256 AAUABQAFAAUABQAF\ndata:\n";
         let expected = Header::new(
             version,
             Salt::new(123_456_789),
