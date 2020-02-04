@@ -3,6 +3,7 @@ use ::std::fs;
 use crate::config::enc::EncryptConfig;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
+use crate::header::checksum::calculate_checksum;
 use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;
@@ -32,6 +33,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
             eprintln!("warning: reading {} Mb file {} into RAM", file.size_kb / 1024, file.path_str());
         }
         let mut data = wrap_io(fs::read(file.path))?;
+        let checksum = calculate_checksum(&data);
         data = compress_file(data, &strategy.compression_algorithm)?;
         data = encrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
     }

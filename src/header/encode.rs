@@ -3,7 +3,7 @@ use ::std::io::Write;
 
 use ::semver::Version;
 
-use crate::header::Checksum;
+use crate::header::checksum::Checksum;
 use crate::header::Header;
 use crate::header::HEADER_CHECKSUM_MARKER;
 use crate::header::HEADER_DATA_MARKER;
@@ -49,8 +49,7 @@ fn write_salt(writer: &mut impl Write, salt: &Salt, verbose: bool) -> FedResult<
 }
 
 fn write_checksum(writer: &mut impl Write, checksum: &Checksum, verbose: bool) -> FedResult<()> {
-    let checksum_str = u64_to_base64str(checksum.as_primitive());
-    write_line(writer, HEADER_CHECKSUM_MARKER, Some(checksum_str), verbose)
+    write_line(writer, HEADER_CHECKSUM_MARKER, Some(format!("{}", checksum)), verbose)
 }
 
 pub fn write_header(writer: &mut impl Write, header: &Header, verbose: bool) -> FedResult<()> {
@@ -64,12 +63,15 @@ pub fn write_header(writer: &mut impl Write, header: &Header, verbose: bool) -> 
 
 #[cfg(test)]
 mod tests {
-    use super::write_header;
+    use std::str::from_utf8;
+
+    use semver::Version;
+
+    use crate::header::Checksum;
     use crate::header::Header;
     use crate::header::Salt;
-    use crate::header::Checksum;
-    use semver::Version;
-    use std::str::from_utf8;
+
+    use super::write_header;
 
     #[test]
     fn write_v1_0_0_one() {
@@ -77,7 +79,7 @@ mod tests {
         let header = Header::new(
             version,
             Salt::new(1),
-            Checksum::new(2),
+            Checksum::fixed_for_test(vec![2]),
             &true,
         ).unwrap();
         let mut buf: Vec<u8> = Vec::new();
@@ -92,7 +94,7 @@ mod tests {
         let header = Header::new(
             version,
             Salt::new(123_456_789),
-            Checksum::new(050_505_050_505),
+            Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
             &true,
         ).unwrap();
         let mut buf: Vec<u8> = Vec::new();

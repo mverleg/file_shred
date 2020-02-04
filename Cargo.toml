@@ -33,7 +33,7 @@ secstr = "^0.3.2"
 zxcvbn = "^2.0.1"
 
 # encyrption and decryption
-rand = "^0.7.2"
+aes = "^0.3.2"
 
 # hashing
 ring = "^0.16.9"
@@ -50,6 +50,7 @@ brotli = "^3.3.0"
 
 # utilities
 lazy_static = "^1.4.0"
+rand = "^0.7.2"
 
 [dev-dependencies]
 criterion = "^0.3.0"

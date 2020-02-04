@@ -1,6 +1,6 @@
 use ::semver::Version;
 
-use crate::header::{get_version_strategy, Strategy};
+use crate::header::{get_version_strategy, Strategy, Checksum};
 use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -11,21 +11,6 @@ pub struct Salt {
 impl Salt {
     pub fn new(value: u64) -> Self {
         Salt { value }
-    }
-
-    pub fn as_primitive(&self) -> u64 {
-        self.value
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Checksum {
-    value: u64,
-}
-
-impl Checksum {
-    pub fn new(value: u64) -> Self {
-        Checksum { value }
     }
 
     pub fn as_primitive(&self) -> u64 {

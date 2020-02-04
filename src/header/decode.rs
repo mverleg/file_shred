@@ -78,14 +78,7 @@ fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> Fed
 fn parse_checksum(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Checksum> {
     read_line(reader, line, verbose)?;
     let checksum_str = check_prefix(line, HEADER_CHECKSUM_MARKER, verbose)?;
-    match base64str_to_u64(checksum_str) {
-        Ok(checksum) => Ok(Checksum::new(checksum)),
-        Err(err) => Err(match verbose {
-            false => "could not determine the checksum of the encrypted file".to_owned(),
-            true => format!("could not determine the checksum of the encrypted file; \
-            got {} which is invalid, reason: {}", checksum_str, err),
-        }),
-    }
+    Checksum::parse(checksum_str)
 }
 
 pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header> {
@@ -119,7 +112,7 @@ mod tests {
         let expected = Header::new(
             version,
             Salt::new(1),
-            Checksum::new(2),
+            Checksum::fixed_for_test(vec![2]),
             &true,
         ).unwrap();
         let mut buf = input.as_bytes();
@@ -134,7 +127,7 @@ mod tests {
         let expected = Header::new(
             version,
             Salt::new(123_456_789),
-            Checksum::new(050_505_050_505),
+            Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
             &true,
         ).unwrap();
         let mut buf = input.as_bytes();

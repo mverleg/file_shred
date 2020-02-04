@@ -1,11 +1,7 @@
-use std::fs::read;
 
-//TODO @mark: remove crypto
-//use ::crypto::aes;
-//use ::crypto::blockmodes;
-//use ::crypto::buffer;
-//use ::crypto::symmetriccipher::Encryptor;
-//use ::crypto::symmetriccipher::SynchronousStreamCipher;
+use ::aes::Aes256;
+use ::aes::block_cipher_trait::BlockCipher;
+use ::aes::block_cipher_trait::generic_array::GenericArray;
 
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
@@ -24,19 +20,9 @@ pub fn encrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
 }
 
 pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
-//    let mut encryptor: Box<dyn Encryptor> = aes::cbc_encryptor(
-//        aes::KeySize::KeySize256,
-//        key.key_data.unsecure(),
-//        &salt.salt,
-//        blockmodes::PkcsPadding
-//    );
-//    let mut read_buffer = buffer::RefReadBuffer::new(&data);
-//    let mut buffer = vec![0; data.len()];
-//    let mut write_buffer = buffer::RefWriteBuffer::new(&mut buffer);
-//    if let Err(err) = encryptor.encrypt(&mut read_buffer, &mut write_buffer, true) {
-//        return Err(format!("AES error: {:?}", err));
-//    }
-//    Ok(buffer)
+    let key_ga = GenericArray::clone_from_slice(&key.key_data.unsecure());
+    let cipher = Aes256::new(&key_ga);
+    //cipher.encrypt_block(&data);
     unimplemented!()
 }
 
@@ -60,7 +46,7 @@ mod tests {
             64, 65, 66, 67, 68, 69, 70,
         ];
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
-        let expected = vec![];
+        let expected: Vec<u8> = vec![];
         assert_eq!(actual, expected);
     }
 
