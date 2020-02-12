@@ -56,6 +56,7 @@ mod tests {
         let mut data = [1, 2, 3, 4, 5, 6, 7];
         let key = GenericArray::from_slice(b"very secret key.");
         let nonce = GenericArray::from_slice(b"and secret nonce");
+//        let nonce = GenericArray::from_slice(&[65, 66, 67, 90, 91, 92, 93, 94, 95, 96, 97, 122, 123, 32, 33, 34]);
         let mut cipher = Aes128Ctr::new(&key, &nonce);
         cipher.apply_keystream(&mut data);
         assert_eq!(data, [6, 245, 126, 124, 180, 146, 37]);
@@ -75,9 +76,10 @@ mod tests {
             64, 65, 66, 67, 68, 69, 70,
         ];
         let key = GenericArray::from_slice("s3cr3t!".as_bytes());
-        let nonce = GenericArray::from_slice(&[1, 2, 3, 4, 5, 6, 7, 8,
-            1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8]);
-        let mut cipher = Aes256Ctr::new(&key, &nonce);
+        let nonce = GenericArray::from_slice(&[65, 66, 67, 90, 91, 92, 93, 94, 95, 96, 97, 122, 123, 32, 33, 34]);
+        let mut cipher = Aes128Ctr::new(&key, &nonce);
+        //TODO @mark:
+        //let mut cipher = Aes256Ctr::new(&key, &nonce);
         cipher.apply_keystream(&mut input);
     }
 
