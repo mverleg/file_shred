@@ -66,6 +66,13 @@ pub fn hash_sha256(data: &[u8], salt: &[u8]) -> Vec<u8> {
     output
 }
 
+#[inline]
+pub fn fastish_hash(data: &[u8]) -> Vec<u8> {
+    let mut output = vec![0; 32];
+    derive(PBKDF2_HMAC_SHA512, NonZeroU32::new(1).unwrap(), b"&8KQTJKpIMdz7Da*4weK$vuzVEd=mtIT", data, &mut output);
+    output
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

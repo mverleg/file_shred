@@ -2,6 +2,7 @@ use ::secstr::SecUtf8;
 use ::secstr::SecVec;
 use ::zxcvbn::Entropy;
 use ::zxcvbn::zxcvbn;
+use crate::key::hash::fastish_hash;
 
 #[derive(Debug)]
 pub struct Key {
@@ -42,8 +43,13 @@ pub struct StretchKey {
 
 impl StretchKey {
     pub fn new(key_data: &[u8]) -> Self {
+        debug_assert!(key_data.len() >= 32);
         StretchKey {
             key_data: SecVec::<u8>::from(key_data),
         }
+    }
+
+    pub fn mock_stretch(key_data: &[u8]) -> Self {
+        StretchKey::new(&fastish_hash(key_data))
     }
 }

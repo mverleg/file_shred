@@ -54,9 +54,8 @@ mod tests {
     #[test]
     fn aes_ctr_sanity_check_demo() {
         let mut data = [1, 2, 3, 4, 5, 6, 7];
-        let key = GenericArray::from_slice(b"very secret key.");
-        let nonce = GenericArray::from_slice(b"and secret nonce");
-//        let nonce = GenericArray::from_slice(&[65, 66, 67, 90, 91, 92, 93, 94, 95, 96, 97, 122, 123, 32, 33, 34]);
+        let key = GenericArray::clone_from_slice(b"very secret key.");
+        let nonce = GenericArray::clone_from_slice(b"and secret nonce");
         let mut cipher = Aes128Ctr::new(&key, &nonce);
         cipher.apply_keystream(&mut data);
         assert_eq!(data, [6, 245, 126, 124, 180, 146, 37]);
@@ -86,7 +85,7 @@ mod tests {
     #[test]
     fn aes256_small() {
         println!("A") ; //TODO @mark: TEMPORARY! REMOVE THIS!
-        let key = StretchKey::new("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
         let salt = Salt::static_for_test(123_456_789);
         let input = vec![
             00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15,
