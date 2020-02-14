@@ -7,8 +7,8 @@ use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
 use crate::key::Salt;
-use crate::util::FedResult;
 use crate::symmetric::shared::endec_aes256;
+use crate::util::FedResult;
 
 pub fn decrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_algs: &[SymmetricEncryptionAlg]) -> FedResult<Vec<u8>> {
     assert!(encrypt_algs.len() >= 1);
@@ -31,11 +31,15 @@ pub fn decrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use aes_ctr::Aes128Ctr;
-    use crate::key::hash::fastish_hash;
 
-    //TODO @mark: test nonce and key different length
+    use crate::files::mockfile::generate_test_file_content_for_test;
+    use crate::key::hash::fastish_hash;
+    use crate::symmetric::encrypt::encrypt_aes256;
+
+    use super::*;
+
+//TODO @mark: test nonce and key different length
 
     #[test]
     fn aes_ctr_sanity_check() {
@@ -79,5 +83,16 @@ mod tests {
             64, 65, 66, 67, 68, 69, 70,
         ];
         assert_eq!(actual, expected);
+    }
+
+
+    #[test]
+    fn aes256_big() {
+        let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
+        let salt = Salt::static_for_test(123_456_789_123_456_789);
+        let input = generate_test_file_content_for_test(123_456);
+        let actual = encrypt_aes256(input, &key, &salt).unwrap();
+        let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
+        assert_eq!(&actual[..8], expected_start);
     }
 }
