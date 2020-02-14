@@ -10,22 +10,22 @@ use crate::key::Salt;
 use crate::util::FedResult;
 use crate::symmetric::shared::endec_aes256;
 
-pub fn encrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_algs: &[SymmetricEncryptionAlg]) -> FedResult<Vec<u8>> {
+pub fn decrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_algs: &[SymmetricEncryptionAlg]) -> FedResult<Vec<u8>> {
     assert!(encrypt_algs.len() >= 1);
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
-            SymmetricEncryptionAlg::Aes256 => encrypt_aes256(data, key, salt)?,
-            SymmetricEncryptionAlg::Blowfish => encrypt_blowfish(data, key)?,
+            SymmetricEncryptionAlg::Aes256 => decrypt_aes256(data, key, salt)?,
+            SymmetricEncryptionAlg::Blowfish => decrypt_blowfish(data, key)?,
         }
     }
     Ok(data)
 }
 
-pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+pub fn decrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     endec_aes256(data, key, salt)
 }
 
-pub fn encrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
+pub fn decrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
     unimplemented!()
 }
 
@@ -34,6 +34,8 @@ mod tests {
     use super::*;
     use aes_ctr::Aes128Ctr;
     use crate::key::hash::fastish_hash;
+
+    //TODO @mark: test nonce and key different length
 
     #[test]
     fn aes_ctr_sanity_check_own() {
@@ -65,11 +67,11 @@ mod tests {
         ];
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
         let expected: Vec<u8> = vec![17, 154, 31, 230, 44, 192, 227, 243,
-            227, 255, 149, 126, 201, 220, 251, 132, 219, 73, 148, 126, 63,
-            78, 9, 183, 92, 130, 232, 146, 102, 241, 230, 77, 71, 87, 16,
-            59, 74, 232, 36, 39, 65, 134, 137, 244, 105, 165, 16, 151, 233,
-            85, 60, 40, 168, 116, 45, 121, 23, 224, 34, 33, 78, 203, 137,
-            199, 157, 211, 173, 61, 101, 153, 139];
+                                     227, 255, 149, 126, 201, 220, 251, 132, 219, 73, 148, 126, 63,
+                                     78, 9, 183, 92, 130, 232, 146, 102, 241, 230, 77, 71, 87, 16,
+                                     59, 74, 232, 36, 39, 65, 134, 137, 244, 105, 165, 16, 151, 233,
+                                     85, 60, 40, 168, 116, 45, 121, 23, 224, 34, 33, 78, 203, 137,
+                                     199, 157, 211, 173, 61, 101, 153, 139];
         assert_eq!(actual, expected);
     }
 }
