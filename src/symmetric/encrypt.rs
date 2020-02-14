@@ -21,22 +21,12 @@ pub fn encrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
 }
 
 pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
-    //let key_ga = GenericArray::clone_from_slice(&key.key_data.unsecure());
-    //let cipher = Aes256::new(&key_ga);
-    //cipher.encrypt_block(&data);
-
-    println!("C1") ; //TODO @mark: TEMPORARY! REMOVE THIS!
-    dbg!(&key.key_data.unsecure());  //TODO @mark: TEMPORARY! REMOVE THIS!
-    //let key_data = ;
-    println!("C2") ; //TODO @mark: TEMPORARY! REMOVE THIS!
-    let key = GenericArray::from_slice(key.key_data.unsecure());
-    println!("D") ; //TODO @mark: TEMPORARY! REMOVE THIS!
-    let nonce = GenericArray::from_slice(&salt.salt);
-    println!("E") ; //TODO @mark: TEMPORARY! REMOVE THIS!
+    debug_assert!(key.key_data.unsecure().len() >= 32);
+    debug_assert!(salt.salt.len() >= 16);
+    let key = GenericArray::from_slice(&key.key_data.unsecure()[..32]);
+    let nonce = GenericArray::from_slice(&salt.salt[..16]);
     let mut cipher = Aes256Ctr::new(&key, &nonce);
-    println!("F") ; //TODO @mark: TEMPORARY! REMOVE THIS!
     cipher.apply_keystream(&mut data);
-    println!("G") ; //TODO @mark: TEMPORARY! REMOVE THIS!
     //assert_eq!(data, [6, 245, 126, 124, 180, 146, 37]);
 
     unimplemented!()
@@ -50,6 +40,7 @@ pub fn encrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8
 mod tests {
     use super::*;
     use aes_ctr::Aes128Ctr;
+    use crate::key::hash::fastish_hash;
 
     #[test]
     fn aes_ctr_sanity_check_demo() {
@@ -64,9 +55,10 @@ mod tests {
         assert_eq!(data, [1, 2, 3, 4, 5, 6, 7]);
     }
 
+    //TODO @mark: test nonce and key different length
+
     #[test]
     fn aes_ctr_sanity_check_own() {
-        let salt = Salt::static_for_test(123_456_789);
         let mut input = vec![
             00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15,
             16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -74,17 +66,17 @@ mod tests {
             48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
             64, 65, 66, 67, 68, 69, 70,
         ];
-        let key = GenericArray::from_slice("s3cr3t!".as_bytes());
-        let nonce = GenericArray::from_slice(&[65, 66, 67, 90, 91, 92, 93, 94, 95, 96, 97, 122, 123, 32, 33, 34]);
-        let mut cipher = Aes128Ctr::new(&key, &nonce);
-        //TODO @mark:
-        //let mut cipher = Aes256Ctr::new(&key, &nonce);
+        let raw_key = fastish_hash(b"s3cr3t!");
+        let raw_nonce = fastish_hash(b"n0nc3");
+        let key = GenericArray::from_slice(&raw_key[..32]);
+        let nonce = GenericArray::from_slice(&raw_nonce[..16]);
+        //let mut cipher = Aes128Ctr::new(&key, &nonce);
+        let mut cipher = Aes256Ctr::new(&key, &nonce);
         cipher.apply_keystream(&mut input);
     }
 
     #[test]
     fn aes256_small() {
-        println!("A") ; //TODO @mark: TEMPORARY! REMOVE THIS!
         let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
         let salt = Salt::static_for_test(123_456_789);
         let input = vec![
@@ -94,9 +86,7 @@ mod tests {
             48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
             64, 65, 66, 67, 68, 69, 70,
         ];
-        println!("B") ; //TODO @mark: TEMPORARY! REMOVE THIS!
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
-        dbg!(&actual);  //TODO @mark: TEMPORARY! REMOVE THIS!
         let expected: Vec<u8> = vec![];
         assert_eq!(actual, expected);
     }
