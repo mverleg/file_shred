@@ -36,7 +36,7 @@ mod tests {
     use crate::key::hash::fastish_hash;
 
     #[test]
-    fn aes_ctr_sanity_check_own() {
+    fn aes_ctr_sanity_check() {
         let mut input = vec![
             00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15,
             16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -50,6 +50,13 @@ mod tests {
         let nonce = GenericArray::from_slice(&raw_nonce[..16]);
         let mut cipher = Aes256Ctr::new(&key, &nonce);
         cipher.apply_keystream(&mut input);
+        let expected = vec![97, 97, 4, 176, 197, 3, 59, 243, 46, 249,
+            195, 42, 101, 199, 224, 45, 110, 5, 201, 136, 74, 80, 197, 22,
+            57, 33, 2, 16, 40, 12, 21, 225, 146, 200, 196, 237, 233, 79, 14,
+            86, 71, 189, 113, 231, 47, 138, 7, 44, 49, 27, 108, 19, 149,
+            232, 180, 111, 125, 59, 111, 160, 18, 63, 60, 252, 205, 11,
+            212, 70, 169, 67, 109];
+        assert_eq!(input, expected);
     }
 
     #[test]
