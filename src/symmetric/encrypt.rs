@@ -20,6 +20,7 @@ pub fn encrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
     Ok(data)
 }
 
+//TODO @mark: this is both encrypt and decrypt
 pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     debug_assert!(key.key_data.unsecure().len() >= 32);
     debug_assert!(salt.salt.len() >= 16);
@@ -27,9 +28,7 @@ pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedRe
     let nonce = GenericArray::from_slice(&salt.salt[..16]);
     let mut cipher = Aes256Ctr::new(&key, &nonce);
     cipher.apply_keystream(&mut data);
-    //assert_eq!(data, [6, 245, 126, 124, 180, 146, 37]);
-
-    unimplemented!()
+    Ok(data)
 }
 
 pub fn encrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
@@ -70,7 +69,6 @@ mod tests {
         let raw_nonce = fastish_hash(b"n0nc3");
         let key = GenericArray::from_slice(&raw_key[..32]);
         let nonce = GenericArray::from_slice(&raw_nonce[..16]);
-        //let mut cipher = Aes128Ctr::new(&key, &nonce);
         let mut cipher = Aes256Ctr::new(&key, &nonce);
         cipher.apply_keystream(&mut input);
     }
@@ -87,7 +85,12 @@ mod tests {
             64, 65, 66, 67, 68, 69, 70,
         ];
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
-        let expected: Vec<u8> = vec![];
+        let expected: Vec<u8> = vec![17, 154, 31, 230, 44, 192, 227, 243,
+            227, 255, 149, 126, 201, 220, 251, 132, 219, 73, 148, 126, 63,
+            78, 9, 183, 92, 130, 232, 146, 102, 241, 230, 77, 71, 87, 16,
+            59, 74, 232, 36, 39, 65, 134, 137, 244, 105, 165, 16, 151, 233,
+            85, 60, 40, 168, 116, 45, 121, 23, 224, 34, 33, 78, 203, 137,
+            199, 157, 211, 173, 61, 101, 153, 139];
         assert_eq!(actual, expected);
     }
 
