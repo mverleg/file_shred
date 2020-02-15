@@ -3,6 +3,8 @@ use ::aes_ctr::stream_cipher::generic_array::GenericArray;
 use ::aes_ctr::stream_cipher::NewStreamCipher;
 use ::aes_ctr::stream_cipher::SyncStreamCipher;
 use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
+use ::twofish::block_cipher_trait::BlockCipher;
+use ::twofish::Twofish;
 
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
@@ -15,7 +17,7 @@ pub fn encrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
             SymmetricEncryptionAlg::Aes256 => encrypt_aes256(data, key, salt)?,
-            SymmetricEncryptionAlg::Blowfish => encrypt_blowfish(data, key)?,
+            SymmetricEncryptionAlg::Twofish => encrypt_twofish(data, key)?,
         }
     }
     Ok(data)
@@ -25,7 +27,12 @@ pub fn encrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedRe
     endec_aes256(data, key, salt)
 }
 
-pub fn encrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
+pub fn encrypt_twofish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
+    //TODO @mark: assert?
+//    debug_assert!(key.key_data.unsecure().len() >= 32);
+//    let key = GenericArray::from_slice(&key.key_data.unsecure()[..32]);
+//    let mut cipher = Twofish::new(&key);
+//    Ok(cipher.encrypt_vec(data))
     unimplemented!()
 }
 
@@ -33,10 +40,10 @@ pub fn encrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8
 mod tests {
     use aes_ctr::Aes128Ctr;
 
+    use crate::files::mockfile::generate_test_file_content_for_test;
     use crate::key::hash::fastish_hash;
 
     use super::*;
-    use crate::files::mockfile::generate_test_file_content_for_test;
 
     #[test]
     fn aes_ctr_sanity_check() {
@@ -91,5 +98,24 @@ mod tests {
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
         let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
         assert_eq!(&actual[..8], expected_start);
+    }
+
+    #[test]
+    fn tmp() {
+        let raw_key = fastish_hash(b"s3cr3t!");
+        let raw_nonce = fastish_hash(b"n0nc3");
+        let key = GenericArray::from_slice(&raw_key[..16]);
+        let iv = GenericArray::from_slice(&raw_nonce[..16]);
+        let plaintext = b"Hello world!";
+
+        let cipher = Aes128Cbc::new_var(&key, &iv).unwrap();
+        let ciphertext = cipher.encrypt_vec(plaintext);
+
+        assert_eq!(ciphertext, hex!("1b7a4c403124ae2fb52bedc534d82fa8"));
+
+        let cipher = Aes128Cbc::new_var(&key, &iv).unwrap();
+        let decrypted_ciphertext = cipher.decrypt_vec(&ciphertext).unwrap();
+
+        assert_eq!(decrypted_ciphertext, plaintext);
     }
 }

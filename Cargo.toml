@@ -34,6 +34,7 @@ zxcvbn = "^2.0.1"
 
 # encyrption and decryption
 aes-ctr = "^0.3.0"
+twofish = "^0.2.0"
 
 # hashing
 ring = "^0.16.9"

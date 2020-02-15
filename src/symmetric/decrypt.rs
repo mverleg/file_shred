@@ -15,7 +15,7 @@ pub fn decrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
             SymmetricEncryptionAlg::Aes256 => decrypt_aes256(data, key, salt)?,
-            SymmetricEncryptionAlg::Blowfish => decrypt_blowfish(data, key)?,
+            SymmetricEncryptionAlg::Twofish => decrypt_twofish(data, key)?,
         }
     }
     Ok(data)
@@ -25,7 +25,7 @@ pub fn decrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedRe
     endec_aes256(data, key, salt)
 }
 
-pub fn decrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
+pub fn decrypt_twofish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
     unimplemented!()
 }
 

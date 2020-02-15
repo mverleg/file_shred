@@ -19,10 +19,6 @@ pub fn endec_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResu
     Ok(data)
 }
 
-pub fn encrypt_blowfish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
-    unimplemented!()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
