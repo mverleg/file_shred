@@ -18,11 +18,12 @@ type TwofishCbc = Cbc<Twofish, Iso7816>;
 #[test]
 fn demo() {
     // Key must be 32 bytes for Aes256. It should probably be the hashed
-    // version of the input key, so isn't limited to printable ascii.
-    let key = SecVec::from(b"RvzQW3Mwrc!_y5-DpPZl8rP3,=HsD1,!");
+    // version of the input key, so is not limited to printable ascii.
+    let key = SecVec::from(b"RvzQW3Mwrc!_y5-DpPZl8rP3,=HsD1,!".to_vec());
 
     // The initialization vector (like salt or nonce) must be 16 bytes for
-    // this mode. It could be generated using a secure randon generator.
+    // this block size. It could be generated using a secure randon generator,
+    // and should be different each time. It is not a secret.
     let iv = SecVec::from(vec![
         89, 63, 254, 34, 209, 155, 236, 158, 195, 104, 11, 16, 240, 4, 26, 76
     ]);
@@ -31,21 +32,23 @@ fn demo() {
     let plaintext: Vec<u8> = b"Hello world! This is the secret text...".to_vec();
 
     // Encryption.
-    let cipher = Aes256Cbc::new_var(key.unsecure(), iv.unsecure()).unwrap();
+    let cipher = Aes256Cbc::new_var(
+        key.unsecure(), iv.unsecure()).unwrap();
     let ciphertext = cipher.encrypt_vec(&plaintext);
 
     // Check that it worked.
     assert_eq!(&ciphertext, &vec![
-        209, 219, 109, 15, 80, 252, 140, 44, 140, 197, 166, 182, 9, 189, 201, 6,
-        182, 184, 170, 77, 128, 173, 101, 165, 175, 18, 176, 10, 108, 228, 48, 102,
-        21, 212, 247, 48, 65, 234, 95, 39, 156, 23, 116, 198, 156, 65, 189, 82
+        216, 56, 166, 254, 171, 163, 243, 167, 235, 179, 189, 132, 0, 202, 44, 73,
+        10, 68, 229, 90, 69, 212, 24, 22, 87, 109, 34, 92, 254, 136, 141, 154, 57,
+        189, 176, 221, 140, 8, 114, 141, 103, 248, 108, 182, 247, 156, 113, 127,
     ]);
 
     // Decryption.
-    let cipher = Aes256Cbc::new_var(key.unsecure(), iv.unsecure()).unwrap();
+    let cipher = Aes256Cbc::new_var(
+        key.unsecure(), iv.unsecure()).unwrap();
     let decrypted_ciphertext = cipher.decrypt_vec(&ciphertext).unwrap();
 
-    // Check that the original input is returned.
+    // Check that we got the original input back.
     assert_eq!(decrypted_ciphertext, plaintext);
 }
 
