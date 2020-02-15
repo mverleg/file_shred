@@ -1,3 +1,8 @@
+use ::twofish::block_cipher_trait::generic_array::GenericArray;
+use ::twofish::Twofish;
+
+//use ::block_cipher_trait::BlockCipher;
+
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
 use crate::key::Salt;
@@ -26,20 +31,19 @@ pub fn encrypt_aes256(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult
 
 pub fn encrypt_twofish(_data: Vec<u8>, _key: &StretchKey) -> FedResult<Vec<u8>> {
     //TODO @mark: assert?
-    //    debug_assert!(key.key_data.unsecure().len() >= 32);
-    //    let key = GenericArray::from_slice(&key.key_data.unsecure()[..32]);
-    //    let mut cipher = Twofish::new(&key);
-    //    Ok(cipher.encrypt_vec(data))
+//    debug_assert!(key.key_data.unsecure().len() >= 32);
+//    let key = GenericArray::from_slice(&key.key_data.unsecure()[..32]);
+//    let mut cipher = Twofish::new(&key);
+//    Ok(cipher.encrypt_vec(data))
     unimplemented!()
 }
 
 #[cfg(test)]
 mod tests {
+    use ::aes_ctr::Aes256Ctr;
     use ::aes_ctr::stream_cipher::generic_array::GenericArray;
     use ::aes_ctr::stream_cipher::NewStreamCipher;
     use ::aes_ctr::stream_cipher::SyncStreamCipher;
-    use ::aes_ctr::Aes256Ctr;
-
     use ::twofish::block_cipher_trait::BlockCipher;
 
     use crate::files::mockfile::generate_test_file_content_for_test;
