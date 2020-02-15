@@ -19,7 +19,9 @@ pub enum KeyHashAlg {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SymmetricEncryptionAlg {
+    // Aes 256 with Iso7816 padding and cipher block chaining
     Aes256,
+    // Twofish with Iso7816 padding and cipher block chaining
     Twofish,
 }
 
