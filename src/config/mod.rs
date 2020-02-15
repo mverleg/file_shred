@@ -1,5 +1,5 @@
-pub mod enc;
 pub mod dec;
+pub mod enc;
 
-pub use enc::EncryptConfig;
 pub use dec::DecryptConfig;
+pub use enc::EncryptConfig;

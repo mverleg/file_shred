@@ -5,14 +5,14 @@ use ::semver::Version;
 
 use crate::files::Checksum;
 use crate::header::Header;
+use crate::header::Salt;
 use crate::header::HEADER_CHECKSUM_MARKER;
 use crate::header::HEADER_DATA_MARKER;
 use crate::header::HEADER_MARKER;
 use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
-use crate::header::Salt;
-use crate::util::FedResult;
 use crate::util::util::u64_to_base64str;
+use crate::util::FedResult;
 
 fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
     if let Err(err) = res {
@@ -25,7 +25,12 @@ fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
     }
 }
 
-fn write_line(writer: &mut impl Write, prefix: &str, value: Option<String>, verbose: bool) -> FedResult<()> {
+fn write_line(
+    writer: &mut impl Write,
+    prefix: &str,
+    value: Option<String>,
+    verbose: bool,
+) -> FedResult<()> {
     wrap_err(writer.write(prefix.as_bytes()), verbose)?;
     if let Some(text) = value {
         wrap_err(writer.write(text.as_bytes()), verbose)?;
@@ -49,7 +54,12 @@ fn write_salt(writer: &mut impl Write, salt: &Salt, verbose: bool) -> FedResult<
 }
 
 fn write_checksum(writer: &mut impl Write, checksum: &Checksum, verbose: bool) -> FedResult<()> {
-    write_line(writer, HEADER_CHECKSUM_MARKER, Some(format!("{}", checksum)), verbose)
+    write_line(
+        writer,
+        HEADER_CHECKSUM_MARKER,
+        Some(format!("{}", checksum)),
+        verbose,
+    )
 }
 
 pub fn write_header(writer: &mut impl Write, header: &Header, verbose: bool) -> FedResult<()> {
@@ -81,10 +91,12 @@ mod tests {
             Salt::new(1),
             Checksum::fixed_for_test(vec![2]),
             &true,
-        ).unwrap();
+        )
+        .unwrap();
         let mut buf: Vec<u8> = Vec::new();
         write_header(&mut buf, &header, true).unwrap();
-        let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck xx_sha256 Ag\ndata:\n";
+        let expected =
+            "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck xx_sha256 Ag\ndata:\n";
         assert_eq!(from_utf8(&buf).unwrap(), expected);
     }
 
@@ -96,7 +108,8 @@ mod tests {
             Salt::new(123_456_789),
             Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
             &true,
-        ).unwrap();
+        )
+        .unwrap();
         let mut buf: Vec<u8> = Vec::new();
         write_header(&mut buf, &header, true).unwrap();
         let expected = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck xx_sha256 AAUABQAFAAUABQAF\ndata:\n";

@@ -1,4 +1,3 @@
-
 pub fn generate_test_file_content_for_test(len: usize) -> Vec<u8> {
     let mut data = vec![0u8; len];
     let mut a: u32 = 1;

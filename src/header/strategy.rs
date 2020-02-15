@@ -1,8 +1,8 @@
 use ::lazy_static::lazy_static;
 use ::semver::Version;
 
-use crate::util::FedResult;
 use crate::util::version::CURRENT_VERSION;
+use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CompressionAlg {
@@ -48,7 +48,7 @@ pub fn get_version_strategy(version: &Version, verbose: bool) -> FedResult<&'sta
         return Err(match verbose {
             true => "non-existent version".to_owned(),
             false => format!("non-existent version {} (minimum is 1.0.0)", version),
-        })
+        });
     }
     Ok(&*STRATEGY_1_0_0)
 }

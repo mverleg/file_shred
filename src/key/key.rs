@@ -1,8 +1,8 @@
+use crate::key::hash::fastish_hash;
 use ::secstr::SecUtf8;
 use ::secstr::SecVec;
-use ::zxcvbn::Entropy;
 use ::zxcvbn::zxcvbn;
-use crate::key::hash::fastish_hash;
+use ::zxcvbn::Entropy;
 
 #[derive(Debug)]
 pub struct Key {
@@ -24,7 +24,12 @@ impl Key {
     }
 
     pub fn time_to_crack(&self) -> String {
-        format!("{}", self.strength.crack_times().offline_slow_hashing_1e4_per_second())
+        format!(
+            "{}",
+            self.strength
+                .crack_times()
+                .offline_slow_hashing_1e4_per_second()
+        )
     }
 }
 

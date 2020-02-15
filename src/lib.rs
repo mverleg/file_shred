@@ -5,32 +5,41 @@ use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::header::strategy::get_current_version_strategy;
-use crate::key::Salt;
 use crate::key::stretch::stretch_key;
+use crate::key::Salt;
 use crate::symmetric::encrypt::encrypt_file;
-use crate::util::FedResult;
 use crate::util::util::wrap_io;
+use crate::util::FedResult;
 
-pub mod util;
+pub mod config;
+pub mod files;
 pub mod header;
 pub mod key;
 pub mod symmetric;
-pub mod config;
-pub mod files;
+pub mod util;
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     let strategy = get_current_version_strategy(config.debug());
     let files_info = inspect_files(config.files(), config.debug())?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let salt = Salt::generate_random()?;
-    let stretched_key = stretch_key(config.raw_key(), &salt, strategy.stretch_count, &strategy.key_hash_algorithms);
+    let stretched_key = stretch_key(
+        config.raw_key(),
+        &salt,
+        strategy.stretch_count,
+        &strategy.key_hash_algorithms,
+    );
     //TODO @mark: progress logging
     for file in files_info {
         if config.debug() {
             println!("encrypting {}", file.path_str());
         }
-        if file.size_kb > 1024*1024 {
-            eprintln!("warning: reading {} Mb file {} into RAM", file.size_kb / 1024, file.path_str());
+        if file.size_kb > 1024 * 1024 {
+            eprintln!(
+                "warning: reading {} Mb file {} into RAM",
+                file.size_kb / 1024,
+                file.path_str()
+            );
         }
         let data = wrap_io(fs::read(file.path))?;
         let checksum = calculate_checksum(&data);
@@ -41,5 +50,5 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
 }
 
 pub fn decrypt(_config: &EncryptConfig) -> FedResult<()> {
-    unimplemented!()  //TODO @mark:
+    unimplemented!() //TODO @mark:
 }

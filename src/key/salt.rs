@@ -2,12 +2,12 @@ use ::std::fmt::Debug;
 use ::std::fmt::Error;
 use ::std::fmt::Formatter;
 
-use ::rand::RngCore;
 use ::rand::rngs::OsRng;
+use ::rand::RngCore;
 
 use crate::util::FedResult;
 
-const SALT_LEN: usize = 128;  // multiple of 32
+const SALT_LEN: usize = 128; // multiple of 32
 
 #[derive(Clone, Copy)]
 pub struct Salt {
@@ -79,7 +79,7 @@ mod tests {
                 return;
             }
         }
-        assert!(false);  // Should have returned before here.
+        assert!(false); // Should have returned before here.
     }
 
     #[test]

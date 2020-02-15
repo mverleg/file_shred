@@ -2,11 +2,11 @@ use ::std::env;
 use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
-use std::io::{BufRead, stdin};
+use std::io::{stdin, BufRead};
 use std::str::FromStr;
 
-use crate::util::FedResult;
 use crate::key::Key;
+use crate::util::FedResult;
 
 #[derive(Debug)]
 pub enum KeySource {
@@ -45,8 +45,11 @@ impl FromStr for KeySource {
         } else {
             format!("{}", txt[..5].to_owned())
         };
-        Err(format!("key string was not recognized; got '{}', should be one of \
-        'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'", txt_snip))
+        Err(format!(
+            "key string was not recognized; got '{}', should be one of \
+        'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'",
+            txt_snip
+        ))
     }
 }
 
@@ -56,20 +59,27 @@ fn key_from_env_var(env_var_name: &str) -> FedResult<Key> {
         Err(err) => match err {
             env::VarError::NotPresent => Err(format!(
                 "could not find environment variable named '{}' (which is \
-                            expected to contain the encryption key)", env_var_name)),
+                            expected to contain the encryption key)",
+                env_var_name
+            )),
             env::VarError::NotUnicode(_) => Err(format!(
                 "environment variable named '{}' did not contain valid data (it \
                             is expected to contain the encryption key, which must be unicode)",
-                env_var_name)),
-        }
+                env_var_name
+            )),
+        },
     }
 }
 
 fn key_from_file(file_path: &Path) -> FedResult<Key> {
     match fs::read_to_string(file_path) {
         Ok(content) => Ok(Key::new(content.trim())),
-        Err(io_err) => Err(format!("failed to read encryption key from \
-                        file '{}'; reason: {}", file_path.to_string_lossy(), io_err)),
+        Err(io_err) => Err(format!(
+            "failed to read encryption key from \
+                        file '{}'; reason: {}",
+            file_path.to_string_lossy(),
+            io_err
+        )),
     }
 }
 

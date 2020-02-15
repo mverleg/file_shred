@@ -4,38 +4,73 @@ use ::std::process::exit;
 
 use ::structopt::StructOpt;
 
-use ::file_endec::encrypt;
 use ::file_endec::config::EncryptConfig;
+use ::file_endec::encrypt;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "FileEnc", author = "github.com/mverleg/file_endec", about = "Securely encrypt one or more files using the given key.")]
+#[structopt(
+    name = "FileEnc",
+    author = "github.com/mverleg/file_endec",
+    about = "Securely encrypt one or more files using the given key."
+)]
 pub struct EncryptArguments {
-
-    #[structopt(name = "FILES", parse(from_os_str), required = true, min_values = 1, help = "One or more paths to input files (absolute or relative)")]
+    #[structopt(
+        name = "FILES",
+        parse(from_os_str),
+        required = true,
+        min_values = 1,
+        help = "One or more paths to input files (absolute or relative)"
+    )]
     files: Vec<PathBuf>,
 
     //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
-    #[structopt(short = "k", long = "key", default_value = "ask", help = "Where to get the key; one of 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'")]
+    #[structopt(
+        short = "k",
+        long = "key",
+        default_value = "ask",
+        help = "Where to get the key; one of 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'"
+    )]
     key_source: KeySource,
 
-    #[structopt(short = "v", long, help = "Show debug information, especially on errors.")]
+    #[structopt(
+        short = "v",
+        long,
+        help = "Show debug information, especially on errors."
+    )]
     debug: bool,
 
     #[structopt(short = "f", long, help = "Overwrite output files if they exist.")]
     overwrite: bool,
 
-    #[structopt(short = "d", long, help = "Delete input files after successful encryption (overwrites garbage before delete).")]
+    #[structopt(
+        short = "d",
+        long,
+        help = "Delete input files after successful encryption (overwrites garbage before delete)."
+    )]
     delete_input: bool,
 
-    #[structopt(parse(from_os_str), short = "o", long, help = "Alternative output directory. If not given, output is saved alongside input.")]
+    #[structopt(
+        parse(from_os_str),
+        short = "o",
+        long,
+        help = "Alternative output directory. If not given, output is saved alongside input."
+    )]
     output_dir: Option<PathBuf>,
 
-    #[structopt(short = "e", long, default_value = ".enc", help = "Extension added to encrypted files.")]
+    #[structopt(
+        short = "e",
+        long,
+        default_value = ".enc",
+        help = "Extension added to encrypted files."
+    )]
     output_extension: String,
 
-    #[structopt(long, help = "Test encryption, but do not save encrypted files (nor delete input, if --delete-input).")]
+    #[structopt(
+        long,
+        help = "Test encryption, but do not save encrypted files (nor delete input, if --delete-input)."
+    )]
     dry_run: bool,
 
     #[structopt(long, help = "Suppress warning if the encryption key is not strong.")]
@@ -56,7 +91,7 @@ impl fmt::Display for EncryptArguments {
             Some(dir) => {
                 f.write_str("  output directory: ")?;
                 f.write_str(dir.to_string_lossy().as_ref())?
-            },
+            }
             None => f.write_str("  output is stored alongside input")?,
         }
         f.write_str("\n")?;
@@ -75,11 +110,27 @@ impl fmt::Display for EncryptArguments {
         f.write_str("\n")?;
 
         f.write_str("  overwrite existing output files: ")?;
-        f.write_str(if self.overwrite { if self.dry_run { "no (overridden by dry run)" } else { "yes" }} else { "no" })?;
+        f.write_str(if self.overwrite {
+            if self.dry_run {
+                "no (overridden by dry run)"
+            } else {
+                "yes"
+            }
+        } else {
+            "no"
+        })?;
         f.write_str("\n")?;
 
         f.write_str("  delete input files: ")?;
-        f.write_str(if self.delete_input { if self.dry_run { "no (overridden by dry run)" } else { "yes" }} else { "no" })?;
+        f.write_str(if self.delete_input {
+            if self.dry_run {
+                "no (overridden by dry run)"
+            } else {
+                "yes"
+            }
+        } else {
+            "no"
+        })?;
 
         Ok(())
     }
@@ -95,14 +146,17 @@ pub fn main() {
 fn go() -> FedResult<()> {
     let args = EncryptArguments::from_args();
     if args.debug {
-    println!("arguments provided:\n{}", args);
+        println!("arguments provided:\n{}", args);
     }
     let key = args.key_source.obtain_key()?;
     if args.debug {
         println!("approximate time to crack key: {}", key.time_to_crack());
     }
     if !args.accept_weak_key && !key.is_strong() {
-        eprintln!("warning: the encryption key is not strong (it might be cracked in {})", key.time_to_crack());
+        eprintln!(
+            "warning: the encryption key is not strong (it might be cracked in {})",
+            key.time_to_crack()
+        );
     }
     let config = EncryptConfig::new(
         args.files,

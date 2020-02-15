@@ -1,5 +1,2 @@
-
 #[derive(Debug)]
-pub struct DecryptConfig {
-
-}
+pub struct DecryptConfig {}

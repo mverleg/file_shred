@@ -1,9 +1,9 @@
-pub mod key;
-pub mod source;
 pub mod hash;
-pub mod stretch;
+pub mod key;
 pub mod salt;
+pub mod source;
+pub mod stretch;
 
 pub use key::Key;
-pub use source::KeySource;
 pub use salt::Salt;
+pub use source::KeySource;

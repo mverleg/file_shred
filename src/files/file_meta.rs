@@ -12,7 +12,7 @@ pub struct FileInfo<'a> {
     pub permissions: (),
 }
 
-impl <'a> FileInfo<'a> {
+impl<'a> FileInfo<'a> {
     pub fn path_str(&self) -> String {
         self.path.to_string_lossy().to_string()
     }
@@ -26,10 +26,12 @@ pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo
             Ok(meta) => meta,
             Err(err) => {
                 match verbose {
-                    true => eprintln!("could not read file '{}'; reason: {}",
-                                      file.to_string_lossy(), err),
-                    false => eprintln!("could not read file '{}'",
-                                       file.to_string_lossy()),
+                    true => eprintln!(
+                        "could not read file '{}'; reason: {}",
+                        file.to_string_lossy(),
+                        err
+                    ),
+                    false => eprintln!("could not read file '{}'", file.to_string_lossy()),
                 }
                 not_found_cnt += 1;
                 continue;
@@ -47,8 +49,11 @@ pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo
         });
     }
     if not_found_cnt > 0 {
-        return Err(format!("aborting because {} input file{} not found", not_found_cnt,
-                           if not_found_cnt > 1 { "s were" } else { " was" }));
+        return Err(format!(
+            "aborting because {} input file{} not found",
+            not_found_cnt,
+            if not_found_cnt > 1 { "s were" } else { " was" }
+        ));
     }
     Ok(infos)
 }
