@@ -85,12 +85,11 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-
     #[test]
     fn aes256_big() {
         let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
         let salt = Salt::static_for_test(123_456_789_123_456_789);
-        let input = generate_test_file_content_for_test(123_456);
+        let input = generate_test_file_content_for_test(1_000_000);
         let actual = encrypt_aes256(input, &key, &salt).unwrap();
         let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
         assert_eq!(&actual[..8], expected_start);
