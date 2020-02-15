@@ -1,8 +1,8 @@
-use ::aes_ctr::Aes256Ctr;
-use ::aes_ctr::stream_cipher::generic_array::GenericArray;
-use ::aes_ctr::stream_cipher::NewStreamCipher;
-use ::aes_ctr::stream_cipher::SyncStreamCipher;
-use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
+
+
+
+
+
 
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
@@ -21,17 +21,21 @@ pub fn decrypt_file(mut data: Vec<u8>, key: &StretchKey, salt: &Salt, encrypt_al
     Ok(data)
 }
 
-pub fn decrypt_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+pub fn decrypt_aes256(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     endec_aes256(data, key, salt)
 }
 
-pub fn decrypt_twofish(mut data: Vec<u8>, key: &StretchKey) -> FedResult<Vec<u8>> {
+pub fn decrypt_twofish(_data: Vec<u8>, _key: &StretchKey) -> FedResult<Vec<u8>> {
     unimplemented!()
 }
 
 #[cfg(test)]
 mod tests {
-    use aes_ctr::Aes128Ctr;
+    use ::aes_ctr::Aes256Ctr;
+    use ::aes_ctr::stream_cipher::generic_array::GenericArray;
+    use ::aes_ctr::stream_cipher::NewStreamCipher;
+    use ::aes_ctr::stream_cipher::SyncStreamCipher;
+    
 
     use crate::files::mockfile::generate_test_file_content_for_test;
     use crate::key::hash::fastish_hash;

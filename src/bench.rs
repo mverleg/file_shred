@@ -3,7 +3,7 @@ use ::criterion::criterion_main;
 
 #[cfg(test)]
 mod hash {
-    use ::std::time::Duration;
+    
 
     use ::criterion::Benchmark;
     use ::criterion::black_box;
@@ -66,21 +66,21 @@ mod hash {
 
 #[cfg(test)]
 mod encrypt {
-    use ::std::time::Duration;
+    
 
     use ::criterion::Benchmark;
     use ::criterion::black_box;
     use ::criterion::Criterion;
 
     use ::file_endec::files::mockfile::generate_test_file_content_for_test;
-    use ::file_endec::header::strategy::get_current_version_strategy;
-    use ::file_endec::key::hash::hash_argon2i;
-    use ::file_endec::key::hash::hash_bcrypt;
-    use ::file_endec::key::hash::hash_sha256;
+    
+    
+    
+    
     use ::file_endec::key::key::StretchKey;
-    use ::file_endec::key::Key;
+    
     use ::file_endec::key::Salt;
-    use ::file_endec::key::stretch::stretch_key;
+    
     use ::file_endec::symmetric::encrypt::encrypt_aes256;
 
     pub fn encrypt_aes256_benchmark(c: &mut Criterion) {

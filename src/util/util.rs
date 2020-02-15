@@ -19,7 +19,7 @@ pub fn u64_to_base64str(value: u64) -> String {
 pub fn base64str_to_u64(base64_str: &str) -> FedResult<u64> {
     let bytes = match BASE64URL_NOPAD.decode(base64_str.as_bytes()) {
         Ok(bytes) => bytes,
-        Err(err) => return Err("did not find valid base64 encoded integer (expecting url base characters)".to_owned()),
+        Err(_err) => return Err("did not find valid base64 encoded integer (expecting url base characters)".to_owned()),
     };
     Ok(u64::from_le_bytes(match bytes.as_slice().try_into() {
         Ok(nr) => nr,
@@ -35,7 +35,7 @@ pub fn u8s_to_base64str(value: &[u8]) -> String {
 pub fn base64str_to_u8s(base64_str: &str) -> FedResult<Vec<u8>> {
     match BASE64URL_NOPAD.decode(base64_str.as_bytes()) {
         Ok(bytes) => Ok(bytes),
-        Err(err) => Err("did not find valid base64 content (expecting url base characters)".to_owned()),
+        Err(_err) => Err("did not find valid base64 content (expecting url base characters)".to_owned()),
     }
 }
 

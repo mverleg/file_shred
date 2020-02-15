@@ -2,9 +2,7 @@ use ::aes_ctr::Aes256Ctr;
 use ::aes_ctr::stream_cipher::generic_array::GenericArray;
 use ::aes_ctr::stream_cipher::NewStreamCipher;
 use ::aes_ctr::stream_cipher::SyncStreamCipher;
-use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
 
-use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
 use crate::key::Salt;
 use crate::util::FedResult;
@@ -23,7 +21,8 @@ pub fn endec_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResu
 mod tests {
     use super::*;
     use aes_ctr::Aes128Ctr;
-    use crate::key::hash::fastish_hash;
+    
+    use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
 
     #[test]
     fn aes_ctr_sanity_check_demo() {

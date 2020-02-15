@@ -21,7 +21,7 @@ pub mod files;
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     let strategy = get_current_version_strategy(config.debug());
     let files_info = inspect_files(config.files(), config.debug())?;
-    let total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
+    let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let salt = Salt::generate_random()?;
     let stretched_key = stretch_key(config.raw_key(), &salt, strategy.stretch_count, &strategy.key_hash_algorithms);
     //TODO @mark: progress logging
@@ -32,10 +32,10 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         if file.size_kb > 1024*1024 {
             eprintln!("warning: reading {} Mb file {} into RAM", file.size_kb / 1024, file.path_str());
         }
-        let mut data = wrap_io(fs::read(file.path))?;
+        let data = wrap_io(fs::read(file.path))?;
         let checksum = calculate_checksum(&data);
-        data = compress_file(data, &strategy.compression_algorithm)?;
-        data = encrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
+        let small = compress_file(data, &strategy.compression_algorithm)?;
+        let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
     }
     unimplemented!()
 }
