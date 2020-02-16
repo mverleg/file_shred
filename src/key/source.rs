@@ -106,11 +106,13 @@ fn key_from_prompt(ask_twice: bool) -> FedResult<Key> {
 fn key_from_pipe() -> FedResult<Key> {
     let mut pw = String::new();
     match stdin().lock().read_line(&mut pw) {
-        Ok(count) => if count >= 1 {
-            Ok(Key::new(pw.trim()))
-        } else {
-            Err("no key was piped into the program".to_owned())
-        },
+        Ok(count) => {
+            if count >= 1 {
+                Ok(Key::new(pw.trim()))
+            } else {
+                Err("no key was piped into the program".to_owned())
+            }
+        }
         Err(_) => Err("failed to read data piped into the program".to_owned()),
     }
 }

@@ -11,4 +11,3 @@ type TwofishCbc = Cbc<Twofish, Iso7816>;
 pub mod encrypt;
 
 pub mod decrypt;
-

@@ -48,7 +48,8 @@ fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> F
         return Err(if verbose {
             format!("did not recognize encryption header (expected '{}', got '{}'); was this file really encrypted with fileenc?", HEADER_MARKER, line)
         } else {
-            "did not recognize encryption header; was this file really encrypted with fileenc?".to_owned()
+            "did not recognize encryption header; was this file really encrypted with fileenc?"
+                .to_owned()
         });
     }
     Ok(())

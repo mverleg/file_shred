@@ -1,7 +1,7 @@
 use crate::header::KeyHashAlg;
 use crate::key::hash::hash;
-use crate::key::Key;
 use crate::key::key::StretchKey;
+use crate::key::Key;
 use crate::key::Salt;
 
 pub fn stretch_key(
@@ -25,8 +25,10 @@ pub fn stretch_key(
 
 #[cfg(test)]
 mod tests {
-    #[cfg(not(debug_assertions))] use crate::header::strategy::get_current_version_strategy;
-    #[cfg(not(debug_assertions))] use super::*;
+    #[cfg(not(debug_assertions))]
+    use super::*;
+    #[cfg(not(debug_assertions))]
+    use crate::header::strategy::get_current_version_strategy;
 
     #[cfg(not(debug_assertions))]
     #[test]
