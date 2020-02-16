@@ -1,8 +1,8 @@
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::key::Key;
 use crate::config::typ::EndecConfig;
+use crate::key::Key;
 
 #[derive(Debug)]
 pub struct DecryptConfig {

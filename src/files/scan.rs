@@ -1,10 +1,12 @@
-#[cfg(test)] use ::std::env;
+#[cfg(test)]
+use ::std::env;
 use ::std::ffi::OsStr;
 use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-#[cfg(test)] use ::lazy_static::lazy_static;
+#[cfg(test)]
+use ::lazy_static::lazy_static;
 
 use crate::util::FedResult;
 
@@ -23,16 +25,24 @@ pub fn get_enc_files_direct(dir: &Path) -> FedResult<Vec<PathBuf>> {
                         if let Some("enc") = path.extension().and_then(OsStr::to_str) {
                             matches.push(path.to_owned());
                         }
-                    },
-                    Err(err) => return Err(format!(
-                        "Failed on entry in directory '{}' because '{}'",
-                        dir.to_string_lossy(), err)),
+                    }
+                    Err(err) => {
+                        return Err(format!(
+                            "Failed on entry in directory '{}' because '{}'",
+                            dir.to_string_lossy(),
+                            err
+                        ))
+                    }
                 }
             }
-        },
-        Err(err) => return Err(format!(
-            "Failed to read directory '{}' because '{}'",
-            dir.to_string_lossy(), err)),
+        }
+        Err(err) => {
+            return Err(format!(
+                "Failed to read directory '{}' because '{}'",
+                dir.to_string_lossy(),
+                err
+            ))
+        }
     }
     Ok(matches)
 }
@@ -42,7 +52,7 @@ lazy_static! {
     pub static ref TEST_FILE_DIR: PathBuf = {
         // Try to find relative to target dir.
         let mut test_files_dir: PathBuf = {
-            let mut p = PathBuf::from(std::env::current_exe().unwrap());
+            let mut p = std::env::current_exe().unwrap();
             p.pop();
             p.pop();
             p.pop();
@@ -54,6 +64,7 @@ lazy_static! {
         original_file.push("original.png");
         if !original_file.is_file() {
             // Perhaps the target dir is not in the default location, try something else.
+            #[allow(clippy::match_wild_err_arm)]
             match env::var("ENDEC_TEST_FILE_DIR") {
                 Ok(test_file_dir_env) => {
                     test_files_dir = PathBuf::from(test_file_dir_env);
@@ -83,6 +94,6 @@ mod tests {
     #[test]
     fn find_files() {
         let files = get_enc_files_direct(&*TEST_FILE_DIR).unwrap();
-        assert!(files.len() >= 1, "no .enc files found");
+        assert!(!files.is_empty(), "no .enc files found");
     }
 }

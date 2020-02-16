@@ -157,7 +157,4 @@ criterion_group!(
     encrypt::encrypt_twofish_benchmark,
 );
 
-criterion_main!(
-    hash_bench,
-    encrypt_bench,
-);
+criterion_main!(hash_bench, encrypt_bench,);

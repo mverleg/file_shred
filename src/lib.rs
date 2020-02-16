@@ -1,17 +1,17 @@
 use ::std::fs;
 
-use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
+use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::header::strategy::get_current_version_strategy;
-use crate::key::Salt;
 use crate::key::stretch::stretch_key;
+use crate::key::Salt;
 use crate::symmetric::encrypt::encrypt_file;
-use crate::util::FedResult;
 use crate::util::util::wrap_io;
+use crate::util::FedResult;
 
 pub mod config;
 pub mod files;
@@ -87,12 +87,14 @@ mod tests {
     /// and make sure they can still be decrypted (and match the original).
     #[test]
     fn compatibility() {
-        let enc_files: Vec<Version> = get_enc_files_direct(&*TEST_FILE_DIR).unwrap().iter()
+        let enc_files: Vec<Version> = get_enc_files_direct(&*TEST_FILE_DIR)
+            .unwrap()
+            .iter()
             .map(|f| f.file_stem().unwrap().to_str().unwrap())
             .map(|n| COMPAT_FILE_RE.captures_iter(n).next().unwrap())
             .map(|v| Version::parse(&v[0]).unwrap())
             .collect();
-        assert!(enc_files.len() >= 1);
+        assert!(!enc_files.is_empty());
         let mut original_pth = TEST_FILE_DIR.clone();
         original_pth.push("original.png".to_owned());
         for enc_file in enc_files {
@@ -103,17 +105,23 @@ mod tests {
             let conf = DecryptConfig::new(
                 vec![enc_pth],
                 COMPAT_KEY.clone(),
-                false,  // debug
-                false,  // overwrite
-                false,  // delete_input
+                false, // debug
+                false, // overwrite
+                false, // delete_input
                 None,  // output_dir
                 ".enc".to_owned(),
             );
             decrypt(&conf).unwrap();
             let mut original_data = vec![];
-            File::open(&original_pth).unwrap().read_to_end(&mut original_data).unwrap();
+            File::open(&original_pth)
+                .unwrap()
+                .read_to_end(&mut original_data)
+                .unwrap();
             let mut dec_data = vec![];
-            File::open(&dec_pth).unwrap().read_to_end(&mut dec_data).unwrap();
+            File::open(&dec_pth)
+                .unwrap()
+                .read_to_end(&mut dec_data)
+                .unwrap();
             unimplemented!() //TODO @mark: check that the file written is the same as original
         }
     }
