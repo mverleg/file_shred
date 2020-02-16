@@ -65,6 +65,13 @@ mod tests {
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
+    /// Open the files in 'test_files/' that were encrypted with previous versions,
+    /// and make sure they can still be decrypted (and match the original).
+    #[test]
+    fn compatibility() {
+
+    }
+
     #[test]
     fn demo() {
         // Key must be 32 bytes for Aes256. It should probably be the hashed

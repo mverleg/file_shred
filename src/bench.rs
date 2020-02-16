@@ -158,6 +158,6 @@ criterion_group!(
 );
 
 criterion_main!(
-    //    hash_bench,
+    hash_bench,
     encrypt_bench,
 );

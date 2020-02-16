@@ -24,5 +24,7 @@ Possible future plans:
 
 * Recursively encrypt and decrypt all files in a directory.
 * Give the encrypted / decrypted file the same owner and permissions as the original.
-* Faster Twofish implementation, or different algorithm (now 6x slower than aes256)
+* Faster Twofish implementation, or different algorithm (now 6x slower than aes256).
+* Inspect an encrypted file (see algorithms etc) without decrypting.
 * Handle files that do not fit in RAM.
+* Simple graphical interface to drag files to encrypted vault (unlikely).

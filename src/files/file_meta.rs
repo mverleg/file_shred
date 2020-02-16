@@ -8,7 +8,7 @@ use crate::util::FedResult;
 pub struct FileInfo<'a> {
     pub path: &'a Path,
     pub size_kb: u64,
-    //TODO @mark: make sure encrypted file has same permissions and owner as original
+    //TODO: make sure encrypted file has same permissions and owner as original
     pub permissions: (),
 }
 
