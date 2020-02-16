@@ -43,11 +43,9 @@ pub fn hash_bcrypt(data: &[u8], salt: &[u8]) -> Vec<u8> {
     // Also note that 0-bytes are now allowed in the input.
     let mut nonzero = data.to_vec();
     //TODO: use SIMD to do this check faster?
-    for i in 0..nonzero.len() {
-        if nonzero[i] == 0 {
-            nonzero[i] = 1 + (i % 255) as u8;
-        }
-    }
+    nonzero.iter_mut().enumerate()
+        .filter(|(_, v)| **v == 0u8)
+        .for_each(|(i, v)| *v = 1 + (i % 255) as u8);
     bcrypt::hash_with_salt(&nonzero, *BCRYPT_COST, &salt[..16])
         .unwrap()
         .to_string()

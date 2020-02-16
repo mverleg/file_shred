@@ -25,13 +25,14 @@ pub fn inspect_files(files: &[PathBuf], verbose: bool) -> FedResult<Vec<FileInfo
         let meta = match fs::metadata(file) {
             Ok(meta) => meta,
             Err(err) => {
-                match verbose {
-                    true => eprintln!(
+                if verbose {
+                    eprintln!(
                         "could not read file '{}'; reason: {}",
                         file.to_string_lossy(),
                         err
-                    ),
-                    false => eprintln!("could not read file '{}'", file.to_string_lossy()),
+                    )
+                } else {
+                    eprintln!("could not read file '{}'", file.to_string_lossy())
                 }
                 not_found_cnt += 1;
                 continue;

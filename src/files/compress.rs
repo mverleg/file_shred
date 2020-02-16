@@ -25,9 +25,10 @@ pub fn brotli_compress(data: &[u8]) -> FedResult<Vec<u8>> {
     let mut compress = brotli::CompressorReader::new(data, 4096, 6, 22);
     let mut output = Vec::with_capacity(data.len());
     match compress.read_to_end(&mut output) {
-        Ok(len) => match len > 0 {
-            true => Ok(output),
-            false => Err("No data was read during compression".to_owned()),
+        Ok(len) => if len > 0 {
+            Ok(output)
+        } else {
+            Err("No data was read during compression".to_owned())
         },
         Err(err) => Err(format!("Brotli error: {}", err)),
     }
@@ -64,8 +65,8 @@ mod tests {
     #[test]
     fn brotli_compression() {
         let input = vec![
-            00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-            22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11,
+            0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+            22, 23, 24, 25, 26, 27, 28, 29, 30, 31,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11,
             12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
         ];
         let expected = vec![
@@ -87,8 +88,8 @@ mod tests {
     #[test]
     fn brotli_decompression() {
         let expected = vec![
-            00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-            22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11,
+            0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+            22, 23, 24, 25, 26, 27, 28, 29, 30, 31,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11,
             12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
         ];
         let input = vec![

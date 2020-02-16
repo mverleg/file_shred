@@ -16,6 +16,7 @@ pub struct EncryptConfig {
 }
 
 impl EncryptConfig {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         files: Vec<PathBuf>,
         raw_key: Key,

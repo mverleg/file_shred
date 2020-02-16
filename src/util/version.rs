@@ -11,7 +11,7 @@ mod tests {
 
     #[test]
     fn minimum_version() {
-        assert!(&*CURRENT_VERSION >= &Version::parse("1.0.0").unwrap());
+        assert!(*CURRENT_VERSION >= Version::parse("1.0.0").unwrap());
     }
 
     #[test]

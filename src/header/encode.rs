@@ -16,9 +16,10 @@ use crate::util::FedResult;
 
 fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
     if let Err(err) = res {
-        Err(match verbose {
-            true => "failed to write encryption header".to_owned(),
-            false => format!("failed to write encryption header, reason: {}", err),
+        Err(if verbose {
+            "failed to write encryption header".to_owned()
+        } else {
+            format!("failed to write encryption header, reason: {}", err)
         })
     } else {
         Ok(())
@@ -90,7 +91,7 @@ mod tests {
             version,
             Salt::new(1),
             Checksum::fixed_for_test(vec![2]),
-            &true,
+            true,
         )
         .unwrap();
         let mut buf: Vec<u8> = Vec::new();
@@ -107,7 +108,7 @@ mod tests {
             version,
             Salt::new(123_456_789),
             Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
-            &true,
+            true,
         )
         .unwrap();
         let mut buf: Vec<u8> = Vec::new();

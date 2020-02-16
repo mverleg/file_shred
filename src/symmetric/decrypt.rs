@@ -44,8 +44,6 @@ pub fn decrypt_twofish(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResul
 
 #[cfg(test)]
 mod tests {
-    use ::aes_ctr::stream_cipher::NewStreamCipher;
-
     use crate::files::mockfile::generate_test_file_content_for_test;
     use crate::symmetric::encrypt::{encrypt_aes256, encrypt_twofish};
 
@@ -64,7 +62,7 @@ mod tests {
         ];
         let actual = decrypt_aes256(input, &key, &salt).unwrap();
         let expected = vec![
-            00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+             0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
             22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
             44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
             66, 67, 68, 69, 70,
@@ -88,7 +86,7 @@ mod tests {
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let plain = generate_test_file_content_for_test(500_000);
         let input = encrypt_aes256(plain.clone(), &key, &salt);
-        assert!(&plain != &input);
+        assert!(plain != input);
         let actual = decrypt_aes256(input, &key, &salt).unwrap();
         assert_eq!(plain, actual);
     }
@@ -106,7 +104,7 @@ mod tests {
         ];
         let actual = decrypt_twofish(input, &key, &salt).unwrap();
         let expected = vec![
-            00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+            0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
             22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
             44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
             66, 67, 68, 69, 70,
@@ -130,7 +128,7 @@ mod tests {
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let plain = generate_test_file_content_for_test(500_000);
         let input = encrypt_twofish(plain.clone(), &key, &salt);
-        assert!(&plain != &input);
+        assert!(plain != input);
         let actual = decrypt_twofish(input, &key, &salt).unwrap();
         assert_eq!(plain, actual);
     }

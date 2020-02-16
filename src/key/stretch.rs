@@ -1,7 +1,7 @@
 use crate::header::KeyHashAlg;
 use crate::key::hash::hash;
-use crate::key::key::StretchKey;
 use crate::key::Key;
+use crate::key::key::StretchKey;
 use crate::key::Salt;
 
 pub fn stretch_key(
@@ -14,10 +14,10 @@ pub fn stretch_key(
     let salt_bytes = salt.salt;
     let mut data = raw_key.key_data.clone().unsecure().as_bytes().to_owned();
     for key_hash_alg in key_hash_algorithms {
-        data = hash(&mut data, &salt_bytes, key_hash_alg);
+        data = hash(&data, &salt_bytes, key_hash_alg);
         for i in 0..stretch_count {
             data.extend(&i.to_le_bytes());
-            data = hash(&mut data, &salt_bytes, key_hash_alg);
+            data = hash(&data, &salt_bytes, key_hash_alg);
         }
     }
     StretchKey::new(&data)
@@ -25,7 +25,6 @@ pub fn stretch_key(
 
 #[cfg(test)]
 mod tests {
-
     #[cfg(not(debug_assertions))]
     #[test]
     fn stratch_test_password() {
@@ -42,9 +41,6 @@ mod tests {
     #[test]
     #[ignore]
     fn stratch_test_password() {
-        assert!(
-            false,
-            "Test skipped in debug mode, because it is really slow"
-        );
+        panic!("Test skipped in debug mode, because it is really slow");
     }
 }

@@ -18,9 +18,10 @@ fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedR
     let res = reader.read_line(line);
     if let Err(err) = res {
         //TODO @mark: verbose logging
-        return Err(match verbose {
-            true => "could not read file".to_owned(),
-            false => format!("could not read file (error: {})", err),
+        return Err(if verbose {
+            "could not read file".to_owned()
+        } else {
+            format!("could not read file (error: {})", err)
         });
     }
     line.pop();
@@ -28,31 +29,27 @@ fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedR
 }
 
 fn check_prefix<'a>(line: &'a str, prefix: &str, verbose: bool) -> FedResult<&'a str> {
-    match prefix.len() <= line.len() && &line[..prefix.len()] == prefix {
-        true => Ok(&line[prefix.len()..]),
-        false => Err(match verbose {
-            true => "encryption header was incorrect".to_owned(),
-            false => format!(
+    if prefix.len() <= line.len() && &line[..prefix.len()] == prefix {
+        Ok(&line[prefix.len()..])
+    } else {
+        Err(if verbose {
+            "encryption header was incorrect".to_owned()
+        } else {
+            format!(
                 "encryption header was incorrect (expected '{}', but it was not found)",
                 prefix
-            ),
-        }),
+            )
+        })
     }
 }
 
 fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
     read_line(reader, line, verbose)?;
     if HEADER_MARKER != line {
-        return Err(match verbose {
-            false => {
-                "did not recognize encryption header; was this file really encrypted with fileenc?"
-                    .to_owned()
-            }
-            true => format!(
-                "did not recognize encryption header (expected '{}', got '{}'); \
-            was this file really encrypted with fileenc?",
-                HEADER_MARKER, line
-            ),
+        return Err(if verbose {
+            format!("did not recognize encryption header (expected '{}', got '{}'); was this file really encrypted with fileenc?", HEADER_MARKER, line)
+        } else {
+            "did not recognize encryption header; was this file really encrypted with fileenc?".to_owned()
         });
     }
     Ok(())
@@ -63,15 +60,10 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
     let verion_str = check_prefix(line, HEADER_VERSION_MARKER, verbose)?;
     match Version::parse(verion_str) {
         Ok(version) => Ok(version),
-        Err(err) => Err(match verbose {
-            false => {
-                "could not determine the version of fileenc that encrypted this file".to_owned()
-            }
-            true => format!(
-                "could not determine the version of fileenc that encrypted this file; \
-            got {} which is invalid, reason: {}",
-                verion_str, err
-            ),
+        Err(err) => Err(if verbose {
+            format!("could not determine the version of fileenc that encrypted this file; got {} which is invalid, reason: {}", verion_str, err)
+        } else {
+            "could not determine the version of fileenc that encrypted this file".to_owned()
         }),
     }
 }
@@ -81,15 +73,10 @@ fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> Fed
     let salt_str = check_prefix(line, HEADER_SALT_MARKER, verbose)?;
     match base64str_to_u64(salt_str) {
         Ok(salt) => Ok(Salt::new(salt)),
-        Err(err) => Err(match verbose {
-            false => {
-                "could not determine the salt used by fileenc that encrypted this file".to_owned()
-            }
-            true => format!(
-                "could not determine the salt used by fileenc that encrypted this file; \
-            got {} which is invalid, reason: {}",
-                salt_str, err
-            ),
+        Err(err) => Err(if verbose {
+            format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", salt_str, err)
+        } else {
+            "could not determine the salt used by fileenc that encrypted this file".to_owned()
         }),
     }
 }
@@ -111,8 +98,8 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
     let salt = parse_salt(reader, &mut line, verbose)?;
     let checksum = parse_checksum(reader, &mut line, verbose)?;
     read_line(reader, &mut line, verbose)?;
-    check_prefix(&mut line, HEADER_DATA_MARKER, verbose).unwrap();
-    Header::new(version, salt, checksum, &verbose)
+    check_prefix(&line, HEADER_DATA_MARKER, verbose).unwrap();
+    Header::new(version, salt, checksum, verbose)
 }
 
 #[cfg(test)]
@@ -132,7 +119,7 @@ mod tests {
             version,
             Salt::new(1),
             Checksum::fixed_for_test(vec![2]),
-            &true,
+            true,
         )
         .unwrap();
         let mut buf = input.as_bytes();
@@ -148,7 +135,7 @@ mod tests {
             version,
             Salt::new(123_456_789),
             Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
-            &true,
+            true,
         )
         .unwrap();
         let mut buf = input.as_bytes();

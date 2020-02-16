@@ -33,9 +33,9 @@ impl Header {
         version: Version,
         salt: Salt,
         checksum: Checksum,
-        verbose: &bool,
+        verbose: bool,
     ) -> FedResult<Self> {
-        let strategy = get_version_strategy(&version, *verbose)
+        let strategy = get_version_strategy(&version, verbose)
             .map_err(|e| format!("version used to encrypt: {}", e))?;
         Ok(Header {
             version,

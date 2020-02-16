@@ -79,7 +79,7 @@ mod tests {
                 return;
             }
         }
-        assert!(false); // Should have returned before here.
+        panic!(); // Should have returned before here.
     }
 
     #[test]
