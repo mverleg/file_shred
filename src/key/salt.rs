@@ -65,7 +65,7 @@ mod tests {
     fn debug_impl() {
         let salt = Salt::static_for_test(1_111_111_111_111_111_111);
         let debug = format!("{:?}", salt);
-        assert_eq!(&debug, "salt[199...15]");
+        assert_eq!("salt[199...15]", &debug);
     }
 
     #[test]

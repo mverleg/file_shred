@@ -137,7 +137,7 @@ mod tests {
         .unwrap();
         let mut buf = input.as_bytes();
         let header = parse_header(&mut buf, true).unwrap();
-        assert_eq!(header, expected);
+        assert_eq!(expected, header);
     }
 
     #[test]
@@ -153,6 +153,6 @@ mod tests {
         .unwrap();
         let mut buf = input.as_bytes();
         let header = parse_header(&mut buf, true).unwrap();
-        assert_eq!(header, expected);
+        assert_eq!(expected, header);
     }
 }

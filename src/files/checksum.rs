@@ -104,7 +104,7 @@ mod tests {
         let input = "xx_sha256 AQIDBAAABQYHCP-qWg";
         let parsed = Checksum::parse(input).unwrap();
         let expected = Checksum::fixed_for_test(vec![1, 2, 3, 4, 0, 0, 5, 6, 7, 8, 255, 170, 90]);
-        assert_eq!(parsed, expected);
+        assert_eq!(expected, parsed);
     }
 
     #[test]
@@ -112,8 +112,8 @@ mod tests {
         let data = generate_test_file_content_for_test(15_001);
         let checksum = calculate_checksum(&data);
         assert_eq!(
+            vec![219, 36, 108, 103, 132, 201, 242, 88, 202, 217, 207, 138, 186, 93, 68, 203],
             checksum.value,
-            vec![219, 36, 108, 103, 132, 201, 242, 88, 202, 217, 207, 138, 186, 93, 68, 203]
         );
     }
 }

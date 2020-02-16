@@ -69,7 +69,7 @@ mod tests {
             44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
             66, 67, 68, 69, 70,
         ];
-        assert_eq!(actual, expected);
+        assert_eq!(expected, actual);
     }
 
     #[test]
@@ -86,7 +86,7 @@ mod tests {
     fn aes256_big() {
         let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
         let salt = Salt::static_for_test(123_456_789_123_456_789);
-        let plain = generate_test_file_content_for_test(1_000_000);
+        let plain = generate_test_file_content_for_test(500_000);
         let input = encrypt_aes256(plain.clone(), &key, &salt);
         assert!(&plain != &input);
         let actual = decrypt_aes256(input, &key, &salt).unwrap();
@@ -111,7 +111,7 @@ mod tests {
             44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
             66, 67, 68, 69, 70,
         ];
-        assert_eq!(actual, expected);
+        assert_eq!(expected, actual);
     }
 
     #[test]
@@ -128,7 +128,7 @@ mod tests {
     fn twofish_big() {
         let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
         let salt = Salt::static_for_test(123_456_789_123_456_789);
-        let plain = generate_test_file_content_for_test(1_000_000);
+        let plain = generate_test_file_content_for_test(500_000);
         let input = encrypt_twofish(plain.clone(), &key, &salt);
         assert!(&plain != &input);
         let actual = decrypt_twofish(input, &key, &salt).unwrap();

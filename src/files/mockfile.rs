@@ -18,7 +18,7 @@ mod tests {
     #[test]
     fn generate() {
         let data = generate_test_file_content_for_test(15_001);
-        assert_eq!(data.len(), 15_001);
+        assert_eq!(15_001, data.len());
         assert!(data.contains(&0));
         assert!(data.contains(&127));
         assert!(data.contains(&255));

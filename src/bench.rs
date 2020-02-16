@@ -100,7 +100,7 @@ mod encrypt {
                     let input = generate_test_file_content_for_test(1_000_000);
                     let actual = encrypt_aes256(black_box(input), &key, &salt).unwrap();
                     let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
-                    assert_eq!(&actual[..8], expected_start);
+                    assert_eq!(expected_start, &actual[..8]);
                 })
             })
             .sample_size(10),

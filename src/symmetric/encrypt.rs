@@ -82,10 +82,12 @@ mod tests {
     fn aes256_big() {
         let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
         let salt = Salt::static_for_test(123_456_789_123_456_789);
-        let input = generate_test_file_content_for_test(1_000_000);
+        let input = generate_test_file_content_for_test(500_000);
         let actual = encrypt_aes256(input, &key, &salt);
         let expected_start = &[99, 98, 68, 40, 23, 127, 40, 229];
-        assert_eq!(&actual[..8], expected_start);
+        let expected_end = &[246, 94, 217, 38, 227, 81, 170, 63];
+        assert_eq!(expected_start, &actual[..8]);
+        assert_eq!(expected_end, &actual[actual.len()-8..]);
     }
 
     #[test]
@@ -106,7 +108,7 @@ mod tests {
             183, 215, 181, 116, 127, 237, 44, 234, 123, 17, 87, 102, 163, 3, 224, 95,
             109, 189, 86, 58, 72, 213, 63, 79, 171, 77, 194, 58, 94, 217, 114, 26
         ];
-        assert_eq!(actual, expected);
+        assert_eq!(expected, actual);
     }
 
     #[test]
@@ -123,9 +125,11 @@ mod tests {
     fn twofish_big() {
         let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
         let salt = Salt::static_for_test(123_456_789_123_456_789);
-        let input = generate_test_file_content_for_test(1_000_000);
+        let input = generate_test_file_content_for_test(500_000);
         let actual = encrypt_twofish(input, &key, &salt);
         let expected_start = &[123, 234, 159, 158, 79, 48, 128, 175];
-        assert_eq!(&actual[..8], expected_start);
+        let expected_end = &[64, 227, 233, 211, 40, 252, 244, 86];
+        assert_eq!(expected_start, &actual[..8]);
+        assert_eq!(expected_end, &actual[actual.len()-8..]);
     }
 }
