@@ -59,7 +59,7 @@ impl Checksum {
         }
         Err(format!(
             "failed to parse checksum format: {}",
-            input.split(" ").next().unwrap()
+            input.split(' ').next().unwrap()
         ))
     }
 }

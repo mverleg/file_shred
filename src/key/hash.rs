@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_hash_bcrypt() {
-        let hashed = hash_bcrypt(&vec![1; 32], &vec![2; 32]);
+        let hashed = hash_bcrypt(&[1; 32], &[2; 32]);
         let expected: Vec<u8> = vec![
             36, 50, 121, 36, 49, 48, 36, 46, 101, 71, 65, 46, 101, 71, 65, 46, 101, 71, 65, 46,
             101, 71, 65, 46, 101, 71, 65, 46, 101, 66, 114, 86, 57, 105, 106, 106, 103, 68, 70, 75,
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_hash_bcrypt_0() {
-        let hashed = hash_bcrypt(&vec![0; 32], &vec![0; 16]);
+        let hashed = hash_bcrypt(&[0; 32], &[0; 16]);
         let expected: Vec<u8> = vec![
             36, 50, 121, 36, 49, 48, 36, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46,
             46, 46, 46, 46, 46, 46, 46, 46, 99, 118, 56, 107, 82, 56, 47, 81, 116, 102, 76, 79, 50,
@@ -109,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_hash_argon2i() {
-        let hashed = hash_argon2i(&vec![1; 32], &vec![2; 32]);
+        let hashed = hash_argon2i(&[1; 32], &[2; 32]);
         let expected: Vec<u8> = vec![
             114, 139, 48, 2, 98, 196, 133, 19, 232, 144, 6, 149, 44, 68, 116, 152, 233, 120, 110,
             205, 15, 29, 180, 181, 4, 86, 84, 153, 228, 231, 106, 225,
@@ -119,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_hash_argon2i_0() {
-        let hashed = hash_argon2i(&vec![0; 32], &vec![0; 16]);
+        let hashed = hash_argon2i(&[0; 32], &[0; 16]);
         let expected: Vec<u8> = vec![
             48, 210, 130, 114, 168, 121, 20, 79, 3, 184, 46, 80, 43, 161, 165, 121, 68, 175, 154,
             87, 128, 226, 23, 244, 222, 136, 41, 30, 92, 110, 88, 223,
@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn test_hash_sha256() {
-        let hashed = hash_sha256(&vec![1; 32], &vec![2; 32]);
+        let hashed = hash_sha256(&[1; 32], &[2; 32]);
         let expected: Vec<u8> = vec![
             89, 92, 124, 234, 51, 101, 87, 71, 223, 104, 235, 37, 116, 52, 18, 253, 105, 30, 196,
             19, 174, 103, 43, 152, 200, 52, 241, 160, 102, 155, 118, 89,
@@ -139,7 +139,7 @@ mod tests {
 
     #[test]
     fn test_hash_sha256_0() {
-        let hashed = hash_sha256(&vec![0; 32], &vec![0; 16]);
+        let hashed = hash_sha256(&[0; 32], &[0; 16]);
         let expected: Vec<u8> = vec![
             127, 219, 200, 223, 214, 170, 211, 3, 75, 60, 208, 193, 156, 151, 72, 51, 164, 78, 227,
             245, 160, 150, 122, 232, 234, 10, 198, 186, 236, 182, 37, 204,

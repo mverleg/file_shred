@@ -95,10 +95,10 @@ mod encrypt {
             "enc_aes256",
             Benchmark::new("enc_aes256", |b| {
                 b.iter(|| {
-                    let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
+                    let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
                     let salt = Salt::static_for_test(123_456_789_123_456_789);
                     let input = generate_test_file_content_for_test(1_000_000);
-                    let actual = encrypt_aes256(black_box(input), &key, &salt).unwrap();
+                    let actual = encrypt_aes256(black_box(input), &key, &salt);
                     let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
                     assert_eq!(expected_start, &actual[..8]);
                 })

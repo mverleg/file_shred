@@ -35,7 +35,7 @@ fn write_line(
     if let Some(text) = value {
         wrap_err(writer.write(text.as_bytes()), verbose)?;
     }
-    wrap_err(writer.write("\n".as_bytes()), verbose)?;
+    wrap_err(writer.write(b"\n"), verbose)?;
     Ok(())
 }
 

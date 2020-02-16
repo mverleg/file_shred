@@ -10,7 +10,7 @@ pub fn stretch_key(
     stretch_count: u64,
     key_hash_algorithms: &[KeyHashAlg],
 ) -> StretchKey {
-    assert!(key_hash_algorithms.len() >= 1);
+    assert!(!key_hash_algorithms.is_empty());
     let salt_bytes = salt.salt;
     let mut data = raw_key.key_data.clone().unsecure().as_bytes().to_owned();
     for key_hash_alg in key_hash_algorithms {

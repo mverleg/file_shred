@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn aes256_reverse() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(123_456_789);
         let input = vec![
             00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,

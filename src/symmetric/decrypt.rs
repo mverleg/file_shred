@@ -12,7 +12,7 @@ pub fn decrypt_file(
     salt: &Salt,
     encrypt_algs: &[SymmetricEncryptionAlg],
 ) -> FedResult<Vec<u8>> {
-    assert!(encrypt_algs.len() >= 1);
+    assert!(!encrypt_algs.is_empty());
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
             SymmetricEncryptionAlg::Aes256 => decrypt_aes256(data, key, salt)?,
@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn aes256_small() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(123_456_789);
         let input: Vec<u8> = vec![
             8, 161, 111, 221, 11, 228, 30, 113, 127, 148, 186, 160, 217, 32, 132, 212,
@@ -74,7 +74,7 @@ mod tests {
 
     #[test]
     fn aes256_empty() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![239, 171, 247, 22, 166, 83, 232, 115, 142, 205, 233, 249, 184, 2, 254, 29];
         let actual = decrypt_aes256(input, &key, &salt).unwrap();
@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn aes256_big() {
-        let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
+        let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let plain = generate_test_file_content_for_test(500_000);
         let input = encrypt_aes256(plain.clone(), &key, &salt);
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn twofish_small() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(123_456_789);
         let input: Vec<u8> = vec![
             116, 245, 144, 10, 177, 86, 56, 253, 69, 146, 58, 191, 153, 12, 201, 127,
@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     fn twofish_empty() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![139, 95, 45, 191, 95, 153, 224, 1, 188, 181, 50, 26, 53, 74, 249, 55];
         let actual = decrypt_twofish(input, &key, &salt).unwrap();
@@ -126,7 +126,7 @@ mod tests {
 
     #[test]
     fn twofish_big() {
-        let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
+        let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let plain = generate_test_file_content_for_test(500_000);
         let input = encrypt_twofish(plain.clone(), &key, &salt);

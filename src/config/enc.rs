@@ -26,7 +26,7 @@ impl EncryptConfig {
         output_extension: String,
         dry_run: bool,
     ) -> Self {
-        assert!(files.len() >= 1);
+        assert!(!files.is_empty());
         if dry_run {
             delete_input = false;
             overwrite = false;

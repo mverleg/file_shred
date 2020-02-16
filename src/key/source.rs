@@ -43,7 +43,7 @@ impl FromStr for KeySource {
         let txt_snip = if txt.len() > 5 {
             format!("{}...", txt[..4].to_owned())
         } else {
-            format!("{}", txt[..5].to_owned())
+            txt[..5].to_owned()
         };
         Err(format!(
             "key string was not recognized; got '{}', should be one of \
@@ -86,7 +86,7 @@ fn key_from_file(file_path: &Path) -> FedResult<Key> {
 fn ask_key_from_prompt(message: &str) -> FedResult<Key> {
     match rpassword::read_password_from_tty(Some(message)) {
         Ok(pw) => Ok(Key::new(pw.trim())),
-        Err(_) => Err(format!("failed to get password from interactive console")),
+        Err(_) => Err("failed to get password from interactive console".to_string()),
     }
 }
 

@@ -12,7 +12,7 @@ pub fn encrypt_file(
     salt: &Salt,
     encrypt_algs: &[SymmetricEncryptionAlg],
 ) -> Vec<u8> {
-    assert!(encrypt_algs.len() >= 1);
+    assert!(!encrypt_algs.is_empty());
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
             SymmetricEncryptionAlg::Aes256 => encrypt_aes256(data, key, salt),
@@ -49,7 +49,7 @@ mod tests {
 
     #[test]
     fn aes256_small() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(123_456_789);
         let input = vec![
             00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn aes256_empty() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![];
         let actual = encrypt_aes256(input, &key, &salt);
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn aes256_big() {
-        let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
+        let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let input = generate_test_file_content_for_test(500_000);
         let actual = encrypt_aes256(input, &key, &salt);
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn twofish_small() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(123_456_789);
         let input = vec![
             00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
@@ -113,7 +113,7 @@ mod tests {
 
     #[test]
     fn twofish_empty() {
-        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![];
         let actual = encrypt_twofish(input, &key, &salt);
@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     fn twofish_big() {
-        let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
+        let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let input = generate_test_file_content_for_test(500_000);
         let actual = encrypt_twofish(input, &key, &salt);
