@@ -1,9 +1,9 @@
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
 use crate::key::Salt;
-use crate::symmetric::shared::endec_aes256;
+
+use crate::symmetric::{Aes256Cbc, TwofishCbc};
 use crate::util::FedResult;
-use crate::symmetric::{TwofishCbc, Aes256Cbc};
 use block_modes::BlockMode;
 
 pub fn decrypt_file(
@@ -25,39 +25,29 @@ pub fn decrypt_file(
 pub fn decrypt_aes256(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     debug_assert!(key.key_data.unsecure().len() >= 32);
     debug_assert!(salt.salt.len() >= 16);
-    let cipher = Aes256Cbc::new_var(
-        &key.key_data.unsecure()[..32],
-        &salt.salt[..16]
-    ).unwrap();
+    let cipher = Aes256Cbc::new_var(&key.key_data.unsecure()[..32], &salt.salt[..16]).unwrap();
     match cipher.decrypt_vec(&data) {
         Ok(plain) => Ok(plain),
-        Err(err) => Err(format!("Decryption algorithm failed: {}", err))
+        Err(err) => Err(format!("Decryption algorithm failed: {}", err)),
     }
 }
 
 pub fn decrypt_twofish(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     debug_assert!(key.key_data.unsecure().len() >= 16);
     debug_assert!(salt.salt.len() >= 16);
-    let cipher = TwofishCbc::new_var(
-        &key.key_data.unsecure()[..16],
-        &salt.salt[..16]
-    ).unwrap();
+    let cipher = TwofishCbc::new_var(&key.key_data.unsecure()[..16], &salt.salt[..16]).unwrap();
     match cipher.decrypt_vec(&data) {
         Ok(plain) => Ok(plain),
-        Err(err) => Err(format!("Decryption algorithm failed: {}", err))
+        Err(err) => Err(format!("Decryption algorithm failed: {}", err)),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use ::aes_ctr::stream_cipher::generic_array::GenericArray;
+
     use ::aes_ctr::stream_cipher::NewStreamCipher;
-    use ::aes_ctr::stream_cipher::SyncStreamCipher;
-    use ::aes_ctr::Aes256Ctr;
 
     use crate::files::mockfile::generate_test_file_content_for_test;
-    use crate::key::hash::fastish_hash;
-    use crate::symmetric::encrypt::encrypt_aes256;
 
     use super::*;
 

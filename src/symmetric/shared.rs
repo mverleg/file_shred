@@ -20,7 +20,6 @@ pub fn endec_aes256(mut data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResu
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aes_ctr::Aes128Ctr;
 
     #[test]
     fn aes256_reverse() {
