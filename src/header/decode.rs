@@ -17,7 +17,6 @@ fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedR
     line.clear();
     let res = reader.read_line(line);
     if let Err(err) = res {
-        //TODO @mark: verbose logging
         return Err(if verbose {
             "could not read file".to_owned()
         } else {

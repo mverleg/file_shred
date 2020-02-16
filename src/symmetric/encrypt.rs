@@ -15,25 +15,25 @@ pub fn encrypt_file(
     assert!(!encrypt_algs.is_empty());
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
-            SymmetricEncryptionAlg::Aes256 => encrypt_aes256(data, key, salt),
-            SymmetricEncryptionAlg::Twofish => encrypt_twofish(data, key, salt),
+            SymmetricEncryptionAlg::Aes256 => encrypt_aes256(&data, key, salt),
+            SymmetricEncryptionAlg::Twofish => encrypt_twofish(&data, key, salt),
         }
     }
     data
 }
 
-pub fn encrypt_aes256(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> Vec<u8> {
+pub fn encrypt_aes256(data: &[u8], key: &StretchKey, salt: &Salt) -> Vec<u8> {
     debug_assert!(key.key_data.unsecure().len() >= 32);
     debug_assert!(salt.salt.len() >= 16);
     let cipher = Aes256Cbc::new_var(&key.key_data.unsecure()[..32], &salt.salt[..16]).unwrap();
-    cipher.encrypt_vec(&data)
+    cipher.encrypt_vec(data)
 }
 
-pub fn encrypt_twofish(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> Vec<u8> {
+pub fn encrypt_twofish(data: &[u8], key: &StretchKey, salt: &Salt) -> Vec<u8> {
     debug_assert!(key.key_data.unsecure().len() >= 16);
     debug_assert!(salt.salt.len() >= 16);
     let cipher = TwofishCbc::new_var(&key.key_data.unsecure()[..16], &salt.salt[..16]).unwrap();
-    cipher.encrypt_vec(&data)
+    cipher.encrypt_vec(data)
 }
 
 #[cfg(test)]
@@ -52,7 +52,7 @@ mod tests {
             44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
             66, 67, 68, 69, 70,
         ];
-        let actual = encrypt_aes256(input, &key, &salt);
+        let actual = encrypt_aes256(&input, &key, &salt);
         let expected: Vec<u8> = vec![
             8, 161, 111, 221, 11, 228, 30, 113, 127, 148, 186, 160, 217, 32, 132, 212,
             24, 230, 13, 196, 126, 21, 244, 203, 34, 121, 157, 181, 3, 37, 201, 196, 21,
@@ -68,7 +68,7 @@ mod tests {
         let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![];
-        let actual = encrypt_aes256(input, &key, &salt);
+        let actual = encrypt_aes256(&input, &key, &salt);
         let expected: Vec<u8> = vec![239, 171, 247, 22, 166, 83, 232, 115, 142, 205, 233, 249, 184, 2, 254, 29];
         assert_eq!(expected, actual);
     }
@@ -78,7 +78,7 @@ mod tests {
         let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let input = generate_test_file_content_for_test(500_000);
-        let actual = encrypt_aes256(input, &key, &salt);
+        let actual = encrypt_aes256(&input, &key, &salt);
         let expected_start = &[99, 98, 68, 40, 23, 127, 40, 229];
         let expected_end = &[246, 94, 217, 38, 227, 81, 170, 63];
         assert_eq!(expected_start, &actual[..8]);
@@ -95,7 +95,7 @@ mod tests {
             44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
             66, 67, 68, 69, 70,
         ];
-        let actual = encrypt_twofish(input, &key, &salt);
+        let actual = encrypt_twofish(&input, &key, &salt);
         let expected: Vec<u8> = vec![
             116, 245, 144, 10, 177, 86, 56, 253, 69, 146, 58, 191, 153, 12, 201, 127,
             91, 29, 0, 207, 78, 210, 98, 218, 231, 195, 239, 53, 1, 148, 165, 121,
@@ -111,7 +111,7 @@ mod tests {
         let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![];
-        let actual = encrypt_twofish(input, &key, &salt);
+        let actual = encrypt_twofish(&input, &key, &salt);
         let expected: Vec<u8> = vec![139, 95, 45, 191, 95, 153, 224, 1, 188, 181, 50, 26, 53, 74, 249, 55];
         assert_eq!(expected, actual);
     }
@@ -121,7 +121,7 @@ mod tests {
         let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let input = generate_test_file_content_for_test(500_000);
-        let actual = encrypt_twofish(input, &key, &salt);
+        let actual = encrypt_twofish(&input, &key, &salt);
         let expected_start = &[123, 234, 159, 158, 79, 48, 128, 175];
         let expected_end = &[64, 227, 233, 211, 40, 252, 244, 86];
         assert_eq!(expected_start, &actual[..8]);

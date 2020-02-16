@@ -25,6 +25,9 @@ pub fn stretch_key(
 
 #[cfg(test)]
 mod tests {
+    #[cfg(not(debug_assertions))] use crate::header::strategy::get_current_version_strategy;
+    #[cfg(not(debug_assertions))] use super::*;
+
     #[cfg(not(debug_assertions))]
     #[test]
     fn stratch_test_password() {

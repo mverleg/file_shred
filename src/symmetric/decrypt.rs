@@ -15,28 +15,28 @@ pub fn decrypt_file(
     assert!(!encrypt_algs.is_empty());
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
-            SymmetricEncryptionAlg::Aes256 => decrypt_aes256(data, key, salt)?,
-            SymmetricEncryptionAlg::Twofish => decrypt_twofish(data, key, salt)?,
+            SymmetricEncryptionAlg::Aes256 => decrypt_aes256(&data, key, salt)?,
+            SymmetricEncryptionAlg::Twofish => decrypt_twofish(&data, key, salt)?,
         }
     }
     Ok(data)
 }
 
-pub fn decrypt_aes256(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+pub fn decrypt_aes256(data: &[u8], key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     debug_assert!(key.key_data.unsecure().len() >= 32);
     debug_assert!(salt.salt.len() >= 16);
     let cipher = Aes256Cbc::new_var(&key.key_data.unsecure()[..32], &salt.salt[..16]).unwrap();
-    match cipher.decrypt_vec(&data) {
+    match cipher.decrypt_vec(data) {
         Ok(plain) => Ok(plain),
         Err(err) => Err(format!("Decryption algorithm failed: {}", err)),
     }
 }
 
-pub fn decrypt_twofish(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+pub fn decrypt_twofish(data: &[u8], key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
     debug_assert!(key.key_data.unsecure().len() >= 16);
     debug_assert!(salt.salt.len() >= 16);
     let cipher = TwofishCbc::new_var(&key.key_data.unsecure()[..16], &salt.salt[..16]).unwrap();
-    match cipher.decrypt_vec(&data) {
+    match cipher.decrypt_vec(data) {
         Ok(plain) => Ok(plain),
         Err(err) => Err(format!("Decryption algorithm failed: {}", err)),
     }
@@ -60,7 +60,7 @@ mod tests {
             77, 32, 13, 150, 85, 84, 172, 159, 42, 60, 228, 3, 21, 221, 83, 195, 0, 15,
             124, 67, 62, 219, 72, 251, 230, 81, 87, 117, 239, 90
         ];
-        let actual = decrypt_aes256(input, &key, &salt).unwrap();
+        let actual = decrypt_aes256(&input, &key, &salt).unwrap();
         let expected = vec![
              0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
             22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
@@ -75,7 +75,7 @@ mod tests {
         let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![239, 171, 247, 22, 166, 83, 232, 115, 142, 205, 233, 249, 184, 2, 254, 29];
-        let actual = decrypt_aes256(input, &key, &salt).unwrap();
+        let actual = decrypt_aes256(&input, &key, &salt).unwrap();
         let expected: Vec<u8> = vec![];
         assert_eq!(expected, actual);
     }
@@ -85,9 +85,9 @@ mod tests {
         let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let plain = generate_test_file_content_for_test(500_000);
-        let input = encrypt_aes256(plain.clone(), &key, &salt);
+        let input = encrypt_aes256(&plain, &key, &salt);
         assert!(plain != input);
-        let actual = decrypt_aes256(input, &key, &salt).unwrap();
+        let actual = decrypt_aes256(&input, &key, &salt).unwrap();
         assert_eq!(plain, actual);
     }
 
@@ -102,7 +102,7 @@ mod tests {
             183, 215, 181, 116, 127, 237, 44, 234, 123, 17, 87, 102, 163, 3, 224, 95,
             109, 189, 86, 58, 72, 213, 63, 79, 171, 77, 194, 58, 94, 217, 114, 26
         ];
-        let actual = decrypt_twofish(input, &key, &salt).unwrap();
+        let actual = decrypt_twofish(&input, &key, &salt).unwrap();
         let expected = vec![
             0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
             22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
@@ -117,7 +117,7 @@ mod tests {
         let key = StretchKey::mock_stretch(b"s3cr3t!");
         let salt = Salt::static_for_test(111_555_999);
         let input = vec![139, 95, 45, 191, 95, 153, 224, 1, 188, 181, 50, 26, 53, 74, 249, 55];
-        let actual = decrypt_twofish(input, &key, &salt).unwrap();
+        let actual = decrypt_twofish(&input, &key, &salt).unwrap();
         let expected: Vec<u8> = vec![];
         assert_eq!(expected, actual);
     }
@@ -127,9 +127,9 @@ mod tests {
         let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let plain = generate_test_file_content_for_test(500_000);
-        let input = encrypt_twofish(plain.clone(), &key, &salt);
+        let input = encrypt_twofish(&plain, &key, &salt);
         assert!(plain != input);
-        let actual = decrypt_twofish(input, &key, &salt).unwrap();
+        let actual = decrypt_twofish(&input, &key, &salt).unwrap();
         assert_eq!(plain, actual);
     }
 }

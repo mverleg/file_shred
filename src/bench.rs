@@ -89,18 +89,51 @@ mod encrypt {
     use ::file_endec::key::Salt;
 
     use ::file_endec::symmetric::encrypt::encrypt_aes256;
+    use file_endec::symmetric::decrypt::{decrypt_aes256, decrypt_twofish};
+    use file_endec::symmetric::encrypt::encrypt_twofish;
 
     pub fn encrypt_aes256_benchmark(c: &mut Criterion) {
         c.bench(
-            "enc_aes256",
-            Benchmark::new("enc_aes256", |b| {
+            "enc_dec_aes256",
+            Benchmark::new("enc_dec_aes256", |b| {
+                let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
+                let salt = Salt::static_for_test(123_456_789_123_456_789);
+                let input = generate_test_file_content_for_test(1_000_000);
+                let input_start = input[..8].to_vec();
+                let input_end = input[input.len()-8..].to_vec();
+                let expected_start = &[99, 98, 68, 40, 23, 127, 40, 229];
+                let expected_end = &[18, 153, 235, 245, 136, 236, 90, 174];
+                b.iter(|| {
+                    let secret = encrypt_aes256(black_box(&input), &key, &salt);
+                    assert_eq!(expected_start, &secret[..8]);
+                    assert_eq!(expected_end, &secret[secret.len()-8..]);
+                    let back = decrypt_aes256(black_box(&secret), &key, &salt).unwrap();
+                    assert_eq!(input_start, &back[..8]);
+                    assert_eq!(input_end, &back[back.len()-8..]);
+                })
+            })
+            .sample_size(10),
+        );
+    }
+
+    pub fn encrypt_twofish_benchmark(c: &mut Criterion) {
+        c.bench(
+            "enc_dec_twofish",
+            Benchmark::new("enc_dec_twofish", |b| {
                 b.iter(|| {
                     let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
                     let salt = Salt::static_for_test(123_456_789_123_456_789);
                     let input = generate_test_file_content_for_test(1_000_000);
-                    let actual = encrypt_aes256(black_box(input), &key, &salt);
-                    let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
-                    assert_eq!(expected_start, &actual[..8]);
+                    let input_start = input[..8].to_vec();
+                    let input_end = input[input.len()-8..].to_vec();
+                    let secret = encrypt_twofish(black_box(&input), &key, &salt);
+                    let expected_start = &[123, 234, 159, 158, 79, 48, 128, 175];
+                    let expected_end = &[126, 104, 211, 189, 140, 204, 62, 135];
+                    assert_eq!(expected_start, &secret[..8]);
+                    assert_eq!(expected_end, &secret[secret.len()-8..]);
+                    let back = decrypt_twofish(black_box(&secret), &key, &salt).unwrap();
+                    assert_eq!(input_start, &back[..8]);
+                    assert_eq!(input_end, &back[back.len()-8..]);
                 })
             })
             .sample_size(10),
@@ -118,9 +151,13 @@ criterion_group!(
     hash::stretch_benchmark,
 );
 
-criterion_group!(encrypt_bench, encrypt::encrypt_aes256_benchmark,);
+criterion_group!(
+    encrypt_bench,
+    encrypt::encrypt_aes256_benchmark,
+    encrypt::encrypt_twofish_benchmark,
+);
 
 criterion_main!(
-    //    hash_bench,
+//    hash_bench,
     encrypt_bench,
 );

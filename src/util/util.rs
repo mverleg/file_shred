@@ -36,7 +36,6 @@ pub fn u8s_to_base64str(value: &[u8]) -> String {
     BASE64URL_NOPAD.encode(value)
 }
 
-//TODO @mark: tests
 pub fn base64str_to_u8s(base64_str: &str) -> FedResult<Vec<u8>> {
     match BASE64URL_NOPAD.decode(base64_str.as_bytes()) {
         Ok(bytes) => Ok(bytes),
