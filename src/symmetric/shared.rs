@@ -22,21 +22,6 @@ mod tests {
     use super::*;
     use aes_ctr::Aes128Ctr;
 
-    use ::aes_ctr::stream_cipher::SyncStreamCipherSeek;
-
-    #[test]
-    fn aes_ctr_sanity_check_demo() {
-        let mut data = [1, 2, 3, 4, 5, 6, 7];
-        let key = GenericArray::clone_from_slice(b"very secret key.");
-        let nonce = GenericArray::clone_from_slice(b"and secret nonce");
-        let mut cipher = Aes128Ctr::new(&key, &nonce);
-        cipher.apply_keystream(&mut data);
-        assert_eq!(data, [6, 245, 126, 124, 180, 146, 37]);
-        cipher.seek(0);
-        cipher.apply_keystream(&mut data);
-        assert_eq!(data, [1, 2, 3, 4, 5, 6, 7]);
-    }
-
     #[test]
     fn aes256_reverse() {
         let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());

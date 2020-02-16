@@ -3,6 +3,8 @@ use crate::key::key::StretchKey;
 use crate::key::Salt;
 use crate::symmetric::shared::endec_aes256;
 use crate::util::FedResult;
+use crate::symmetric::{TwofishCbc, Aes256Cbc};
+use block_modes::BlockMode;
 
 pub fn decrypt_file(
     mut data: Vec<u8>,
@@ -14,18 +16,36 @@ pub fn decrypt_file(
     for encrypt_alg in encrypt_algs {
         data = match encrypt_alg {
             SymmetricEncryptionAlg::Aes256 => decrypt_aes256(data, key, salt)?,
-            SymmetricEncryptionAlg::Twofish => decrypt_twofish(data, key)?,
+            SymmetricEncryptionAlg::Twofish => decrypt_twofish(data, key, salt)?,
         }
     }
     Ok(data)
 }
 
 pub fn decrypt_aes256(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
-    endec_aes256(data, key, salt)
+    debug_assert!(key.key_data.unsecure().len() >= 32);
+    debug_assert!(salt.salt.len() >= 16);
+    let cipher = Aes256Cbc::new_var(
+        &key.key_data.unsecure()[..32],
+        &salt.salt[..16]
+    ).unwrap();
+    match cipher.decrypt_vec(&data) {
+        Ok(plain) => Ok(plain),
+        Err(err) => Err(format!("Decryption algorithm failed: {}", err))
+    }
 }
 
-pub fn decrypt_twofish(_data: Vec<u8>, _key: &StretchKey) -> FedResult<Vec<u8>> {
-    unimplemented!()
+pub fn decrypt_twofish(data: Vec<u8>, key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+    debug_assert!(key.key_data.unsecure().len() >= 16);
+    debug_assert!(salt.salt.len() >= 16);
+    let cipher = TwofishCbc::new_var(
+        &key.key_data.unsecure()[..16],
+        &salt.salt[..16]
+    ).unwrap();
+    match cipher.decrypt_vec(&data) {
+        Ok(plain) => Ok(plain),
+        Err(err) => Err(format!("Decryption algorithm failed: {}", err))
+    }
 }
 
 #[cfg(test)]
@@ -40,31 +60,6 @@ mod tests {
     use crate::symmetric::encrypt::encrypt_aes256;
 
     use super::*;
-
-    //TODO @mark: test nonce and key different length
-
-    #[test]
-    fn aes_ctr_sanity_check() {
-        let mut input = vec![
-            97, 97, 4, 176, 197, 3, 59, 243, 46, 249, 195, 42, 101, 199, 224, 45, 110, 5, 201, 136,
-            74, 80, 197, 22, 57, 33, 2, 16, 40, 12, 21, 225, 146, 200, 196, 237, 233, 79, 14, 86,
-            71, 189, 113, 231, 47, 138, 7, 44, 49, 27, 108, 19, 149, 232, 180, 111, 125, 59, 111,
-            160, 18, 63, 60, 252, 205, 11, 212, 70, 169, 67, 109,
-        ];
-        let raw_key = fastish_hash(b"s3cr3t!");
-        let raw_nonce = fastish_hash(b"n0nc3");
-        let key = GenericArray::from_slice(&raw_key[..32]);
-        let nonce = GenericArray::from_slice(&raw_nonce[..16]);
-        let mut cipher = Aes256Ctr::new(&key, &nonce);
-        cipher.apply_keystream(&mut input);
-        let expected = vec![
-            00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-            22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
-            44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
-            66, 67, 68, 69, 70,
-        ];
-        assert_eq!(input, expected);
-    }
 
     #[test]
     fn aes256_small() {
@@ -91,7 +86,7 @@ mod tests {
         let key = StretchKey::mock_stretch("1_s3cr3t_p@55w0rd!!".as_bytes());
         let salt = Salt::static_for_test(123_456_789_123_456_789);
         let input = generate_test_file_content_for_test(1_000_000);
-        let actual = encrypt_aes256(input, &key, &salt).unwrap();
+        let actual = decrypt_aes256(input, &key, &salt).unwrap();
         let expected_start = &[81, 163, 93, 212, 203, 139, 62, 17];
         assert_eq!(&actual[..8], expected_start);
     }

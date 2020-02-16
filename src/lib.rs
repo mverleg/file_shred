@@ -44,7 +44,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let data = wrap_io(fs::read(file.path))?;
         let _checksum = calculate_checksum(&data);
         let small = compress_file(data, &strategy.compression_algorithm)?;
-        let _secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
+        let _secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
     }
     unimplemented!()
 }
