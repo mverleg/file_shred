@@ -65,7 +65,17 @@ mod tests {
             77, 32, 13, 150, 85, 84, 172, 159, 42, 60, 228, 3, 21, 221, 83, 195, 0, 15,
             124, 67, 62, 219, 72, 251, 230, 81, 87, 117, 239, 90
         ];
-        assert_eq!(actual, expected);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn aes256_empty() {
+        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let salt = Salt::static_for_test(111_555_999);
+        let input = vec![];
+        let actual = encrypt_aes256(input, &key, &salt);
+        let expected: Vec<u8> = vec![239, 171, 247, 22, 166, 83, 232, 115, 142, 205, 233, 249, 184, 2, 254, 29];
+        assert_eq!(expected, actual);
     }
 
     #[test]
@@ -97,6 +107,16 @@ mod tests {
             109, 189, 86, 58, 72, 213, 63, 79, 171, 77, 194, 58, 94, 217, 114, 26
         ];
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn twofish_empty() {
+        let key = StretchKey::mock_stretch("s3cr3t!".as_bytes());
+        let salt = Salt::static_for_test(111_555_999);
+        let input = vec![];
+        let actual = encrypt_twofish(input, &key, &salt);
+        let expected: Vec<u8> = vec![139, 95, 45, 191, 95, 153, 224, 1, 188, 181, 50, 26, 53, 74, 249, 55];
+        assert_eq!(expected, actual);
     }
 
     #[test]

@@ -58,7 +58,7 @@ mod tests {
         let original: u64 = 123_456_789_000;
         let encoded = u64_to_base64str(original);
         let back = base64str_to_u64(&encoded).unwrap();
-        assert_eq!(back, original);
+        assert_eq!(original, back);
     }
 
     #[test]
@@ -66,6 +66,6 @@ mod tests {
         let original: Vec<u8> = vec![1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1];
         let encoded = u8s_to_base64str(&original);
         let back = base64str_to_u8s(&encoded).unwrap();
-        assert_eq!(back, original);
+        assert_eq!(original, back);
     }
 }
