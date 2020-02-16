@@ -66,15 +66,21 @@ mod tests {
     use ::lazy_static::lazy_static;
     use ::regex::Regex;
     use ::secstr::SecVec;
-    use semver::Version;
+    use ::semver::Version;
+    use ::std::fs::File;
+    use ::std::io::Read;
 
+    use crate::config::DecryptConfig;
+    use crate::decrypt;
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
+    use crate::key::key::Key;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
     lazy_static! {
-        static ref COMPAT_FILE_RE: Regex = Regex::new(r"^original_v(\d+\.\d+\.\d+)$").unwrap();
+        static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");
+        static ref COMPAT_FILE_RE: Regex = Regex::new(r"^original_v(\d+\.\d+\.\d+).png$").unwrap();
     }
 
     /// Open the files in 'test_files/' that were encrypted with previous versions,
@@ -87,6 +93,29 @@ mod tests {
             .map(|v| Version::parse(&v[0]).unwrap())
             .collect();
         assert!(enc_files.len() >= 1);
+        let mut original_pth = TEST_FILE_DIR.clone();
+        original_pth.push("original.png".to_owned());
+        for enc_file in enc_files {
+            let mut enc_pth = TEST_FILE_DIR.clone();
+            enc_pth.push(format!("original_v{}.png.enc", enc_file));
+            let mut dec_pth = TEST_FILE_DIR.clone();
+            dec_pth.push(format!("original_v{}.png", enc_file));
+            let conf = DecryptConfig::new(
+                vec![enc_pth],
+                COMPAT_KEY.clone(),
+                false,  // debug
+                false,  // overwrite
+                false,  // delete_input
+                None,  // output_dir
+                ".enc".to_owned(),
+            );
+            decrypt(&conf).unwrap();
+            let mut original_data = vec![];
+            File::open(&original_pth).unwrap().read_to_end(&mut original_data).unwrap();
+            let mut dec_data = vec![];
+            File::open(&dec_pth).unwrap().read_to_end(&mut dec_data).unwrap();
+            unimplemented!() //TODO @mark: check that the file written is the same as original
+        }
     }
 
     #[test]

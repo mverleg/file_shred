@@ -4,7 +4,7 @@ use ::secstr::SecVec;
 use ::zxcvbn::zxcvbn;
 use ::zxcvbn::Entropy;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Key {
     pub key_data: SecUtf8,
     pub strength: Entropy,

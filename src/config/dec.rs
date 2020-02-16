@@ -21,8 +21,8 @@ impl DecryptConfig {
         files: Vec<PathBuf>,
         raw_key: Key,
         debug: bool,
-        mut overwrite: bool,
-        mut delete_input: bool,
+        overwrite: bool,
+        delete_input: bool,
         output_dir: Option<PathBuf>,
         input_extension: String,
     ) -> Self {
