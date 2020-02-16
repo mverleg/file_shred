@@ -1,3 +1,4 @@
+pub mod typ;
 pub mod dec;
 pub mod enc;
 

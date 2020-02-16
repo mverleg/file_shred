@@ -1,15 +1,17 @@
 use ::std::fs;
 
+use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
+use crate::config::typ::EndecConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::header::strategy::get_current_version_strategy;
-use crate::key::stretch::stretch_key;
 use crate::key::Salt;
+use crate::key::stretch::stretch_key;
 use crate::symmetric::encrypt::encrypt_file;
-use crate::util::util::wrap_io;
 use crate::util::FedResult;
+use crate::util::util::wrap_io;
 
 pub mod config;
 pub mod files;
@@ -49,7 +51,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     unimplemented!()
 }
 
-pub fn decrypt(_config: &EncryptConfig) -> FedResult<()> {
+pub fn decrypt(_config: &DecryptConfig) -> FedResult<()> {
     unimplemented!() //TODO @mark:
 }
 
@@ -61,15 +63,30 @@ mod tests {
     use ::block_modes::block_padding::Iso7816;
     use ::block_modes::BlockMode;
     use ::block_modes::Cbc;
+    use ::lazy_static::lazy_static;
+    use ::regex::Regex;
     use ::secstr::SecVec;
+    use semver::Version;
+
+    use crate::files::scan::get_enc_files_direct;
+    use crate::files::scan::TEST_FILE_DIR;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
+
+    lazy_static! {
+        static ref COMPAT_FILE_RE: Regex = Regex::new(r"^original_v(\d+\.\d+\.\d+)$").unwrap();
+    }
 
     /// Open the files in 'test_files/' that were encrypted with previous versions,
     /// and make sure they can still be decrypted (and match the original).
     #[test]
     fn compatibility() {
-
+        let enc_files: Vec<Version> = get_enc_files_direct(&*TEST_FILE_DIR).unwrap().iter()
+            .map(|f| f.file_stem().unwrap().to_str().unwrap())
+            .map(|n| COMPAT_FILE_RE.captures_iter(n).next().unwrap())
+            .map(|v| Version::parse(&v[0]).unwrap())
+            .collect();
+        assert!(enc_files.len() >= 1);
     }
 
     #[test]

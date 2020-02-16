@@ -1,6 +1,7 @@
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
+use crate::config::typ::EndecConfig;
 use crate::key::Key;
 
 #[derive(Debug)]
@@ -44,38 +45,44 @@ impl EncryptConfig {
         }
     }
 
-    pub fn files(&self) -> &[PathBuf] {
-        &self.files
-    }
-
-    pub fn raw_key(&self) -> &Key {
-        &self.raw_key
-    }
-
-    pub fn debug(&self) -> bool {
-        self.debug
-    }
-
-    pub fn overwrite(&self) -> bool {
-        self.overwrite
-    }
-
-    pub fn delete_input(&self) -> bool {
-        self.delete_input
-    }
-
-    pub fn output_dir(&self) -> Option<&Path> {
-        match &self.output_dir {
-            Some(dir) => Some(dir.as_path()),
-            None => None,
-        }
-    }
-
     pub fn output_extension(&self) -> &str {
         &self.output_extension
     }
 
     pub fn dry_run(&self) -> bool {
         self.dry_run
+    }
+}
+
+impl EndecConfig for EncryptConfig {
+    fn files(&self) -> &[PathBuf] {
+        &self.files
+    }
+
+    fn raw_key(&self) -> &Key {
+        &self.raw_key
+    }
+
+    fn debug(&self) -> bool {
+        self.debug
+    }
+
+    fn overwrite(&self) -> bool {
+        self.overwrite
+    }
+
+    fn delete_input(&self) -> bool {
+        self.delete_input
+    }
+
+    fn output_dir(&self) -> Option<&Path> {
+        match &self.output_dir {
+            Some(dir) => Some(dir.as_path()),
+            None => None,
+        }
+    }
+
+    fn extension(&self) -> &str {
+        self.output_extension()
     }
 }

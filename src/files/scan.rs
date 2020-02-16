@@ -39,7 +39,7 @@ pub fn get_enc_files_direct(dir: &Path) -> FedResult<Vec<PathBuf>> {
 
 #[cfg(test)]
 lazy_static! {
-    static ref TEST_FILE_DIR: PathBuf = {
+    pub static ref TEST_FILE_DIR: PathBuf = {
         // Try to find relative to target dir.
         let mut test_files_dir: PathBuf = {
             let mut p = PathBuf::from(std::env::current_exe().unwrap());
@@ -63,7 +63,7 @@ lazy_static! {
                         panic!(format!("Expected test files at '{}' based on environment variable 'ENDEC_TEST_FILE_DIR', but the files were not found.", test_files_dir.to_string_lossy()));
                     }
                 },
-                Err(err) => panic!(format!("Expected test files at '{}' but they were not found; set the environment variable 'ENDEC_TEST_FILE_DIR' to the test file location.", test_files_dir.to_string_lossy())),
+                Err(_) => panic!(format!("Expected test files at '{}' but they were not found; set the environment variable 'ENDEC_TEST_FILE_DIR' to the test file location.", test_files_dir.to_string_lossy())),
             }
         }
         test_files_dir
@@ -83,6 +83,6 @@ mod tests {
     #[test]
     fn find_files() {
         let files = get_enc_files_direct(&*TEST_FILE_DIR).unwrap();
-        assert!(files.len() >= 1);
+        assert!(files.len() >= 1, "no .enc files found");
     }
 }
