@@ -33,7 +33,6 @@ secstr = "^0.3.2"
 zxcvbn = "^2.0.1"
 
 # encyrption and decryption
-aes-ctr = "^0.3.0"  # TODO @mark: TEMPORARY! REMOVE THIS!
 twofish = "^0.2.0"
 aes = "0.3.2"
 
