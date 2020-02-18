@@ -77,6 +77,7 @@ mod tests {
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
     use std::env::temp_dir;
+    use std::fs;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
@@ -88,12 +89,14 @@ mod tests {
     #[test]
     fn store_current_version() {
         let version = get_current_version();
-        let mut in_pth = TEST_FILE_DIR.clone();
-        in_pth.push("original.png");
+        let in_pth = {
+            let mut p = TEST_FILE_DIR.clone();
+            p.push("original.png");
+            p
+        };
         assert!(in_pth.exists());
-        println!("{} -> {}", &in_pth.to_string_lossy(), &out_pth.to_string_lossy());
         let conf = EncryptConfig::new(
-            vec![in_pth.to_str().unwrap()],
+            vec![in_pth],
             COMPAT_KEY.clone(),
             false,  // debug
             true,  // overwrite
@@ -102,10 +105,24 @@ mod tests {
             ".enc".to_string(),  // output_extension
             false,  //dry_run
         );
-        let mut out_pth = TEST_FILE_DIR.clone();
-        out_pth.push(format!("original_v{}.png.enc", version));
-        
-        unimplemented!()
+        let tmp_pth = {
+            let mut p = temp_dir();
+            p.push("original.png.enc");
+            p
+        };
+        assert!(tmp_pth.is_file(), "encrypted file was not created");
+        let store_pth = {
+            let mut p = TEST_FILE_DIR.clone();
+            p.push(format!("original_v{}.png.enc", version));
+            p
+        };
+        if store_pth.exists() {
+            println!("Storing file for new version {} as part of backward compatibility test files", version);
+            fs::rename(tmp_pth, store_pth);
+        } else {
+            // Remove the temporary file (as a courtesy, not critical).
+            fs::remove_file(tmp_pth).unwrap();
+        }
     }
 
     /// Open the files in 'test_files/' that were encrypted with previous versions,
