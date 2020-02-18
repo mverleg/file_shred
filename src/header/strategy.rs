@@ -1,8 +1,8 @@
 use ::lazy_static::lazy_static;
 use ::semver::Version;
 
-use crate::util::version::CURRENT_VERSION;
 use crate::util::FedResult;
+use crate::util::version::get_current_version;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CompressionAlg {
@@ -59,7 +59,7 @@ pub fn get_version_strategy(version: &Version, verbose: bool) -> FedResult<&'sta
 }
 
 pub fn get_current_version_strategy(verbose: bool) -> &'static Strategy {
-    get_version_strategy(&*CURRENT_VERSION, verbose).unwrap()
+    get_version_strategy(&get_current_version(), verbose).unwrap()
 }
 
 #[cfg(test)]

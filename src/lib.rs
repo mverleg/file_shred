@@ -70,11 +70,13 @@ mod tests {
     use ::std::fs::File;
     use ::std::io::Read;
 
-    use crate::config::DecryptConfig;
+    use crate::config::{DecryptConfig, EncryptConfig};
     use crate::decrypt;
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::key::key::Key;
+    use crate::util::version::get_current_version;
+    use std::env::temp_dir;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
@@ -83,10 +85,33 @@ mod tests {
         static ref COMPAT_FILE_RE: Regex = Regex::new(r"^original_v(\d+\.\d+\.\d+).png$").unwrap();
     }
 
+    #[test]
+    fn store_current_version() {
+        let version = get_current_version();
+        let mut in_pth = TEST_FILE_DIR.clone();
+        in_pth.push("original.png");
+        assert!(in_pth.exists());
+        println!("{} -> {}", &in_pth.to_string_lossy(), &out_pth.to_string_lossy());
+        let conf = EncryptConfig::new(
+            vec![in_pth.to_str().unwrap()],
+            COMPAT_KEY.clone(),
+            false,  // debug
+            true,  // overwrite
+            false,  // delete_input
+            Some(temp_dir()),  // output_dir
+            ".enc".to_string(),  // output_extension
+            false,  //dry_run
+        );
+        let mut out_pth = TEST_FILE_DIR.clone();
+        out_pth.push(format!("original_v{}.png.enc", version));
+        
+        unimplemented!()
+    }
+
     /// Open the files in 'test_files/' that were encrypted with previous versions,
     /// and make sure they can still be decrypted (and match the original).
     #[test]
-    fn compatibility() {
+    fn load_all_versions() {
         let enc_files: Vec<Version> = get_enc_files_direct(&*TEST_FILE_DIR)
             .unwrap()
             .iter()

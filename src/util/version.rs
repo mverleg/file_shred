@@ -2,7 +2,11 @@ use ::lazy_static::lazy_static;
 use ::semver::Version;
 
 lazy_static! {
-    pub static ref CURRENT_VERSION: Version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
+    static ref CURRENT_VERSION: Version = Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
+}
+
+pub fn get_current_version() -> Version {
+    CURRENT_VERSION.clone()
 }
 
 #[cfg(test)]
