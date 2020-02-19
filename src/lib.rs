@@ -120,7 +120,7 @@ mod tests {
             false,  // delete_input
             Some(temp_dir()),  // output_dir
             ".enc".to_string(),  // output_extension
-            false,  //dry_run
+            true,  //dry_run
         );
         let tmp_pth = {
             let mut p = temp_dir();
