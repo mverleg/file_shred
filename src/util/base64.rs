@@ -1,16 +1,8 @@
 use ::std::convert::TryInto;
-use ::std::io;
 
 use ::data_encoding::BASE64URL_NOPAD;
 
-pub type FedResult<T> = Result<T, String>;
-
-pub fn wrap_io<T>(base_msg: &str, res: io::Result<T>) -> FedResult<T> {
-    match res {
-        Ok(val) => FedResult::Ok(val),
-        Err(val) => FedResult::Err(format!("{}: {}", base_msg, val)),
-    }
-}
+use crate::util::errors::FedResult;
 
 pub fn u64_to_base64str(value: u64) -> String {
     BASE64URL_NOPAD.encode(&value.to_le_bytes())
@@ -56,6 +48,7 @@ mod tests {
     fn base_u64() {
         let original: u64 = 123_456_789_000;
         let encoded = u64_to_base64str(original);
+        //TODO @mark:
         let back = base64str_to_u64(&encoded).unwrap();
         assert_eq!(original, back);
     }
@@ -64,6 +57,7 @@ mod tests {
     fn base_u8s() {
         let original: Vec<u8> = vec![1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1];
         let encoded = u8s_to_base64str(&original);
+        //TODO @mark: 
         let back = base64str_to_u8s(&encoded).unwrap();
         assert_eq!(original, back);
     }

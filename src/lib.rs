@@ -1,22 +1,22 @@
 use ::std::fs;
+use ::std::fs::File;
+use ::std::io::Write;
 
+use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
-use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
+use crate::header::{Header, HEADER_MARKER, write_header};
 use crate::header::strategy::get_current_version_strategy;
-use crate::key::stretch::stretch_key;
 use crate::key::Salt;
+use crate::key::stretch::stretch_key;
 use crate::symmetric::encrypt::encrypt_file;
-use crate::util::util::wrap_io;
+use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use crate::header::{write_header, HEADER_MARKER, Header};
-use std::fs::File;
-use crate::util::version::get_current_version;
-use std::io::Write;
 use crate::util::pth::determine_output_path;
+use crate::util::version::get_current_version;
 
 pub mod config;
 pub mod files;
@@ -77,6 +77,11 @@ pub fn decrypt(_config: &DecryptConfig) -> FedResult<()> {
 /// https://markv.nl/blog/symmetric-encryption-in-rust
 #[cfg(test)]
 mod tests {
+    use ::std::fs::File;
+    use ::std::io::Read;
+    use std::env::temp_dir;
+    use std::fs;
+
     use ::aes::Aes256;
     use ::block_modes::block_padding::Iso7816;
     use ::block_modes::BlockMode;
@@ -85,17 +90,13 @@ mod tests {
     use ::regex::Regex;
     use ::secstr::SecVec;
     use ::semver::Version;
-    use ::std::fs::File;
-    use ::std::io::Read;
 
-    use crate::config::{DecryptConfig, EncryptConfig};
     use crate::{decrypt, encrypt};
+    use crate::config::{DecryptConfig, EncryptConfig};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
-    use std::env::temp_dir;
-    use std::fs;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
