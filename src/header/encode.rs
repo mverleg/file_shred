@@ -88,7 +88,7 @@ mod tests {
         let version = Version::parse("1.0.0").unwrap();
         let header = Header::new(
             version,
-            Salt::new(1),
+            Salt::fixed_for_test(1),
             Checksum::fixed_for_test(vec![2]),
             true,
         )
@@ -105,7 +105,7 @@ mod tests {
         let version = Version::parse("1.0.0").unwrap();
         let header = Header::new(
             version,
-            Salt::new(123_456_789),
+            Salt::fixed_for_test(123_456_789),
             Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
             true,
         )

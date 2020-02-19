@@ -15,6 +15,7 @@ use crate::util::FedResult;
 use crate::header::{write_header, HEADER_MARKER, Header};
 use std::fs::File;
 use crate::util::version::get_current_version;
+use std::io::Write;
 
 pub mod config;
 pub mod files;
@@ -36,7 +37,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         &strategy.key_hash_algorithms,
     );
     //TODO @mark: progress logging
-    for file in files_info {
+    for file in &files_info {
         if config.debug() {
             println!("encrypting {}", file.path_str());
         }
@@ -54,15 +55,17 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let checksum = calculate_checksum(&data);
         let small = compress_file(data, &strategy.compression_algorithm)?;
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
-        let header = Header::new(version.clone(), salt, checksum, config.debug())?;
+        let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
         let out_pth = match file.path.to_str() {
             Some(pth) => pth,
             None => return Err(format!("Path for file '{}' could not be interpreted as utf-8; unsupported symbols in path", file.path_str())),
         };
-        let out_file = wrap_io("could not create output file", File::create(out_pth))?;
-        write_header(&out_file, &header, config.debug());
+        let mut out_file = wrap_io("Could not create output file", File::create(out_pth))?;
+        write_header(&mut out_file, &header, config.debug())?;
+        wrap_io("Failed to write encrypted output data", out_file.write_all(&secret))?;
     }
-    unimplemented!()
+    println!("encrypted {} files", files_info.len());
+    Ok(())
 }
 
 pub fn decrypt(_config: &DecryptConfig) -> FedResult<()> {

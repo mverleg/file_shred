@@ -36,7 +36,7 @@ mod tests {
         let strat = get_current_version_strategy(true);
         stretch_key(
             &Key::new(&"MY secret p@ssw0rd"),
-            &Salt::static_for_test(123_456_789),
+            &Salt::fixed_for_test(123_456_789),
             strat.stretch_count,
             &strat.key_hash_algorithms,
         );

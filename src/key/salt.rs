@@ -1,4 +1,3 @@
-use ::std::convert::TryInto;
 use ::std::fmt::Debug;
 use ::std::fmt::Error;
 use ::std::fmt::Formatter;
@@ -51,7 +50,7 @@ impl Salt {
         Ok(Salt { salt: long })
     }
 
-    pub fn static_for_test(salt: u64) -> Self {
+    pub fn fixed_for_test(salt: u64) -> Self {
         // Iterator didn't work: salt.to_le_bytes().into_iter().cycle().take(SALT_LEN).collect::<Vec<u8>>()
         let mut repeated = [0u8; SALT_LEN];
         let input = salt.to_le_bytes();
@@ -61,20 +60,23 @@ impl Salt {
         Salt { salt: repeated }
     }
 
-    pub fn parse_base64(base64: &str) -> FedResult<Self> {
-        match base64str_to_u8s(salt_str) {
+    pub fn parse_base64(base64: &str, verbose: bool) -> FedResult<Self> {
+        match base64str_to_u8s(base64) {
             Ok(salt_vec) => {
-                match salt.try_into() {
-                    Ok(salt_arr) => Ok(Salt { salt: salt_arr }),
-                    Err(err) => Err(if verbose {
-                        format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid because it had the wrong length", salt_str)
+                if salt_vec.len() == 64 {
+                    let mut salt = [0; SALT_LEN];
+                    salt.clone_from_slice(&salt_vec);
+                    Ok(Salt { salt })
+                } else {
+                    Err(if verbose {
+                        format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid because it had the wrong length", base64)
                     } else {
                         "could not determine the salt used by fileenc to encrypt this file".to_owned()
-                    }),
+                    })
                 }
             },
             Err(err) => Err(if verbose {
-                format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", salt_str, err)
+                format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", base64, err)
             } else {
                 "could not determine the salt used by fileenc to encrypt this file".to_owned()
             }),
@@ -92,7 +94,7 @@ mod tests {
 
     #[test]
     fn debug_impl() {
-        let salt = Salt::static_for_test(1_111_111_111_111_111_111);
+        let salt = Salt::fixed_for_test(1_111_111_111_111_111_111);
         let debug = format!("{:?}", salt);
         assert_eq!("salt[199...15]", &debug);
     }

@@ -64,7 +64,7 @@ mod hash {
                     let strat = get_current_version_strategy(true);
                     stretch_key(
                         &Key::new(&"MY secret p@ssw0rd"),
-                        &Salt::static_for_test(123_456_789),
+                        &Salt::fixed_for_test(123_456_789),
                         strat.stretch_count,
                         &strat.key_hash_algorithms,
                     )
@@ -97,7 +97,7 @@ mod encrypt {
             "enc_dec_aes256",
             Benchmark::new("enc_dec_aes256", |b| {
                 let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
-                let salt = Salt::static_for_test(123_456_789_123_456_789);
+                let salt = Salt::fixed_for_test(123_456_789_123_456_789);
                 let input = generate_test_file_content_for_test(1_000_000);
                 let input_start = input[..8].to_vec();
                 let input_end = input[input.len() - 8..].to_vec();
@@ -121,7 +121,7 @@ mod encrypt {
             "enc_dec_twofish",
             Benchmark::new("enc_dec_twofish", |b| {
                 let key = StretchKey::mock_stretch(b"1_s3cr3t_p@55w0rd!!");
-                let salt = Salt::static_for_test(123_456_789_123_456_789);
+                let salt = Salt::fixed_for_test(123_456_789_123_456_789);
                 let input = generate_test_file_content_for_test(1_000_000);
                 let input_start = input[..8].to_vec();
                 let input_end = input[input.len() - 8..].to_vec();

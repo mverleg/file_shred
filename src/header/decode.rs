@@ -70,7 +70,7 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
 fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Salt> {
     read_line(reader, line, verbose)?;
     let salt_str = check_prefix(line, HEADER_SALT_MARKER, verbose)?;
-    Salt::parse_base64(salt_str)
+    Salt::parse_base64(salt_str, verbose)
 }
 
 fn parse_checksum(
@@ -111,7 +111,7 @@ mod tests {
             "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAA\ncheck xx_sha256 Ag\ndata:\n";
         let expected = Header::new(
             version,
-            Salt::new(1),
+            Salt::fixed_for_test(1),
             Checksum::fixed_for_test(vec![2]),
             true,
         )
@@ -127,7 +127,7 @@ mod tests {
         let input = "github.com/mverleg/file_endec\nv 1.0.0\nsalt Fc1bBwAAAAA\ncheck xx_sha256 AAUABQAFAAUABQAF\ndata:\n";
         let expected = Header::new(
             version,
-            Salt::new(123_456_789),
+            Salt::fixed_for_test(123_456_789),
             Checksum::fixed_for_test(vec![0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5]),
             true,
         )
