@@ -12,6 +12,9 @@ use crate::key::Salt;
 use crate::symmetric::encrypt::encrypt_file;
 use crate::util::util::wrap_io;
 use crate::util::FedResult;
+use crate::header::{write_header, HEADER_MARKER, Header};
+use std::fs::File;
+use crate::util::version::get_current_version;
 
 pub mod config;
 pub mod files;
@@ -21,6 +24,7 @@ pub mod symmetric;
 pub mod util;
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
+    let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
     let files_info = inspect_files(config.files(), config.debug())?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
@@ -38,15 +42,25 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         }
         if file.size_kb > 1024 * 1024 {
             eprintln!(
-                "warning: reading {} Mb file {} into RAM",
+                "warning: reading {} Mb file '{}' into RAM",
                 file.size_kb / 1024,
                 file.path_str()
             );
         }
-        let data = wrap_io(fs::read(file.path))?;
-        let _checksum = calculate_checksum(&data);
+        let data = wrap_io("could not read import file", fs::read(file.path))?;
+        if data.starts_with(HEADER_MARKER.as_bytes()) {
+            eprintln!("warning: file '{}' seems to already be encrypted", file.path_str());
+        }
+        let checksum = calculate_checksum(&data);
         let small = compress_file(data, &strategy.compression_algorithm)?;
-        let _secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
+        let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
+        let header = Header::new(version.clone(), salt, checksum, config.debug())?;
+        let out_pth = match file.path.to_str() {
+            Some(pth) => pth,
+            None => return Err(format!("Path for file '{}' could not be interpreted as utf-8; unsupported symbols in path", file.path_str())),
+        };
+        let out_file = wrap_io("could not create output file", File::create(out_pth));
+        write_header(&out_file, &header, config.debug());
     }
     unimplemented!()
 }
@@ -71,7 +85,7 @@ mod tests {
     use ::std::io::Read;
 
     use crate::config::{DecryptConfig, EncryptConfig};
-    use crate::decrypt;
+    use crate::{decrypt, encrypt};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::key::key::Key;
@@ -110,6 +124,7 @@ mod tests {
             p.push("original.png.enc");
             p
         };
+        encrypt(&conf).unwrap();
         assert!(tmp_pth.is_file(), "encrypted file was not created");
         let store_pth = {
             let mut p = TEST_FILE_DIR.clone();
@@ -118,7 +133,7 @@ mod tests {
         };
         if store_pth.exists() {
             println!("Storing file for new version {} as part of backward compatibility test files", version);
-            fs::rename(tmp_pth, store_pth);
+            fs::rename(tmp_pth, store_pth).unwrap();
         } else {
             // Remove the temporary file (as a courtesy, not critical).
             fs::remove_file(tmp_pth).unwrap();

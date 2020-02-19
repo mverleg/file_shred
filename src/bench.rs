@@ -136,7 +136,7 @@ mod encrypt {
                     assert_eq!(input_end, &back[back.len() - 8..]);
                 })
             })
-            .sample_size(5),
+            .sample_size(10),
         );
     }
 }

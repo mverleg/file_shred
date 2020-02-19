@@ -143,6 +143,8 @@ pub fn main() {
     }
 }
 
+//TODO: if wildcards or directories are ever supported, then skip files that have the encrypted extension (i.e. .enc)
+
 fn go() -> FedResult<()> {
     let args = EncryptArguments::from_args();
     if args.debug {
