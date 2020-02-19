@@ -3,13 +3,18 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use crate::key::Key;
+use crate::header::strategy::Verbosity;
 
 pub trait EndecConfig: Debug {
     fn files(&self) -> &[PathBuf];
 
     fn raw_key(&self) -> &Key;
 
-    fn debug(&self) -> bool;
+    fn verbosity(&self) -> Verbosity;
+
+    fn debug(&self) -> bool {
+        Verbosity::Debug == self.verbosity()
+    }
 
     fn overwrite(&self) -> bool;
 

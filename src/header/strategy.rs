@@ -4,6 +4,19 @@ use ::semver::Version;
 use crate::util::FedResult;
 use crate::util::version::get_current_version;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Verbosity {
+    Quiet,
+    Normal,
+    Debug,
+}
+
+impl Default for Verbosity {
+    fn default() -> Self {
+        Verbosity::Normal
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CompressionAlg {
     Brotli,

@@ -119,9 +119,9 @@ fn key_from_pipe() -> FedResult<Key> {
 
 impl KeySource {
     /// Obtain the key, which might involve IO.
-    pub fn obtain_key(self) -> FedResult<Key> {
+    pub fn obtain_key(&self) -> FedResult<Key> {
         match self {
-            KeySource::CliArg(pw) => Ok(pw),
+            KeySource::CliArg(pw) => Ok(pw.to_owned()),
             KeySource::EnvVar(env_var_name) => key_from_env_var(&env_var_name),
             KeySource::File(file_path) => key_from_file(&file_path),
             KeySource::AskOnce => key_from_prompt(false),

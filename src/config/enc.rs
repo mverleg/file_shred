@@ -3,6 +3,7 @@ use ::std::path::PathBuf;
 
 use crate::config::typ::EndecConfig;
 use crate::key::Key;
+use crate::header::strategy::Verbosity;
 
 #[derive(Debug)]
 pub struct EncryptConfig {
@@ -21,7 +22,7 @@ impl EncryptConfig {
     pub fn new(
         files: Vec<PathBuf>,
         raw_key: Key,
-        debug: bool,
+        verbosity: Verbosity,
         mut overwrite: bool,
         mut delete_input: bool,
         output_dir: Option<PathBuf>,
@@ -63,8 +64,8 @@ impl EndecConfig for EncryptConfig {
         &self.raw_key
     }
 
-    fn debug(&self) -> bool {
-        self.debug
+    fn verbosity(&self) -> Verbosity {
+        self.verbosity;
     }
 
     fn overwrite(&self) -> bool {

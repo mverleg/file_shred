@@ -6,6 +6,7 @@ use ::structopt::StructOpt;
 
 use ::file_endec::config::EncryptConfig;
 use ::file_endec::encrypt;
+use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
 
@@ -43,6 +44,14 @@ pub struct EncryptArguments {
     )]
     debug: bool,
 
+    #[structopt(
+        conflicts_with = "debug",
+        short = "q",
+        long = "quiet",
+        help = "Don't show progress or other non-critical output."
+    )]
+    quiet: bool,
+
     #[structopt(short = "f", long, help = "Overwrite output files if they exist.")]
     overwrite: bool,
 
@@ -75,7 +84,10 @@ pub struct EncryptArguments {
     )]
     dry_run: bool,
 
-    #[structopt(long, help = "Suppress warning if the encryption key is not strong.")]
+    #[structopt(
+        long,
+        help = "Suppress warning if the encryption key is not strong."
+    )]
     accept_weak_key: bool,
 }
 
@@ -145,6 +157,21 @@ pub fn main() {
     }
 }
 
+impl EncryptArguments {
+    fn convert(self, key: Key) -> FedResult<EncryptConfig> {
+        Ok(EncryptConfig::new(
+            self.files,
+            key,
+            self.debug,
+            self.overwrite,
+            self.delete_input,
+            self.output_dir,
+            self.output_extension,
+            self.dry_run,
+        ))
+    }
+}
+
 //TODO: if wildcards or directories are ever supported, then skip files that have the encrypted extension (i.e. .enc)
 
 fn go() -> FedResult<()> {
@@ -162,15 +189,33 @@ fn go() -> FedResult<()> {
             key.time_to_crack()
         );
     }
-    let config = EncryptConfig::new(
-        args.files,
-        key,
-        args.debug,
-        args.overwrite,
-        args.delete_input,
-        args.output_dir,
-        args.output_extension,
-        args.dry_run,
-    );
+    let config = args.convert(key)?;
     encrypt(&config)
+}
+
+#[cfg(test)]
+mod tests {
+    use ::file_endec::config::typ::EndecConfig;
+    use ::file_endec::key::Key;
+
+    use super::*;
+    use file_endec::header::strategy::Verbosity;
+
+    #[test]
+    fn parse_args_minimal() {
+        let args = EncryptArguments::from_iter(&["file.txt"]);
+        let config = args.convert(Key::new("abcdef123!")).unwrap();
+
+        // debug: bool,
+        // overwrite: bool,
+        // delete_input: bool,
+        // output_dir: Option<PathBuf>,
+        // output_extension: String,
+        // dry_run: bool,
+
+        assert!(config.files().contains(&PathBuf::from("file.txt")));
+        assert_eq!(config.raw_key().key_data.unsecure(), "abcdef123!");
+        assert_eq!(config.verbosity(), Verbosity::Normal);
+        unimplemented!()
+    }
 }
