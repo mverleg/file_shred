@@ -5,13 +5,12 @@ use ::semver::Version;
 
 use crate::files::Checksum;
 use crate::header::Header;
-use crate::header::Salt;
+use crate::key::salt::Salt;
 use crate::header::HEADER_CHECKSUM_MARKER;
 use crate::header::HEADER_DATA_MARKER;
 use crate::header::HEADER_MARKER;
 use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
-use crate::util::util::u64_to_base64str;
 use crate::util::FedResult;
 
 fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
@@ -50,7 +49,7 @@ fn write_version(writer: &mut impl Write, version: &Version, verbose: bool) -> F
 }
 
 fn write_salt(writer: &mut impl Write, salt: &Salt, verbose: bool) -> FedResult<()> {
-    let salt_str = u64_to_base64str(salt.as_primitive());
+    let salt_str = salt.as_base64();
     write_line(writer, HEADER_SALT_MARKER, Some(salt_str), verbose)
 }
 
@@ -80,7 +79,7 @@ mod tests {
 
     use crate::files::Checksum;
     use crate::header::Header;
-    use crate::header::Salt;
+    use crate::key::salt::Salt;
 
     use super::write_header;
 

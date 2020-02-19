@@ -11,7 +11,6 @@ pub use strategy::KeyHashAlg;
 pub use strategy::Strategy;
 pub use strategy::SymmetricEncryptionAlg;
 pub use types::Header;
-pub use types::Salt;
 pub use types::HEADER_CHECKSUM_MARKER;
 pub use types::HEADER_DATA_MARKER;
 pub use types::HEADER_MARKER;

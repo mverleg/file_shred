@@ -4,21 +4,7 @@ use crate::files::Checksum;
 use crate::header::get_version_strategy;
 use crate::header::Strategy;
 use crate::util::FedResult;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Salt {
-    value: u64,
-}
-
-impl Salt {
-    pub fn new(value: u64) -> Self {
-        Salt { value }
-    }
-
-    pub fn as_primitive(&self) -> u64 {
-        self.value
-    }
-}
+use crate::key::Salt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Header {

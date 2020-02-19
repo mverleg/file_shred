@@ -25,6 +25,8 @@ pub struct EncryptArguments {
     )]
     files: Vec<PathBuf>,
 
+    //TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs
+
     //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
     #[structopt(
         short = "k",

@@ -4,13 +4,12 @@ use ::semver::Version;
 
 use crate::files::Checksum;
 use crate::header::Header;
-use crate::header::Salt;
 use crate::header::HEADER_CHECKSUM_MARKER;
 use crate::header::HEADER_DATA_MARKER;
 use crate::header::HEADER_MARKER;
 use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
-use crate::util::util::base64str_to_u64;
+use crate::key::salt::Salt;
 use crate::util::FedResult;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
@@ -71,14 +70,7 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
 fn parse_salt(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<Salt> {
     read_line(reader, line, verbose)?;
     let salt_str = check_prefix(line, HEADER_SALT_MARKER, verbose)?;
-    match base64str_to_u64(salt_str) {
-        Ok(salt) => Ok(Salt::new(salt)),
-        Err(err) => Err(if verbose {
-            format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", salt_str, err)
-        } else {
-            "could not determine the salt used by fileenc that encrypted this file".to_owned()
-        }),
-    }
+    Salt::parse_base64(salt_str)
 }
 
 fn parse_checksum(
@@ -104,11 +96,13 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
 
 #[cfg(test)]
 mod tests {
-    use super::parse_header;
+    use semver::Version;
+
     use crate::files::Checksum;
     use crate::header::Header;
-    use crate::header::Salt;
-    use semver::Version;
+    use crate::key::salt::Salt;
+
+    use super::parse_header;
 
     #[test]
     fn read_v1_0_0_one() {

@@ -1,15 +1,18 @@
+use ::std::convert::TryInto;
 use ::std::fmt::Debug;
 use ::std::fmt::Error;
 use ::std::fmt::Formatter;
 
-use ::rand::rngs::OsRng;
 use ::rand::RngCore;
+use ::rand::rngs::OsRng;
 
 use crate::util::FedResult;
+use crate::util::util::base64str_to_u8s;
+use crate::util::util::u8s_to_base64str;
 
-const SALT_LEN: usize = 128; // multiple of 32
+const SALT_LEN: usize = 64; // multiple of 32
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Salt {
     pub salt: [u8; SALT_LEN],
 }
@@ -28,6 +31,8 @@ impl PartialEq for Salt {
         true
     }
 }
+
+impl Eq for Salt {}
 
 impl Debug for Salt {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
@@ -54,6 +59,30 @@ impl Salt {
             repeated[i] = input[i % input.len()];
         }
         Salt { salt: repeated }
+    }
+
+    pub fn parse_base64(base64: &str) -> FedResult<Self> {
+        match base64str_to_u8s(salt_str) {
+            Ok(salt_vec) => {
+                match salt.try_into() {
+                    Ok(salt_arr) => Ok(Salt { salt: salt_arr }),
+                    Err(err) => Err(if verbose {
+                        format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid because it had the wrong length", salt_str)
+                    } else {
+                        "could not determine the salt used by fileenc to encrypt this file".to_owned()
+                    }),
+                }
+            },
+            Err(err) => Err(if verbose {
+                format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", salt_str, err)
+            } else {
+                "could not determine the salt used by fileenc to encrypt this file".to_owned()
+            }),
+        }
+    }
+
+    pub fn as_base64(&self) -> String {
+        u8s_to_base64str(&self.salt)
     }
 }
 

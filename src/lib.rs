@@ -59,7 +59,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
             Some(pth) => pth,
             None => return Err(format!("Path for file '{}' could not be interpreted as utf-8; unsupported symbols in path", file.path_str())),
         };
-        let out_file = wrap_io("could not create output file", File::create(out_pth));
+        let out_file = wrap_io("could not create output file", File::create(out_pth))?;
         write_header(&out_file, &header, config.debug());
     }
     unimplemented!()
