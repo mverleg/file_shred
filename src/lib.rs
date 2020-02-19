@@ -16,6 +16,7 @@ use crate::header::{write_header, HEADER_MARKER, Header};
 use std::fs::File;
 use crate::util::version::get_current_version;
 use std::io::Write;
+use crate::util::pth::determine_output_path;
 
 pub mod config;
 pub mod files;
@@ -56,13 +57,13 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let small = compress_file(data, &strategy.compression_algorithm)?;
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
-        let out_pth = match file.path.to_str() {
-            Some(pth) => pth,
-            None => return Err(format!("Path for file '{}' could not be interpreted as utf-8; unsupported symbols in path", file.path_str())),
-        };
-        let mut out_file = wrap_io("Could not create output file", File::create(out_pth))?;
+        let out_pth = determine_output_path(&file.path, config.output_extension(), config.output_dir());
+        let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &out_pth.to_string_lossy()), File::create(&out_pth))?;
         write_header(&mut out_file, &header, config.debug())?;
-        wrap_io("Failed to write encrypted output data", out_file.write_all(&secret))?;
+        wrap_io(&format!("Failed to write encrypted output data for '{}'", &out_pth.to_string_lossy()), out_file.write_all(&secret))?;
+        if config.debug() {
+            println!("encrypted {}", &out_pth.to_string_lossy());
+        }
     }
     println!("encrypted {} files", files_info.len());
     Ok(())
@@ -115,12 +116,12 @@ mod tests {
         let conf = EncryptConfig::new(
             vec![in_pth],
             COMPAT_KEY.clone(),
-            false,  // debug
+            true,  // debug
             true,  // overwrite
             false,  // delete_input
             Some(temp_dir()),  // output_dir
             ".enc".to_string(),  // output_extension
-            true,  //dry_run
+            false,  //dry_run
         );
         let tmp_pth = {
             let mut p = temp_dir();
@@ -134,13 +135,14 @@ mod tests {
             p.push(format!("original_v{}.png.enc", version));
             p
         };
-        if store_pth.exists() {
-            println!("Storing file for new version {} as part of backward compatibility test files", version);
-            fs::rename(tmp_pth, store_pth).unwrap();
-        } else {
-            // Remove the temporary file (as a courtesy, not critical).
-            fs::remove_file(tmp_pth).unwrap();
+        if !store_pth.exists() {
+            println!("storing file for new version {} as part of backward compatibility test files:\n{} -> {}",
+                     version, &tmp_pth.to_string_lossy(), &store_pth.to_string_lossy());
+            fs::copy(&tmp_pth, &store_pth).unwrap();
         }
+        // Remove the temporary file (as a courtesy, not critical).
+        println!("removing temporary file {} for version {}", &tmp_pth.to_string_lossy(), version);
+        fs::remove_file(tmp_pth).unwrap();
     }
 
     /// Open the files in 'test_files/' that were encrypted with previous versions,
