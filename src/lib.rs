@@ -97,6 +97,7 @@ mod tests {
     use crate::files::scan::TEST_FILE_DIR;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
+    use crate::header::strategy::Verbosity;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
@@ -117,7 +118,7 @@ mod tests {
         let conf = EncryptConfig::new(
             vec![in_pth],
             COMPAT_KEY.clone(),
-            true,  // debug
+            Verbosity::Debug,
             true,  // overwrite
             false,  // delete_input
             Some(temp_dir()),  // output_dir
@@ -169,7 +170,7 @@ mod tests {
             let conf = DecryptConfig::new(
                 vec![enc_pth],
                 COMPAT_KEY.clone(),
-                false, // debug
+                Verbosity::Debug,
                 false, // overwrite
                 false, // delete_input
                 None,  // output_dir

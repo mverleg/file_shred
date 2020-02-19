@@ -9,6 +9,7 @@ use ::file_endec::encrypt;
 use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
+use file_endec::header::strategy::Verbosity;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -71,7 +72,6 @@ pub struct EncryptArguments {
     output_dir: Option<PathBuf>,
 
     #[structopt(
-        short = "e",
         long,
         default_value = ".enc",
         help = "Extension added to encrypted files."
@@ -159,14 +159,25 @@ pub fn main() {
 
 impl EncryptArguments {
     fn convert(self, key: Key) -> FedResult<EncryptConfig> {
+        let verbosity = match (self.debug, self.quiet) {
+            (true, true) => return Err("cannot use quiet mode and debug mode together".to_owned()),
+            (true, false) => Verbosity::Debug,
+            (false, true) => Verbosity::Quiet,
+            (false, false) => Verbosity::Normal,
+        };
+        let extension = if self.output_extension.starts_with(".") {
+            self.output_extension
+        } else {
+            format!(".{}", self.output_extension)
+        };
         Ok(EncryptConfig::new(
             self.files,
             key,
-            self.debug,
+            verbosity,
             self.overwrite,
             self.delete_input,
             self.output_dir,
-            self.output_extension,
+            extension,
             self.dry_run,
         ))
     }
@@ -203,19 +214,30 @@ mod tests {
 
     #[test]
     fn parse_args_minimal() {
-        let args = EncryptArguments::from_iter(&["file.txt"]);
+        let args = EncryptArguments::from_iter(&["fileenc", "file.txt"]);
         let config = args.convert(Key::new("abcdef123!")).unwrap();
-
-        // debug: bool,
-        // overwrite: bool,
-        // delete_input: bool,
-        // output_dir: Option<PathBuf>,
-        // output_extension: String,
-        // dry_run: bool,
-
         assert!(config.files().contains(&PathBuf::from("file.txt")));
         assert_eq!(config.raw_key().key_data.unsecure(), "abcdef123!");
         assert_eq!(config.verbosity(), Verbosity::Normal);
-        unimplemented!()
+        assert_eq!(config.overwrite(), false);
+        assert_eq!(config.delete_input(), false);
+        assert_eq!(config.output_dir(), None);
+        assert_eq!(config.output_extension(), ".enc");
+        assert_eq!(config.dry_run(), false);
+    }
+
+    #[test]
+    fn parse_args_long() {
+        let args = EncryptArguments::from_iter(&["fileenc", "file.txt", "-q",
+            "-d", "-f", "-o", "/tmp/hello", "--output-extension", "secret"]);
+        let config = args.convert(Key::new("abcdef123!")).unwrap();
+        assert!(config.files().contains(&PathBuf::from("file.txt")));
+        assert_eq!(config.raw_key().key_data.unsecure(), "abcdef123!");
+        assert_eq!(config.verbosity(), Verbosity::Quiet);
+        assert_eq!(config.overwrite(), true);
+        assert_eq!(config.delete_input(), true);
+        assert_eq!(config.output_dir(), Some(PathBuf::from("/tmp/hello").as_path()));
+        assert_eq!(config.output_extension(), ".secret");
+        assert_eq!(config.dry_run(), false);
     }
 }

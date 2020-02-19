@@ -3,12 +3,13 @@ use ::std::path::PathBuf;
 
 use crate::config::typ::EndecConfig;
 use crate::key::Key;
+use crate::header::strategy::Verbosity;
 
 #[derive(Debug)]
 pub struct DecryptConfig {
     files: Vec<PathBuf>,
     raw_key: Key,
-    debug: bool,
+    verbosity: Verbosity,
     overwrite: bool,
     delete_input: bool,
     output_dir: Option<PathBuf>,
@@ -20,7 +21,7 @@ impl DecryptConfig {
     pub fn new(
         files: Vec<PathBuf>,
         raw_key: Key,
-        debug: bool,
+        verbosity: Verbosity,
         overwrite: bool,
         delete_input: bool,
         output_dir: Option<PathBuf>,
@@ -30,7 +31,7 @@ impl DecryptConfig {
         DecryptConfig {
             files,
             raw_key,
-            debug,
+            verbosity,
             overwrite,
             delete_input,
             output_dir,
@@ -59,8 +60,8 @@ impl EndecConfig for DecryptConfig {
         &self.raw_key
     }
 
-    fn debug(&self) -> bool {
-        self.debug
+    fn verbosity(&self) -> Verbosity {
+        self.verbosity
     }
 
     fn overwrite(&self) -> bool {

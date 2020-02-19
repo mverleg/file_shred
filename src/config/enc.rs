@@ -9,7 +9,7 @@ use crate::header::strategy::Verbosity;
 pub struct EncryptConfig {
     files: Vec<PathBuf>,
     raw_key: Key,
-    debug: bool,
+    verbosity: Verbosity,
     overwrite: bool,
     delete_input: bool,
     output_dir: Option<PathBuf>,
@@ -37,7 +37,7 @@ impl EncryptConfig {
         EncryptConfig {
             files,
             raw_key,
-            debug,
+            verbosity,
             overwrite,
             delete_input,
             output_dir,
@@ -65,7 +65,7 @@ impl EndecConfig for EncryptConfig {
     }
 
     fn verbosity(&self) -> Verbosity {
-        self.verbosity;
+        self.verbosity
     }
 
     fn overwrite(&self) -> bool {
