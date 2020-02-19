@@ -69,7 +69,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     Ok(())
 }
 
-pub fn decrypt(_config: &DecryptConfig) -> FedResult<()> {
+pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     unimplemented!() //TODO @mark:
 }
 
@@ -155,7 +155,8 @@ mod tests {
             .iter()
             .map(|f| f.file_stem().unwrap().to_str().unwrap())
             .map(|n| COMPAT_FILE_RE.captures_iter(n).next().unwrap())
-            .map(|v| Version::parse(&v[0]).unwrap())
+            .map(|tmp| { println!("{:?}", tmp); tmp })  //TODO @mark: TEMPORARY! REMOVE THIS!
+            .map(|v| Version::parse(&v[1]).unwrap())
             .collect();
         assert!(!enc_files.is_empty());
         let mut original_pth = TEST_FILE_DIR.clone();
