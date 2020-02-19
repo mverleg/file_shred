@@ -9,7 +9,7 @@ use ::file_endec::encrypt;
 use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
-use file_endec::header::strategy::Verbosity;
+use ::file_endec::header::strategy::Verbosity;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -28,6 +28,7 @@ pub struct EncryptArguments {
     files: Vec<PathBuf>,
 
     //TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs
+    //TODO @mark: option to skip validation check
 
     //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
     #[structopt(
@@ -53,7 +54,11 @@ pub struct EncryptArguments {
     )]
     quiet: bool,
 
-    #[structopt(short = "f", long, help = "Overwrite output files if they exist.")]
+    #[structopt(
+        short = "f",
+        long,
+        help = "Overwrite output files if they exist."
+    )]
     overwrite: bool,
 
     #[structopt(

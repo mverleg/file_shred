@@ -16,6 +16,10 @@ pub trait EndecConfig: Debug {
         Verbosity::Debug == self.verbosity()
     }
 
+    fn quiet(&self) -> bool {
+        Verbosity::Quiet == self.verbosity()
+    }
+
     fn overwrite(&self) -> bool;
 
     fn delete_input(&self) -> bool;

@@ -26,6 +26,15 @@ pub mod symmetric;
 pub mod util;
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
+    if config.quiet() {
+        unimplemented!("quiet mode not implemented"); //TODO @mark
+    }
+    if config.delete_input() {
+        unimplemented!("deleting input not implemented"); //TODO @mark
+    }
+    if config.overwrite() {
+        unimplemented!("overwriting output not implemented"); //TODO @mark
+    }
     let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
     let files_info = inspect_files(config.files(), config.debug())?;
@@ -42,7 +51,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         if config.debug() {
             println!("encrypting {}", file.path_str());
         }
-        if file.size_kb > 1024 * 1024 {
+        if !config.quiet() && file.size_kb > 1024 * 1024 {
             eprintln!(
                 "warning: reading {} Mb file '{}' into RAM",
                 file.size_kb / 1024,
@@ -50,7 +59,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
             );
         }
         let data = wrap_io("could not read import file", fs::read(file.path))?;
-        if data.starts_with(HEADER_MARKER.as_bytes()) {
+        if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
             eprintln!("warning: file '{}' seems to already be encrypted", file.path_str());
         }
         let checksum = calculate_checksum(&data);
@@ -58,14 +67,21 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
         let out_pth = determine_output_path(&file.path, config.output_extension(), config.output_dir());
-        let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &out_pth.to_string_lossy()), File::create(&out_pth))?;
-        write_header(&mut out_file, &header, config.debug())?;
-        wrap_io(&format!("Failed to write encrypted output data for '{}'", &out_pth.to_string_lossy()), out_file.write_all(&secret))?;
-        if config.debug() {
-            println!("encrypted {}", &out_pth.to_string_lossy());
+        if !config.dry_run() {
+            let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &out_pth.to_string_lossy()), File::create(&out_pth))?;
+            write_header(&mut out_file, &header, config.debug())?;
+            wrap_io(&format!("Failed to write encrypted output data for '{}'", &out_pth.to_string_lossy()), out_file.write_all(&secret))?;
+            if config.debug() {
+                println!("encrypted {}", &out_pth.to_string_lossy());
+            }
+        } else {
+            println!("successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
+                 file.path_str(), secret.len() / 1024, &out_pth.to_string_lossy());
         }
     }
-    println!("encrypted {} files", files_info.len());
+    if !config.quiet() {
+        println!("encrypted {} files", files_info.len());
+    }
     Ok(())
 }
 
