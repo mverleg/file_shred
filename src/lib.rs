@@ -15,7 +15,6 @@ use crate::key::stretch::stretch_key;
 use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use crate::util::pth::determine_output_path;
 use crate::util::version::get_current_version;
 
 pub mod config;
@@ -66,17 +65,17 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let small = compress_file(data, &strategy.compression_algorithm)?;
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
-        let out_pth = determine_output_path(&file.in_path, config.output_extension(), config.output_dir());
         if !config.dry_run() {
-            let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &out_pth.to_string_lossy()), File::create(&out_pth))?;
+            //TODO @mark: this format happens also if no failure
+            let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &file.out_pth.to_string_lossy()), File::create(&file.out_pth))?;
             write_header(&mut out_file, &header, config.debug())?;
-            wrap_io(&format!("Failed to write encrypted output data for '{}'", &out_pth.to_string_lossy()), out_file.write_all(&secret))?;
+            wrap_io(&format!("Failed to write encrypted output data for '{}'", &file.out_pth.to_string_lossy()), out_file.write_all(&secret))?;
             if config.debug() {
-                println!("encrypted {}", &out_pth.to_string_lossy());
+                println!("encrypted {}", &file.out_pth.to_string_lossy());
             }
         } else {
             println!("successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
-                 file.path_str(), secret.len() / 1024, &out_pth.to_string_lossy());
+                 file.path_str(), secret.len() / 1024, &file.out_pth.to_string_lossy());
         }
     }
     if !config.quiet() {

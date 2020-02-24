@@ -4,6 +4,7 @@ use ::std::path::PathBuf;
 
 use crate::util::FedResult;
 use crate::util::pth::determine_output_path;
+use crate::config::typ::EndecConfig;
 
 #[derive(Debug)]
 pub struct FileInfo<'a> {
@@ -20,7 +21,7 @@ impl<'a> FileInfo<'a> {
     }
 }
 
-pub fn inspect_files<'a>(files: &'a [PathBuf], config: &EncryptConfigg) -> FedResult<Vec<FileInfo<'a>>> {
+pub fn inspect_files<'a>(files: &'a [PathBuf], config: &impl EndecConfig) -> FedResult<Vec<FileInfo<'a>>> {
     let mut not_found_cnt: u32 = 0;
     let mut output_exists_cnt: u32 = 0;
     let mut infos = Vec::with_capacity(files.len());
@@ -30,7 +31,7 @@ pub fn inspect_files<'a>(files: &'a [PathBuf], config: &EncryptConfigg) -> FedRe
         let meta = match fs::metadata(file) {
             Ok(meta) => meta,
             Err(err) => {
-                if verbose {
+                if config.debug() {
                     eprintln!(
                         "could not read file '{}'; reason: {}",
                         file.to_string_lossy(),
@@ -50,8 +51,8 @@ pub fn inspect_files<'a>(files: &'a [PathBuf], config: &EncryptConfigg) -> FedRe
         }
 
         // Output file
-        let output_file = determine_output_path(file.as_path(), config.output_extension(), config.output_dir());
-        if fail_if_output_exists && output_file.exists() {
+        let output_file = determine_output_path(file.as_path(), config.extension(), config.output_dir());
+        if !config.overwrite() && output_file.exists() {
             eprintln!("path '{}' is not a file", file.to_string_lossy());
             output_exists_cnt += 1;
         }
