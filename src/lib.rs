@@ -37,7 +37,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     }
     let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
-    let files_info = inspect_files(config.files(), config.debug())?;
+    let files_info = inspect_files(config.files(), config)?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let salt = Salt::generate_random()?;
     let stretched_key = stretch_key(
@@ -58,7 +58,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
                 file.path_str()
             );
         }
-        let data = wrap_io("could not read import file", fs::read(file.path))?;
+        let data = wrap_io("could not read import file", fs::read(file.in_path))?;
         if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
             eprintln!("warning: file '{}' seems to already be encrypted", file.path_str());
         }
@@ -66,7 +66,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let small = compress_file(data, &strategy.compression_algorithm)?;
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
-        let out_pth = determine_output_path(&file.path, config.output_extension(), config.output_dir());
+        let out_pth = determine_output_path(&file.in_path, config.output_extension(), config.output_dir());
         if !config.dry_run() {
             let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &out_pth.to_string_lossy()), File::create(&out_pth))?;
             write_header(&mut out_file, &header, config.debug())?;
