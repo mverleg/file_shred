@@ -1,6 +1,4 @@
 use ::std::fs;
-use ::std::fs::File;
-use ::std::io::Write;
 
 use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
@@ -8,7 +6,9 @@ use crate::config::typ::EndecConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
-use crate::header::{Header, HEADER_MARKER, write_header};
+use crate::files::write_output::write_output_file;
+use crate::header::Header;
+use crate::header::HEADER_MARKER;
 use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;
@@ -30,9 +30,6 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     }
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
-    }
-    if config.overwrite() {
-        unimplemented!("overwriting output not implemented"); //TODO @mark
     }
     let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
@@ -66,13 +63,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
         if !config.dry_run() {
-            //TODO @mark: this format happens also if no failure
-            let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &file.out_pth.to_string_lossy()), File::create(&file.out_pth))?;
-            write_header(&mut out_file, &header, config.debug())?;
-            wrap_io(&format!("Failed to write encrypted output data for '{}'", &file.out_pth.to_string_lossy()), out_file.write_all(&secret))?;
-            if config.debug() {
-                println!("encrypted {}", &file.out_pth.to_string_lossy());
-            }
+            write_output_file(config, &file, &secret, &header)?;
         } else {
             println!("successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
                  file.path_str(), secret.len() / 1024, &file.out_pth.to_string_lossy());
@@ -110,9 +101,9 @@ mod tests {
     use crate::config::{DecryptConfig, EncryptConfig};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
+    use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
-    use crate::header::strategy::Verbosity;
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
