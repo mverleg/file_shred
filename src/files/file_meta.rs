@@ -84,12 +84,8 @@ pub fn inspect_files<'a>(
 
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
-
-    use ::tempfile::tempdir;
-    use tempfile::NamedTempFile;
-    use tempfile::TempDir;
-    use tempfile::tempfile_in;
+    use ::tempfile::NamedTempFile;
+    use ::tempfile::TempDir;
 
     use crate::config::typ::MockEndecConfig;
     use crate::header::strategy::Verbosity;
@@ -119,4 +115,6 @@ mod tests {
         assert_eq!(out_files[0].out_pth.to_string_lossy(), expected_out_pth_1);
         assert_eq!(out_files[1].out_pth.to_string_lossy(), expected_out_pth_2);
     }
+
+    //TODO @mark: test for overwrite output?
 }
