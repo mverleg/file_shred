@@ -2,8 +2,8 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use crate::config::typ::EndecConfig;
-use crate::key::Key;
 use crate::header::strategy::Verbosity;
+use crate::key::Key;
 
 #[derive(Debug)]
 pub struct EncryptConfig {

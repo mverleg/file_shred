@@ -5,12 +5,12 @@ use ::semver::Version;
 
 use crate::files::Checksum;
 use crate::header::Header;
-use crate::key::salt::Salt;
 use crate::header::HEADER_CHECKSUM_MARKER;
 use crate::header::HEADER_DATA_MARKER;
 use crate::header::HEADER_MARKER;
 use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
+use crate::key::salt::Salt;
 use crate::util::FedResult;
 
 fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
@@ -73,9 +73,9 @@ pub fn write_header(writer: &mut impl Write, header: &Header, verbose: bool) -> 
 
 #[cfg(test)]
 mod tests {
-    use std::str::from_utf8;
+    use ::std::str::from_utf8;
 
-    use semver::Version;
+    use ::semver::Version;
 
     use crate::files::Checksum;
     use crate::header::Header;

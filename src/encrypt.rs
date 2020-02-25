@@ -6,10 +6,12 @@ use ::structopt::StructOpt;
 
 use ::file_endec::config::EncryptConfig;
 use ::file_endec::encrypt;
+use ::file_endec::header::strategy::Verbosity;
 use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
-use ::file_endec::header::strategy::Verbosity;
+
+//TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -26,10 +28,6 @@ pub struct EncryptArguments {
         help = "One or more paths to input files (absolute or relative)"
     )]
     files: Vec<PathBuf>,
-
-    //TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs
-    //TODO @mark: option to skip validation check
-
     //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
     #[structopt(
         short = "k",
@@ -54,11 +52,7 @@ pub struct EncryptArguments {
     )]
     quiet: bool,
 
-    #[structopt(
-        short = "f",
-        long,
-        help = "Overwrite output files if they exist."
-    )]
+    #[structopt(short = "f", long, help = "Overwrite output files if they exist.")]
     overwrite: bool,
 
     #[structopt(
@@ -89,10 +83,7 @@ pub struct EncryptArguments {
     )]
     dry_run: bool,
 
-    #[structopt(
-        long,
-        help = "Suppress warning if the encryption key is not strong."
-    )]
+    #[structopt(long, help = "Suppress warning if the encryption key is not strong.")]
     accept_weak_key: bool,
 }
 
@@ -215,7 +206,7 @@ mod tests {
     use ::file_endec::key::Key;
 
     use super::*;
-    use file_endec::header::strategy::Verbosity;
+    use ::file_endec::header::strategy::Verbosity;
 
     #[test]
     fn parse_args_minimal() {
@@ -233,16 +224,34 @@ mod tests {
 
     #[test]
     fn parse_args_long() {
-        let args = EncryptArguments::from_iter(&["fileenc", "file.txt", "-q",
-            "-d", "-f", "-o", "/tmp/hello", "--output-extension", "secret"]);
+        let args = EncryptArguments::from_iter(&[
+            "fileenc",
+            "file.txt",
+            "-q",
+            "-d",
+            "-f",
+            "-o",
+            "/tmp/hello",
+            "--output-extension",
+            "secret",
+        ]);
         let config = args.convert(Key::new("abcdef123!")).unwrap();
         assert!(config.files().contains(&PathBuf::from("file.txt")));
         assert_eq!(config.raw_key().key_data.unsecure(), "abcdef123!");
         assert_eq!(config.verbosity(), Verbosity::Quiet);
         assert_eq!(config.overwrite(), true);
         assert_eq!(config.delete_input(), true);
-        assert_eq!(config.output_dir(), Some(PathBuf::from("/tmp/hello").as_path()));
+        assert_eq!(
+            config.output_dir(),
+            Some(PathBuf::from("/tmp/hello").as_path())
+        );
         assert_eq!(config.output_extension(), ".secret");
         assert_eq!(config.dry_run(), false);
+    }
+
+    #[test]
+    fn invalid_key() {
+        let args = EncryptArguments::from_iter(&["fileenc", "file.txt", "--key hi"]);
+        //TODO @mark:
     }
 }

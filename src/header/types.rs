@@ -3,8 +3,8 @@ use ::semver::Version;
 use crate::files::Checksum;
 use crate::header::get_version_strategy;
 use crate::header::Strategy;
-use crate::util::FedResult;
 use crate::key::Salt;
+use crate::util::FedResult;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Header {

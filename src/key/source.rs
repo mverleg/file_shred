@@ -1,9 +1,9 @@
 use ::std::env;
 use ::std::fs;
+use ::std::io::{stdin, BufRead};
 use ::std::path::Path;
 use ::std::path::PathBuf;
-use std::io::{stdin, BufRead};
-use std::str::FromStr;
+use ::std::str::FromStr;
 
 use crate::key::Key;
 use crate::util::FedResult;
@@ -43,7 +43,7 @@ impl FromStr for KeySource {
         let txt_snip = if txt.len() > 5 {
             format!("{}...", txt[..4].to_owned())
         } else {
-            txt[..5].to_owned()
+            txt.to_owned()
         };
         Err(format!(
             "key string was not recognized; got '{}', should be one of \

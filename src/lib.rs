@@ -1,21 +1,21 @@
 use ::std::fs;
 
-use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
+use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
+use crate::header::strategy::get_current_version_strategy;
 use crate::header::Header;
 use crate::header::HEADER_MARKER;
-use crate::header::strategy::get_current_version_strategy;
-use crate::key::Salt;
 use crate::key::stretch::stretch_key;
+use crate::key::Salt;
 use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
-use crate::util::FedResult;
 use crate::util::version::get_current_version;
+use crate::util::FedResult;
 
 pub mod config;
 pub mod files;
@@ -56,7 +56,10 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         }
         let data = wrap_io(|| "could not read import file", fs::read(file.in_path))?;
         if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
-            eprintln!("warning: file '{}' seems to already be encrypted", file.path_str());
+            eprintln!(
+                "warning: file '{}' seems to already be encrypted",
+                file.path_str()
+            );
         }
         let checksum = calculate_checksum(&data);
         let small = compress_file(data, &strategy.compression_algorithm)?;
@@ -65,8 +68,12 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         if !config.dry_run() {
             write_output_file(config, &file, &secret, &header)?;
         } else {
-            println!("successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
-                 file.path_str(), secret.len() / 1024, &file.out_pth.to_string_lossy());
+            println!(
+                "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
+                file.path_str(),
+                secret.len() / 1024,
+                &file.out_pth.to_string_lossy()
+            );
         }
     }
     if !config.quiet() {
@@ -97,13 +104,13 @@ mod tests {
     use ::secstr::SecVec;
     use ::semver::Version;
 
-    use crate::{decrypt, encrypt};
     use crate::config::{DecryptConfig, EncryptConfig};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
+    use crate::{decrypt, encrypt};
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
@@ -125,11 +132,11 @@ mod tests {
             vec![in_pth],
             COMPAT_KEY.clone(),
             Verbosity::Debug,
-            true,  // overwrite
-            false,  // delete_input
-            Some(temp_dir()),  // output_dir
-            ".enc".to_string(),  // output_extension
-            false,  //dry_run
+            true,               // overwrite
+            false,              // delete_input
+            Some(temp_dir()),   // output_dir
+            ".enc".to_string(), // output_extension
+            false,              //dry_run
         );
         let tmp_pth = {
             let mut p = temp_dir();
@@ -149,7 +156,11 @@ mod tests {
             fs::copy(&tmp_pth, &store_pth).unwrap();
         }
         // Remove the temporary file (as a courtesy, not critical).
-        println!("removing temporary file {} for version {}", &tmp_pth.to_string_lossy(), version);
+        println!(
+            "removing temporary file {} for version {}",
+            &tmp_pth.to_string_lossy(),
+            version
+        );
         fs::remove_file(tmp_pth).unwrap();
     }
 

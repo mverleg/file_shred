@@ -2,8 +2,8 @@ use ::std::fmt::Debug;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::key::Key;
 use crate::header::strategy::Verbosity;
+use crate::key::Key;
 
 pub trait EndecConfig: Debug {
     fn files(&self) -> &[PathBuf];

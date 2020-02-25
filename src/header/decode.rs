@@ -96,7 +96,7 @@ pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header
 
 #[cfg(test)]
 mod tests {
-    use semver::Version;
+    use ::semver::Version;
 
     use crate::files::Checksum;
     use crate::header::Header;

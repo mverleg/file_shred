@@ -1,4 +1,4 @@
-use block_modes::BlockMode;
+use ::block_modes::BlockMode;
 
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;

@@ -2,9 +2,9 @@ use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::util::FedResult;
-use crate::util::pth::determine_output_path;
 use crate::config::typ::EndecConfig;
+use crate::util::pth::determine_output_path;
+use crate::util::FedResult;
 
 #[derive(Debug)]
 pub struct FileInfo<'a> {
@@ -21,12 +21,14 @@ impl<'a> FileInfo<'a> {
     }
 }
 
-pub fn inspect_files<'a>(files: &'a [PathBuf], config: &impl EndecConfig) -> FedResult<Vec<FileInfo<'a>>> {
+pub fn inspect_files<'a>(
+    files: &'a [PathBuf],
+    config: &impl EndecConfig,
+) -> FedResult<Vec<FileInfo<'a>>> {
     let mut not_found_cnt: u32 = 0;
     let mut output_exists_cnt: u32 = 0;
     let mut infos = Vec::with_capacity(files.len());
     for file in files {
-
         // Input file
         let meta = match fs::metadata(file) {
             Ok(meta) => meta,
@@ -51,7 +53,8 @@ pub fn inspect_files<'a>(files: &'a [PathBuf], config: &impl EndecConfig) -> Fed
         }
 
         // Output file
-        let output_file = determine_output_path(file.as_path(), config.extension(), config.output_dir());
+        let output_file =
+            determine_output_path(file.as_path(), config.extension(), config.output_dir());
         if !config.overwrite() && output_file.exists() {
             eprintln!("path '{}' is not a file", file.to_string_lossy());
             output_exists_cnt += 1;

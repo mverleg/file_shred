@@ -2,8 +2,8 @@ use ::std::fmt::Debug;
 use ::std::fmt::Error;
 use ::std::fmt::Formatter;
 
-use ::rand::RngCore;
 use ::rand::rngs::OsRng;
+use ::rand::RngCore;
 
 use crate::util::base64::base64str_to_u8s;
 use crate::util::base64::u8s_to_base64str;
@@ -71,10 +71,11 @@ impl Salt {
                     Err(if verbose {
                         format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid because it has the wrong length", base64)
                     } else {
-                        "could not determine the salt used by fileenc to encrypt this file".to_owned()
+                        "could not determine the salt used by fileenc to encrypt this file"
+                            .to_owned()
                     })
                 }
-            },
+            }
             Err(err) => Err(if verbose {
                 format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", base64, err)
             } else {

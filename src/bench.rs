@@ -88,9 +88,9 @@ mod encrypt {
 
     use ::file_endec::key::Salt;
 
+    use ::file_endec::symmetric::decrypt::{decrypt_aes256, decrypt_twofish};
     use ::file_endec::symmetric::encrypt::encrypt_aes256;
-    use file_endec::symmetric::decrypt::{decrypt_aes256, decrypt_twofish};
-    use file_endec::symmetric::encrypt::encrypt_twofish;
+    use ::file_endec::symmetric::encrypt::encrypt_twofish;
 
     pub fn encrypt_aes256_benchmark(c: &mut Criterion) {
         c.bench(
