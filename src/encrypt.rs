@@ -11,7 +11,7 @@ use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
 
-//TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs
+//TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs (can't work with --key=pipe)
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -247,11 +247,5 @@ mod tests {
         );
         assert_eq!(config.output_extension(), ".secret");
         assert_eq!(config.dry_run(), false);
-    }
-
-    #[test]
-    fn invalid_key() {
-        let args = EncryptArguments::from_iter(&["fileenc", "file.txt", "--key hi"]);
-        //TODO @mark:
     }
 }

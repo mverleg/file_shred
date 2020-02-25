@@ -8,7 +8,7 @@ use ::std::str::FromStr;
 use crate::key::Key;
 use crate::util::FedResult;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum KeySource {
     CliArg(Key),
     EnvVar(String),
@@ -22,7 +22,7 @@ impl FromStr for KeySource {
     type Err = String;
 
     fn from_str(txt: &str) -> Result<Self, Self::Err> {
-        if txt.starts_with("pass") {
+        if txt.starts_with("pass:") {
             return Ok(KeySource::CliArg(Key::new(&txt[5..])));
         }
         if txt.starts_with("env:") {
@@ -128,5 +128,61 @@ impl KeySource {
             KeySource::AskTwice => key_from_prompt(true),
             KeySource::Pipe => key_from_pipe(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_pass() {
+        assert_eq!(
+            KeySource::from_str("pass:secret").unwrap(),
+            KeySource::CliArg(Key::new("secret")),
+        );
+    }
+
+    //TODO @mark: 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'",
+    #[test]
+    fn valid_env() {
+        assert_eq!(
+            KeySource::from_str("env:varname").unwrap(),
+            KeySource::EnvVar("varname".to_owned()),
+        );
+    }
+
+    #[test]
+    fn valid_file() {
+        assert_eq!(
+            KeySource::from_str("file:/my/pass.txt").unwrap(),
+            KeySource::File(PathBuf::from("/my/pass.txt")),
+        );
+}
+    #[test]
+    fn valid_ask_twice() {
+        assert_eq!(
+            KeySource::from_str("ask").unwrap(),
+            KeySource::AskTwice,
+        );
+}
+    #[test]
+    fn valid_ask_once() {
+        assert_eq!(
+            KeySource::from_str("ask-once").unwrap(),
+            KeySource::AskOnce,
+        );
+}
+    #[test]
+    fn valid_pipe() {
+        assert_eq!(
+            KeySource::from_str("pipe").unwrap(),
+            KeySource::Pipe,
+        );
+    }
+
+    #[test]
+    fn invalid_key() {
+        assert!(KeySource::from_str("hi").is_err());
     }
 }
