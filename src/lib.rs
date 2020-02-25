@@ -33,7 +33,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     }
     let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
-    let files_info = inspect_files(config.files(), config)?;
+    let files_info = inspect_files(config)?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let salt = Salt::generate_random()?;
     let stretched_key = stretch_key(

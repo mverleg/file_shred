@@ -3,8 +3,8 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use crate::config::typ::EndecConfig;
-use crate::util::pth::determine_output_path;
 use crate::util::FedResult;
+use crate::util::pth::determine_output_path;
 
 #[derive(Debug)]
 pub struct FileInfo<'a> {
@@ -22,13 +22,12 @@ impl<'a> FileInfo<'a> {
 }
 
 pub fn inspect_files<'a>(
-    files: &'a [PathBuf],
-    config: &impl EndecConfig,
+    config: &'a impl EndecConfig,
 ) -> FedResult<Vec<FileInfo<'a>>> {
     let mut not_found_cnt: u32 = 0;
     let mut output_exists_cnt: u32 = 0;
-    let mut infos = Vec::with_capacity(files.len());
-    for file in files {
+    let mut infos = Vec::with_capacity(config.files().len());
+    for file in config.files() {
         // Input file
         let meta = match fs::metadata(file) {
             Ok(meta) => meta,
@@ -81,4 +80,43 @@ pub fn inspect_files<'a>(
         ));
     }
     Ok(infos)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Write;
+
+    use ::tempfile::tempdir;
+    use tempfile::NamedTempFile;
+    use tempfile::TempDir;
+    use tempfile::tempfile_in;
+
+    use crate::config::typ::MockEndecConfig;
+    use crate::header::strategy::Verbosity;
+    use crate::key::Key;
+
+    use super::*;
+
+    #[test]
+    fn output_path() {
+        let pth = TempDir::new().unwrap();
+        let in_file_1 = NamedTempFile::new_in(pth.path()).unwrap();
+        let in_file_2 = NamedTempFile::new_in(pth.path()).unwrap();
+        println!("{}", in_file_1.path().display());  //TODO @mark: TEMPORARY! REMOVE THIS!
+        let conf = MockEndecConfig {
+            files: vec![in_file_1.path().to_owned(), in_file_2.path().to_owned()],
+            raw_key: Key::new("secret"),
+            verbosity: Verbosity::Debug,
+            overwrite: true,
+            delete_input: true,
+            output_dir: None,
+            extension: ".enc".to_owned(),
+        };
+        let out_files = inspect_files(&conf).unwrap();
+        assert_eq!(2, out_files.len());
+        let expected_out_pth_1 = format!("{}.enc", in_file_1.path().to_str().unwrap());
+        let expected_out_pth_2 = format!("{}.enc", in_file_2.path().to_str().unwrap());
+        assert_eq!(out_files[0].out_pth.to_string_lossy(), expected_out_pth_1);
+        assert_eq!(out_files[1].out_pth.to_string_lossy(), expected_out_pth_2);
+    }
 }

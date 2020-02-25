@@ -4,7 +4,6 @@ use ::std::io::Write;
 
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
-use crate::config::DecryptConfig;
 use crate::files::file_meta::FileInfo;
 use crate::header::write_header;
 use crate::header::Header;
