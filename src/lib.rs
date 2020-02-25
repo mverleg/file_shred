@@ -54,7 +54,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
                 file.path_str()
             );
         }
-        let data = wrap_io("could not read import file", fs::read(file.in_path))?;
+        let data = wrap_io(|| "could not read import file", fs::read(file.in_path))?;
         if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
             eprintln!("warning: file '{}' seems to already be encrypted", file.path_str());
         }
@@ -162,7 +162,6 @@ mod tests {
             .iter()
             .map(|f| f.file_stem().unwrap().to_str().unwrap())
             .map(|n| COMPAT_FILE_RE.captures_iter(n).next().unwrap())
-            .map(|tmp| { println!("{:?}", tmp); tmp })  //TODO @mark: TEMPORARY! REMOVE THIS!
             .map(|v| Version::parse(&v[1]).unwrap())
             .collect();
         assert!(!enc_files.is_empty());

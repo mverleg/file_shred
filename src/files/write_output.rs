@@ -23,10 +23,9 @@ pub fn write_output_file(config: &EncryptConfig, file: &FileInfo, secret: &Vec<u
                         output location '{}'", &file.out_pth.to_string_lossy()))
         }
     }
-//TODO @mark: this 'format!' happens also if no failure
-    let mut out_file = wrap_io(&format!("Could not create output file for '{}'", &file.out_pth.to_string_lossy()), File::create(&file.out_pth))?;
+    let mut out_file = wrap_io(|| format!("Could not create output file for '{}'", &file.out_pth.to_string_lossy()), File::create(&file.out_pth))?;
     write_header(&mut out_file, &header, config.debug())?;
-    wrap_io(&format!("Failed to write encrypted output data for '{}'", &file.out_pth.to_string_lossy()), out_file.write_all(&secret))?;
+    wrap_io(|| format!("Failed to write encrypted output data for '{}'", &file.out_pth.to_string_lossy()), out_file.write_all(&secret))?;
     if config.debug() {
         println!("encrypted {}", &file.out_pth.to_string_lossy());
     }
