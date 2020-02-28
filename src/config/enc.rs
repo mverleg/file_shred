@@ -82,8 +82,4 @@ impl EndecConfig for EncryptConfig {
             None => None,
         }
     }
-
-    fn extension(&self) -> &str {
-        self.output_extension()
-    }
 }

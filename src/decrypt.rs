@@ -11,8 +11,6 @@ use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
 
-//TODO @mark: flag like --read0 to accept pipe with \0 terminator byte like `find -print0` outputs (can't work with --key=pipe)
-
 #[derive(Debug, StructOpt)]
 #[structopt(
 name = "FileEnc",
@@ -69,22 +67,6 @@ pub struct EncryptArguments {
     help = "Alternative output directory. If not given, output is saved alongside input."
     )]
     output_dir: Option<PathBuf>,
-
-    #[structopt(
-    long,
-    default_value = ".enc",
-    help = "Extension added to encrypted files."
-    )]
-    output_extension: String,
-
-    #[structopt(
-    long,
-    help = "Test encryption, but do not save encrypted files (nor delete input, if --delete-input)."
-    )]
-    dry_run: bool,
-
-    #[structopt(long, help = "Suppress warning if the encryption key is not strong.")]
-    accept_weak_key: bool,
 }
 
 impl fmt::Display for EncryptArguments {

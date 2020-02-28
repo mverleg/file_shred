@@ -2,6 +2,7 @@ use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
+use crate::config::EncryptConfig;
 use crate::config::typ::EndecConfig;
 use crate::util::FedResult;
 use crate::util::pth::determine_output_path;
@@ -21,9 +22,9 @@ impl<'a> FileInfo<'a> {
     }
 }
 
-pub fn inspect_files<'a>(
-    config: &'a impl EndecConfig,
-) -> FedResult<Vec<FileInfo<'a>>> {
+pub fn inspect_files(
+    config: &EncryptConfig,
+) -> FedResult<Vec<FileInfo>> {
     let mut not_found_cnt: u32 = 0;
     let mut output_exists_cnt: u32 = 0;
     let mut infos = Vec::with_capacity(config.files().len());
@@ -106,7 +107,6 @@ mod tests {
             overwrite: true,
             delete_input: true,
             output_dir: None,
-            extension: ".enc".to_owned(),
         };
         let out_files = inspect_files(&conf).unwrap();
         assert_eq!(2, out_files.len());

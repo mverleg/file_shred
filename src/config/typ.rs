@@ -25,8 +25,6 @@ pub trait EndecConfig: Debug {
     fn delete_input(&self) -> bool;
 
     fn output_dir(&self) -> Option<&Path>;
-
-    fn extension(&self) -> &str;
 }
 
 #[cfg(test)]
@@ -38,7 +36,6 @@ pub struct MockEndecConfig {
     pub overwrite: bool,
     pub delete_input: bool,
     pub output_dir: Option<PathBuf>,
-    pub extension: String,
 }
 
 #[cfg(test)]
@@ -68,9 +65,5 @@ impl EndecConfig for MockEndecConfig {
             Some(dir) => Some(dir.as_path()),
             None => None,
         }
-    }
-
-    fn extension(&self) -> &str {
-        &self.extension
     }
 }

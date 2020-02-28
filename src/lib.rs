@@ -190,7 +190,6 @@ mod tests {
                 false, // overwrite
                 false, // delete_input
                 None,  // output_dir
-                ".enc".to_owned(),
             );
             decrypt(&conf).unwrap();
             let mut original_data = vec![];
