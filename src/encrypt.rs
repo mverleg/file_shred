@@ -28,7 +28,7 @@ pub struct EncryptArguments {
         help = "One or more paths to input files (absolute or relative)"
     )]
     files: Vec<PathBuf>,
-    //#[structopt(help = "The encryption key, for batch use. It is generally safer to not pass this and be prompted for it instead.")]
+
     #[structopt(
         short = "k",
         long = "key",
@@ -48,7 +48,7 @@ pub struct EncryptArguments {
         conflicts_with = "debug",
         short = "q",
         long = "quiet",
-        help = "Don't show progress or other non-critical output."
+        help = "Do not show progress or other non-critical output."
     )]
     quiet: bool,
 
@@ -58,7 +58,7 @@ pub struct EncryptArguments {
     #[structopt(
         short = "d",
         long,
-        help = "Delete input files after successful encryption (overwrites garbage before delete)."
+        help = "Delete unencrypted input files after successful encryption (overwrites garbage before delete)."
     )]
     delete_input: bool,
 
@@ -111,6 +111,7 @@ impl fmt::Display for EncryptArguments {
         f.write_str("\n")?;
 
         // Currently, this is always "on", because printing is only used in debug mode.
+        //TODO @mark: also include quiet mode (also for decrypt)
         f.write_str("  debug logging: ")?;
         f.write_str(if self.debug { "on" } else { "off" })?;
         f.write_str("\n")?;
