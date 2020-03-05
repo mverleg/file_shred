@@ -54,7 +54,7 @@ pub fn inspect_files(
 
         // Output file
         let output_file =
-            determine_output_path(file.as_path(), config.extension(), config.output_dir());
+            determine_output_path(file.as_path(), config.output_extension(), config.output_dir());
         if !config.overwrite() && output_file.exists() {
             eprintln!("path '{}' is not a file", file.to_string_lossy());
             output_exists_cnt += 1;
@@ -88,7 +88,6 @@ mod tests {
     use ::tempfile::NamedTempFile;
     use ::tempfile::TempDir;
 
-    use crate::config::typ::MockEndecConfig;
     use crate::header::strategy::Verbosity;
     use crate::key::Key;
 
@@ -100,14 +99,16 @@ mod tests {
         let in_file_1 = NamedTempFile::new_in(pth.path()).unwrap();
         let in_file_2 = NamedTempFile::new_in(pth.path()).unwrap();
         println!("{}", in_file_1.path().display());  //TODO @mark: TEMPORARY! REMOVE THIS!
-        let conf = MockEndecConfig {
-            files: vec![in_file_1.path().to_owned(), in_file_2.path().to_owned()],
-            raw_key: Key::new("secret"),
-            verbosity: Verbosity::Debug,
-            overwrite: true,
-            delete_input: true,
-            output_dir: None,
-        };
+        let conf = EncryptConfig::new(
+            vec![in_file_1.path().to_owned(), in_file_2.path().to_owned()],  // files
+            Key::new("secret"),  // raw_key
+            Verbosity::Debug,  // verbosity
+            true,  // overwrite
+            true,  // delete_input
+            None,  // output_dir
+            ".enc".to_owned(),  // output_extension
+            false,  // dry_run
+        );
         let out_files = inspect_files(&conf).unwrap();
         assert_eq!(2, out_files.len());
         let expected_out_pth_1 = format!("{}.enc", in_file_1.path().to_str().unwrap());

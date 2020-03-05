@@ -4,12 +4,12 @@ use ::std::process::exit;
 
 use ::structopt::StructOpt;
 
-use ::file_endec::config::EncryptConfig;
-use ::file_endec::encrypt;
 use ::file_endec::header::strategy::Verbosity;
 use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
+use ::file_endec::config::DecryptConfig;
+use ::file_endec::decrypt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -92,17 +92,9 @@ impl fmt::Display for DecryptArguments {
         f.write_str(if self.debug { "on" } else { "off" })?;
         f.write_str("\n")?;
 
-        f.write_str("  dry run: ")?;
-        f.write_str(if self.dry_run { "yes" } else { "no" })?;
-        f.write_str("\n")?;
-
         f.write_str("  overwrite existing output files: ")?;
         f.write_str(if self.overwrite {
-            if self.dry_run {
-                "no (overridden by dry run)"
-            } else {
-                "yes"
-            }
+            "yes"
         } else {
             "no"
         })?;
@@ -110,11 +102,7 @@ impl fmt::Display for DecryptArguments {
 
         f.write_str("  delete input files: ")?;
         f.write_str(if self.delete_input {
-            if self.dry_run {
-                "no (overridden by dry run)"
-            } else {
-                "yes"
-            }
+            "yes"
         } else {
             "no"
         })?;
@@ -130,28 +118,21 @@ pub fn main() {
     }
 }
 
-impl EncryptArguments {
-    fn convert(self, key: Key) -> FedResult<EncryptConfig> {
+impl DecryptArguments {
+    fn convert(self, key: Key) -> FedResult<DecryptConfig> {
         let verbosity = match (self.debug, self.quiet) {
             (true, true) => return Err("cannot use quiet mode and debug mode together".to_owned()),
             (true, false) => Verbosity::Debug,
             (false, true) => Verbosity::Quiet,
             (false, false) => Verbosity::Normal,
         };
-        let extension = if self.output_extension.starts_with(".") {
-            self.output_extension
-        } else {
-            format!(".{}", self.output_extension)
-        };
-        Ok(EncryptConfig::new(
-            self.files,
-            key,
-            verbosity,
-            self.overwrite,
-            self.delete_input,
-            self.output_dir,
-            extension,
-            self.dry_run,
+        Ok(DecryptConfig::new(
+            self.files,  // files
+            key,  // raw_key
+            verbosity,  // verbosity
+            self.overwrite,  // overwrite
+            self.delete_input,  // delete_input
+            self.output_dir,  // output_dir
         ))
     }
 }
@@ -159,7 +140,7 @@ impl EncryptArguments {
 //TODO: if wildcards or directories are ever supported, then skip files that have the encrypted extension (i.e. .enc)
 
 fn go() -> FedResult<()> {
-    let args = EncryptArguments::from_args();
+    let args = DecryptArguments::from_args();
     if args.debug {
         println!("arguments provided:\n{}", args);
     }
@@ -167,23 +148,16 @@ fn go() -> FedResult<()> {
     if args.debug {
         println!("approximate time to crack key: {}", key.time_to_crack());
     }
-    if !args.accept_weak_key && !key.is_strong() {
-        eprintln!(
-            "warning: the encryption key is not strong (it might be cracked in {})",
-            key.time_to_crack()
-        );
-    }
     let config = args.convert(key)?;
-    encrypt(&config)
+    decrypt(&config)
 }
 
 #[cfg(test)]
 mod tests {
-    use ::file_endec::config::typ::EndecConfig;
+    use ::file_endec::header::strategy::Verbosity;
     use ::file_endec::key::Key;
 
     use super::*;
-    use ::file_endec::header::strategy::Verbosity;
 
     #[test]
     fn parse_args_minimal() {
