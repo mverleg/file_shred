@@ -156,12 +156,13 @@ fn go() -> FedResult<()> {
 mod tests {
     use ::file_endec::header::strategy::Verbosity;
     use ::file_endec::key::Key;
+    use ::file_endec::config::typ::EndecConfig;
 
     use super::*;
 
     #[test]
     fn parse_args_minimal() {
-        let args = EncryptArguments::from_iter(&["fileenc", "file.txt"]);
+        let args = DecryptArguments::from_iter(&["fileenc", "file.txt"]);
         let config = args.convert(Key::new("abcdef123!")).unwrap();
         assert!(config.files().contains(&PathBuf::from("file.txt")));
         assert_eq!(config.raw_key().key_data.unsecure(), "abcdef123!");
@@ -169,13 +170,11 @@ mod tests {
         assert_eq!(config.overwrite(), false);
         assert_eq!(config.delete_input(), false);
         assert_eq!(config.output_dir(), None);
-        assert_eq!(config.output_extension(), ".enc");
-        assert_eq!(config.dry_run(), false);
     }
 
     #[test]
     fn parse_args_long() {
-        let args = EncryptArguments::from_iter(&[
+        let args = DecryptArguments::from_iter(&[
             "fileenc",
             "file.txt",
             "-q",
@@ -183,8 +182,6 @@ mod tests {
             "-f",
             "-o",
             "/tmp/hello",
-            "--output-extension",
-            "secret",
         ]);
         let config = args.convert(Key::new("abcdef123!")).unwrap();
         assert!(config.files().contains(&PathBuf::from("file.txt")));
@@ -196,7 +193,5 @@ mod tests {
             config.output_dir(),
             Some(PathBuf::from("/tmp/hello").as_path())
         );
-        assert_eq!(config.output_extension(), ".secret");
-        assert_eq!(config.dry_run(), false);
     }
 }
