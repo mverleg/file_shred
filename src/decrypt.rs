@@ -4,49 +4,49 @@ use ::std::process::exit;
 
 use ::structopt::StructOpt;
 
+use ::file_endec::config::DecryptConfig;
+use ::file_endec::decrypt;
 use ::file_endec::header::strategy::Verbosity;
 use ::file_endec::key::Key;
 use ::file_endec::key::KeySource;
 use ::file_endec::util::FedResult;
-use ::file_endec::config::DecryptConfig;
-use ::file_endec::decrypt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-name = "FileEnc",
-author = "github.com/mverleg/file_endec",
-about = "Securely encrypt one or more files using the given key."
+    name = "FileEnc",
+    author = "github.com/mverleg/file_endec",
+    about = "Securely encrypt one or more files using the given key."
 )]
 pub struct DecryptArguments {
     #[structopt(
-    name = "FILES",
-    parse(from_os_str),
-    required = true,
-    min_values = 1,
-    help = "One or more paths to encrypted input files (absolute or relative)"
+        name = "FILES",
+        parse(from_os_str),
+        required = true,
+        min_values = 1,
+        help = "One or more paths to encrypted input files (absolute or relative)"
     )]
     files: Vec<PathBuf>,
 
     #[structopt(
-    short = "k",
-    long = "key",
-    default_value = "ask",
-    help = "Where to get the key; one of 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'"
+        short = "k",
+        long = "key",
+        default_value = "ask",
+        help = "Where to get the key; one of 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'"
     )]
     key_source: KeySource,
 
     #[structopt(
-    short = "v",
-    long,
-    help = "Show debug information, especially on errors."
+        short = "v",
+        long,
+        help = "Show debug information, especially on errors."
     )]
     debug: bool,
 
     #[structopt(
-    conflicts_with = "debug",
-    short = "q",
-    long = "quiet",
-    help = "Do not show progress or other non-critical output."
+        conflicts_with = "debug",
+        short = "q",
+        long = "quiet",
+        help = "Do not show progress or other non-critical output."
     )]
     quiet: bool,
 
@@ -54,17 +54,17 @@ pub struct DecryptArguments {
     overwrite: bool,
 
     #[structopt(
-    short = "d",
-    long,
-    help = "Delete encrypted input files after successful decryption."
+        short = "d",
+        long,
+        help = "Delete encrypted input files after successful decryption."
     )]
     delete_input: bool,
 
     #[structopt(
-    parse(from_os_str),
-    short = "o",
-    long,
-    help = "Alternative output directory. If not given, output is saved alongside input."
+        parse(from_os_str),
+        short = "o",
+        long,
+        help = "Alternative output directory. If not given, output is saved alongside input."
     )]
     output_dir: Option<PathBuf>,
 }
@@ -93,19 +93,11 @@ impl fmt::Display for DecryptArguments {
         f.write_str("\n")?;
 
         f.write_str("  overwrite existing output files: ")?;
-        f.write_str(if self.overwrite {
-            "yes"
-        } else {
-            "no"
-        })?;
+        f.write_str(if self.overwrite { "yes" } else { "no" })?;
         f.write_str("\n")?;
 
         f.write_str("  delete input files: ")?;
-        f.write_str(if self.delete_input {
-            "yes"
-        } else {
-            "no"
-        })?;
+        f.write_str(if self.delete_input { "yes" } else { "no" })?;
 
         Ok(())
     }
@@ -127,12 +119,12 @@ impl DecryptArguments {
             (false, false) => Verbosity::Normal,
         };
         Ok(DecryptConfig::new(
-            self.files,  // files
-            key,  // raw_key
-            verbosity,  // verbosity
-            self.overwrite,  // overwrite
-            self.delete_input,  // delete_input
-            self.output_dir,  // output_dir
+            self.files,
+            key,
+            verbosity,
+            self.overwrite,
+            self.delete_input,
+            self.output_dir,
         ))
     }
 }
@@ -154,9 +146,9 @@ fn go() -> FedResult<()> {
 
 #[cfg(test)]
 mod tests {
+    use ::file_endec::config::typ::EndecConfig;
     use ::file_endec::header::strategy::Verbosity;
     use ::file_endec::key::Key;
-    use ::file_endec::config::typ::EndecConfig;
 
     use super::*;
 

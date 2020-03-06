@@ -13,7 +13,7 @@ use crate::util::FedResult;
 pub fn write_output_file(
     config: &EncryptConfig,
     file: &FileInfo,
-    secret: &Vec<u8>,
+    secret: &[u8],
     header: &Header,
 ) -> FedResult<()> {
     assert!(!config.dry_run());
@@ -21,7 +21,7 @@ pub fn write_output_file(
         if config.overwrite() {
             assert!(file.out_pth.is_file());
             fs::remove_file(&file.out_pth).map_err(|_| {
-                format!("Failed to remove previously-existing file that exists in output location")
+                "Failed to remove previously-existing file that exists in output location".to_string()
             })?;
         } else {
             return Err(format!(

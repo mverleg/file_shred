@@ -2,10 +2,10 @@ use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::config::EncryptConfig;
 use crate::config::typ::EndecConfig;
-use crate::util::FedResult;
+use crate::config::EncryptConfig;
 use crate::util::pth::determine_output_path;
+use crate::util::FedResult;
 
 #[derive(Debug)]
 pub struct FileInfo<'a> {
@@ -22,9 +22,7 @@ impl<'a> FileInfo<'a> {
     }
 }
 
-pub fn inspect_files(
-    config: &EncryptConfig,
-) -> FedResult<Vec<FileInfo>> {
+pub fn inspect_files(config: &EncryptConfig) -> FedResult<Vec<FileInfo>> {
     let mut not_found_cnt: u32 = 0;
     let mut output_exists_cnt: u32 = 0;
     let mut infos = Vec::with_capacity(config.files().len());
@@ -53,8 +51,11 @@ pub fn inspect_files(
         }
 
         // Output file
-        let output_file =
-            determine_output_path(file.as_path(), config.output_extension(), config.output_dir());
+        let output_file = determine_output_path(
+            file.as_path(),
+            config.output_extension(),
+            config.output_dir(),
+        );
         if !config.overwrite() && output_file.exists() {
             eprintln!("path '{}' is not a file", file.to_string_lossy());
             output_exists_cnt += 1;
@@ -98,16 +99,15 @@ mod tests {
         let pth = TempDir::new().unwrap();
         let in_file_1 = NamedTempFile::new_in(pth.path()).unwrap();
         let in_file_2 = NamedTempFile::new_in(pth.path()).unwrap();
-        println!("{}", in_file_1.path().display());  //TODO @mark: TEMPORARY! REMOVE THIS!
         let conf = EncryptConfig::new(
-            vec![in_file_1.path().to_owned(), in_file_2.path().to_owned()],  // files
-            Key::new("secret"),  // raw_key
-            Verbosity::Debug,  // verbosity
-            true,  // overwrite
-            true,  // delete_input
-            None,  // output_dir
-            ".enc".to_owned(),  // output_extension
-            false,  // dry_run
+            vec![in_file_1.path().to_owned(), in_file_2.path().to_owned()],
+            Key::new("secret"),
+            Verbosity::Debug,
+            true,
+            true,
+            None,
+            ".enc".to_owned(),
+            false,
         );
         let out_files = inspect_files(&conf).unwrap();
         assert_eq!(2, out_files.len());

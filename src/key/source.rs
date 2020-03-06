@@ -158,27 +158,18 @@ mod tests {
             KeySource::from_str("file:/my/pass.txt").unwrap(),
             KeySource::File(PathBuf::from("/my/pass.txt")),
         );
-}
+    }
     #[test]
     fn valid_ask_twice() {
-        assert_eq!(
-            KeySource::from_str("ask").unwrap(),
-            KeySource::AskTwice,
-        );
-}
+        assert_eq!(KeySource::from_str("ask").unwrap(), KeySource::AskTwice,);
+    }
     #[test]
     fn valid_ask_once() {
-        assert_eq!(
-            KeySource::from_str("ask-once").unwrap(),
-            KeySource::AskOnce,
-        );
-}
+        assert_eq!(KeySource::from_str("ask-once").unwrap(), KeySource::AskOnce,);
+    }
     #[test]
     fn valid_pipe() {
-        assert_eq!(
-            KeySource::from_str("pipe").unwrap(),
-            KeySource::Pipe,
-        );
+        assert_eq!(KeySource::from_str("pipe").unwrap(), KeySource::Pipe,);
     }
 
     #[test]

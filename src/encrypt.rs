@@ -162,7 +162,7 @@ impl EncryptArguments {
             (false, true) => Verbosity::Quiet,
             (false, false) => Verbosity::Normal,
         };
-        let extension = if self.output_extension.starts_with(".") {
+        let extension = if self.output_extension.starts_with('.') {
             self.output_extension
         } else {
             format!(".{}", self.output_extension)

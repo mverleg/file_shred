@@ -31,31 +31,19 @@ mod tests {
 
     #[test]
     fn output_absolute_no_output_dir() {
-        let out_pth = determine_output_path(
-            &PathBuf::from("/alpha/beta/gamma.txt"),
-            ".enc",
-            None
-        );
+        let out_pth = determine_output_path(&PathBuf::from("/alpha/beta/gamma.txt"), ".enc", None);
         assert_eq!(out_pth, PathBuf::from("/alpha/beta/gamma.txt.enc"));
     }
 
     #[test]
     fn output_relative_no_output_dir() {
-        let out_pth = determine_output_path(
-            &PathBuf::from("alpha/beta/gamma.txt"),
-            ".enc",
-            None
-        );
+        let out_pth = determine_output_path(&PathBuf::from("alpha/beta/gamma.txt"), ".enc", None);
         assert_eq!(out_pth, PathBuf::from("alpha/beta/gamma.txt.enc"));
     }
 
     #[test]
     fn output_just_name_no_output_dir() {
-        let out_pth = determine_output_path(
-            &PathBuf::from("name.txt"),
-            ".enc",
-            None
-        );
+        let out_pth = determine_output_path(&PathBuf::from("name.txt"), ".enc", None);
         assert_eq!(out_pth, PathBuf::from("name.txt.enc"));
     }
 
@@ -64,7 +52,7 @@ mod tests {
         let out_pth = determine_output_path(
             &PathBuf::from("/alpha/beta/gamma.txt"),
             ".enc",
-            Some(&PathBuf::from("/output/enc"))
+            Some(&PathBuf::from("/output/enc")),
         );
         assert_eq!(out_pth, PathBuf::from("/output/enc/gamma.txt.enc"));
     }
@@ -74,7 +62,7 @@ mod tests {
         let out_pth = determine_output_path(
             &PathBuf::from("alpha/beta/gamma.txt"),
             ".enc",
-            Some(&PathBuf::from("/output/enc"))
+            Some(&PathBuf::from("/output/enc")),
         );
         assert_eq!(out_pth, PathBuf::from("/output/enc/gamma.txt.enc"));
     }
@@ -84,7 +72,7 @@ mod tests {
         let out_pth = determine_output_path(
             &PathBuf::from("name.txt"),
             ".enc",
-            Some(&PathBuf::from("/output/enc"))
+            Some(&PathBuf::from("/output/enc")),
         );
         assert_eq!(out_pth, PathBuf::from("/output/enc/name.txt.enc"));
     }

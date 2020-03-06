@@ -82,7 +82,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     Ok(())
 }
 
-pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
+pub fn decrypt(_config: &DecryptConfig) -> FedResult<()> {
     unimplemented!() //TODO @mark:
 }
 
@@ -132,11 +132,11 @@ mod tests {
             vec![in_pth],
             COMPAT_KEY.clone(),
             Verbosity::Debug,
-            true,               // overwrite
-            false,              // delete_input
-            Some(temp_dir()),   // output_dir
-            ".enc".to_string(), // output_extension
-            false,              //dry_run
+            true,
+            false,
+            Some(temp_dir()),
+            ".enc".to_string(),
+            false,
         );
         let tmp_pth = {
             let mut p = temp_dir();
@@ -187,9 +187,9 @@ mod tests {
                 vec![enc_pth],
                 COMPAT_KEY.clone(),
                 Verbosity::Debug,
-                false, // overwrite
-                false, // delete_input
-                None,  // output_dir
+                false,
+                false,
+                None,
             );
             decrypt(&conf).unwrap();
             let mut original_data = vec![];
