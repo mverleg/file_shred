@@ -25,9 +25,6 @@ pub mod symmetric;
 pub mod util;
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
-    if config.quiet() {
-        unimplemented!("quiet mode not implemented"); //TODO @mark
-    }
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
     }
@@ -67,7 +64,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
         if !config.dry_run() {
             write_output_file(config, &file, &secret, &header)?;
-        } else {
+        } else if !config.quiet() {
             println!(
                 "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
                 file.path_str(),

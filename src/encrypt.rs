@@ -1,4 +1,6 @@
 use ::std::fmt;
+use ::std::io::stderr;
+use ::std::io::Write;
 use ::std::path::PathBuf;
 use ::std::process::exit;
 
@@ -148,8 +150,8 @@ impl fmt::Display for EncryptArguments {
 }
 
 pub fn main() {
-    if let Err(err) = go() {
-        eprintln!("{}", err);
+    if let Err(err) = go_encrypt() {
+        stderr().write_all(err.as_bytes()).unwrap();
         exit(1);
     }
 }
@@ -182,7 +184,7 @@ impl EncryptArguments {
 
 //TODO: if wildcards or directories are ever supported, then skip files that have the encrypted extension (i.e. .enc)
 
-fn go() -> FedResult<()> {
+fn go_encrypt() -> FedResult<()> {
     let args = EncryptArguments::from_args();
     if args.debug {
         println!("arguments provided:\n{}", args);
@@ -204,10 +206,10 @@ fn go() -> FedResult<()> {
 #[cfg(test)]
 mod tests {
     use ::file_endec::config::typ::EndecConfig;
+    use ::file_endec::header::strategy::Verbosity;
     use ::file_endec::key::Key;
 
     use super::*;
-    use ::file_endec::header::strategy::Verbosity;
 
     #[test]
     fn parse_args_minimal() {

@@ -22,6 +22,7 @@ Note that:
 
 Possible future plans:
 
+* Only encrypt if it saves more than 5% (or some other number). Needs encryption to be in header.
 * Recursively encrypt and decrypt all files in a directory.
 * Give the encrypted / decrypted file the same owner and permissions as the original.
 * Faster Twofish implementation, or different algorithm (now 6x slower than aes256).

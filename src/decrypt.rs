@@ -1,4 +1,6 @@
 use ::std::fmt;
+use ::std::io::stderr;
+use ::std::io::Write;
 use ::std::path::PathBuf;
 use ::std::process::exit;
 
@@ -104,8 +106,8 @@ impl fmt::Display for DecryptArguments {
 }
 
 pub fn main() {
-    if let Err(err) = go() {
-        eprintln!("{}", err);
+    if let Err(err) = go_decrypt() {
+        stderr().write_all(err.as_bytes()).unwrap();
         exit(1);
     }
 }
@@ -131,7 +133,7 @@ impl DecryptArguments {
 
 //TODO: if wildcards or directories are ever supported, then skip files that have the encrypted extension (i.e. .enc)
 
-fn go() -> FedResult<()> {
+fn go_decrypt() -> FedResult<()> {
     let args = DecryptArguments::from_args();
     if args.debug {
         println!("arguments provided:\n{}", args);
