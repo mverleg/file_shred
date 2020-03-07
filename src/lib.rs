@@ -79,8 +79,59 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     Ok(())
 }
 
-pub fn decrypt(_config: &DecryptConfig) -> FedResult<()> {
-    unimplemented!() //TODO @mark:
+pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
+    if config.delete_input() {
+        unimplemented!("deleting input not implemented"); //TODO @mark
+    }
+    let version = get_current_version();
+    let strategy = get_current_version_strategy(config.debug());
+    let files_info = inspect_files(config)?;
+    let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
+    let salt = Salt::generate_random()?;
+    let stretched_key = stretch_key(
+        config.raw_key(),
+        &salt,
+        strategy.stretch_count,
+        &strategy.key_hash_algorithms,
+    );
+    //TODO @mark: progress logging
+    for file in &files_info {
+        if config.debug() {
+            println!("encrypting {}", file.path_str());
+        }
+        if !config.quiet() && file.size_kb > 1024 * 1024 {
+            eprintln!(
+                "warning: reading {} Mb file '{}' into RAM",
+                file.size_kb / 1024,
+                file.path_str()
+            );
+        }
+        let data = wrap_io(|| "could not read import file", fs::read(file.in_path))?;
+        if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
+            eprintln!(
+                "warning: file '{}' seems to already be encrypted",
+                file.path_str()
+            );
+        }
+        let checksum = calculate_checksum(&data);
+        let small = compress_file(data, &strategy.compression_algorithm)?;
+        let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
+        let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
+        if !config.dry_run() {
+            write_output_file(config, &file, &secret, &header)?;
+        } else if !config.quiet() {
+            println!(
+                "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
+                file.path_str(),
+                secret.len() / 1024,
+                &file.out_pth.to_string_lossy()
+            );
+        }
+    }
+    if !config.quiet() {
+        println!("encrypted {} files", files_info.len());
+    }
+    Ok(())
 }
 
 /// The demo used in this blog post:
