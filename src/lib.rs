@@ -24,61 +24,6 @@ pub mod key;
 pub mod symmetric;
 pub mod util;
 
-pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
-    if config.delete_input() {
-        unimplemented!("deleting input not implemented"); //TODO @mark
-    }
-    let version = get_current_version();
-    let strategy = get_current_version_strategy(config.debug());
-    let files_info = inspect_files(config)?;
-    let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
-    let salt = Salt::generate_random()?;
-    let stretched_key = stretch_key(
-        config.raw_key(),
-        &salt,
-        strategy.stretch_count,
-        &strategy.key_hash_algorithms,
-    );
-    //TODO @mark: progress logging
-    for file in &files_info {
-        if config.debug() {
-            println!("encrypting {}", file.path_str());
-        }
-        if !config.quiet() && file.size_kb > 1024 * 1024 {
-            eprintln!(
-                "warning: reading {} Mb file '{}' into RAM",
-                file.size_kb / 1024,
-                file.path_str()
-            );
-        }
-        let data = wrap_io(|| "could not read import file", fs::read(file.in_path))?;
-        if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
-            eprintln!(
-                "warning: file '{}' seems to already be encrypted",
-                file.path_str()
-            );
-        }
-        let checksum = calculate_checksum(&data);
-        let small = compress_file(data, &strategy.compression_algorithm)?;
-        let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
-        let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
-        if !config.dry_run() {
-            write_output_file(config, &file, &secret, &header)?;
-        } else if !config.quiet() {
-            println!(
-                "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
-                file.path_str(),
-                secret.len() / 1024,
-                &file.out_pth.to_string_lossy()
-            );
-        }
-    }
-    if !config.quiet() {
-        println!("encrypted {} files", files_info.len());
-    }
-    Ok(())
-}
-
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
@@ -106,7 +51,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
                 file.path_str()
             );
         }
-        let data = wrap_io(|| "could not read import file", fs::read(file.in_path))?;
+        let data = wrap_io(|| "could not read input file", fs::read(file.in_path))?;
         if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
             eprintln!(
                 "warning: file '{}' seems to already be encrypted",
@@ -114,12 +59,10 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
             );
         }
         let checksum = calculate_checksum(&data);
-        let small = compress_file(data, &strategy.compression_algorithm)?;
-        let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
+        let small = decompress_file(data, &strategy.compression_algorithm)?;
+        let secret = decrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
-        if !config.dry_run() {
-            write_output_file(config, &file, &secret, &header)?;
-        } else if !config.quiet() {
+        if !config.quiet() {
             println!(
                 "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
                 file.path_str(),
@@ -165,51 +108,6 @@ mod tests {
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");
         static ref COMPAT_FILE_RE: Regex = Regex::new(r"^original_v(\d+\.\d+\.\d+).png$").unwrap();
-    }
-
-    #[test]
-    fn store_current_version() {
-        let version = get_current_version();
-        let in_pth = {
-            let mut p = TEST_FILE_DIR.clone();
-            p.push("original.png");
-            p
-        };
-        assert!(in_pth.exists());
-        let conf = EncryptConfig::new(
-            vec![in_pth],
-            COMPAT_KEY.clone(),
-            Verbosity::Debug,
-            true,
-            false,
-            Some(temp_dir()),
-            ".enc".to_string(),
-            false,
-        );
-        let tmp_pth = {
-            let mut p = temp_dir();
-            p.push("original.png.enc");
-            p
-        };
-        encrypt(&conf).unwrap();
-        assert!(tmp_pth.is_file(), "encrypted file was not created");
-        let store_pth = {
-            let mut p = TEST_FILE_DIR.clone();
-            p.push(format!("original_v{}.png.enc", version));
-            p
-        };
-        if !store_pth.exists() {
-            println!("storing file for new version {} as part of backward compatibility test files:\n{} -> {}",
-                     version, &tmp_pth.to_string_lossy(), &store_pth.to_string_lossy());
-            fs::copy(&tmp_pth, &store_pth).unwrap();
-        }
-        // Remove the temporary file (as a courtesy, not critical).
-        println!(
-            "removing temporary file {} for version {}",
-            &tmp_pth.to_string_lossy(),
-            version
-        );
-        fs::remove_file(tmp_pth).unwrap();
     }
 
     /// Open the files in 'test_files/' that were encrypted with previous versions,
