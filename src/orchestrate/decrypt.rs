@@ -4,7 +4,7 @@ use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
 use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
-use crate::files::compress::compress_file;
+use crate::files::compress::{compress_file, decompress_file};
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
 use crate::header::strategy::get_current_version_strategy;
@@ -16,6 +16,8 @@ use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
 use crate::util::version::get_current_version;
 use crate::util::FedResult;
+use crate::orchestrate::common_steps::read_file;
+use crate::symmetric::decrypt::decrypt_file;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -23,7 +25,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     }
     let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
-    let files_info = inspect_files(config)?;
+    let files_info = inspect_files(unimplemented!()/*config*/)?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let salt = Salt::generate_random()?;
     let stretched_key = stretch_key(
@@ -34,26 +36,10 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     );
     //TODO @mark: progress logging
     for file in &files_info {
-        if config.debug() {
-            println!("encrypting {}", file.path_str());
-        }
-        if !config.quiet() && file.size_kb > 1024 * 1024 {
-            eprintln!(
-                "warning: reading {} Mb file '{}' into RAM",
-                file.size_kb / 1024,
-                file.path_str()
-            );
-        }
-        let data = wrap_io(|| "could not read input file", fs::read(file.in_path))?;
-        if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
-            eprintln!(
-                "warning: file '{}' seems to already be encrypted",
-                file.path_str()
-            );
-        }
+        let data = read_file(file, &config.verbosity())?;
         let checksum = calculate_checksum(&data);
         let small = decompress_file(data, &strategy.compression_algorithm)?;
-        let secret = decrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
+        let secret = decrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
         if !config.quiet() {
             println!(

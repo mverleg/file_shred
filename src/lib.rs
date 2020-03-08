@@ -1,21 +1,27 @@
 use ::std::fs;
 
+use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
-use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
-use crate::header::strategy::get_current_version_strategy;
 use crate::header::Header;
 use crate::header::HEADER_MARKER;
-use crate::key::stretch::stretch_key;
+use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
+use crate::key::stretch::stretch_key;
 use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
-use crate::util::version::get_current_version;
 use crate::util::FedResult;
+use crate::util::version::get_current_version;
+
+//TODO @mark: make sure public api is as small as possible, perhaps only the two methods below
+
+// These two methods are the main entry points.
+pub use crate::orchestrate::encrypt::encrypt;
+pub use crate::orchestrate::decrypt::decrypt;
 
 pub mod config;
 pub mod files;
@@ -23,6 +29,7 @@ pub mod header;
 pub mod key;
 pub mod symmetric;
 pub mod util;
+pub mod orchestrate;
 
 /// The demo used in this blog post:
 /// https://markv.nl/blog/symmetric-encryption-in-rust
@@ -42,13 +49,13 @@ mod tests {
     use ::secstr::SecVec;
     use ::semver::Version;
 
+    use crate::{decrypt, encrypt};
     use crate::config::{DecryptConfig, EncryptConfig};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
-    use crate::{decrypt, encrypt};
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 

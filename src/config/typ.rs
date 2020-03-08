@@ -13,11 +13,11 @@ pub trait EndecConfig: Debug {
     fn verbosity(&self) -> Verbosity;
 
     fn debug(&self) -> bool {
-        Verbosity::Debug == self.verbosity()
+        self.verbosity().debug()
     }
 
     fn quiet(&self) -> bool {
-        Verbosity::Quiet == self.verbosity()
+        self.verbosity().quiet()
     }
 
     fn overwrite(&self) -> bool;
