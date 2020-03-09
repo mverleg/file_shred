@@ -48,25 +48,43 @@ mod tests {
     //TODO @mark: tests for stripping if no extension
 
     #[test]
-    fn output_absolute_no_output_dir() {
+    fn output_absolute_no_output_dir_add_ext() {
         let out_pth = determine_output_path(&PathBuf::from("/alpha/beta/gamma.txt"), Extension::Add(".enc"), None);
         assert_eq!(out_pth, PathBuf::from("/alpha/beta/gamma.txt.enc"));
     }
 
     #[test]
-    fn output_relative_no_output_dir() {
+    fn output_absolute_no_output_dir_strip_ext() {
+        let out_pth = determine_output_path(&PathBuf::from("/alpha/beta/gamma.txt.enc"), Extension::Strip, None);
+        assert_eq!(out_pth, PathBuf::from("/alpha/beta/gamma.txt"));
+    }
+
+    #[test]
+    fn output_relative_no_output_dir_add_ext() {
         let out_pth = determine_output_path(&PathBuf::from("alpha/beta/gamma.txt"), Extension::Add(".enc"), None);
         assert_eq!(out_pth, PathBuf::from("alpha/beta/gamma.txt.enc"));
     }
 
     #[test]
-    fn output_just_name_no_output_dir() {
+    fn output_relative_no_output_dir_strip_ext() {
+        let out_pth = determine_output_path(&PathBuf::from("alpha/beta/gamma.txt.enc"), Extension::Strip, None);
+        assert_eq!(out_pth, PathBuf::from("alpha/beta/gamma.txt"));
+    }
+
+    #[test]
+    fn output_just_name_no_output_dir_add_ext() {
         let out_pth = determine_output_path(&PathBuf::from("name.txt"), Extension::Add(".enc"), None);
         assert_eq!(out_pth, PathBuf::from("name.txt.enc"));
     }
 
     #[test]
-    fn output_absolute_with_output_dir() {
+    fn output_just_name_no_output_dir_strip_ext() {
+        let out_pth = determine_output_path(&PathBuf::from("name.txt.enc"), Extension::Strip, None);
+        assert_eq!(out_pth, PathBuf::from("name.txt"));
+    }
+
+    #[test]
+    fn output_absolute_with_output_dir_add_ext() {
         let out_pth = determine_output_path(
             &PathBuf::from("/alpha/beta/gamma.txt"),
             Extension::Add(".enc"),
@@ -76,7 +94,17 @@ mod tests {
     }
 
     #[test]
-    fn output_relative_with_output_dir() {
+    fn output_absolute_with_output_dir_strip_ext() {
+        let out_pth = determine_output_path(
+            &PathBuf::from("/alpha/beta/gamma.txt.enc"),
+            Extension::Strip,
+            Some(&PathBuf::from("/output/enc")),
+        );
+        assert_eq!(out_pth, PathBuf::from("/output/enc/gamma.txt"));
+    }
+
+    #[test]
+    fn output_relative_with_output_dir_add_ext() {
         let out_pth = determine_output_path(
             &PathBuf::from("alpha/beta/gamma.txt"),
             Extension::Add(".enc"),
@@ -86,12 +114,42 @@ mod tests {
     }
 
     #[test]
-    fn output_just_name_with_output_dir() {
+    fn output_relative_with_output_dir_strip_ext() {
+        let out_pth = determine_output_path(
+            &PathBuf::from("alpha/beta/gamma.txt.enc"),
+            Extension::Strip,
+            Some(&PathBuf::from("/output/enc")),
+        );
+        assert_eq!(out_pth, PathBuf::from("/output/enc/gamma.txt"));
+    }
+
+    #[test]
+    fn output_just_name_with_output_dir_add_ext() {
         let out_pth = determine_output_path(
             &PathBuf::from("name.txt"),
             Extension::Add(".enc"),
             Some(&PathBuf::from("/output/enc")),
         );
         assert_eq!(out_pth, PathBuf::from("/output/enc/name.txt.enc"));
+    }
+
+    #[test]
+    fn output_just_name_with_output_dir_strip_ext() {
+        let out_pth = determine_output_path(
+            &PathBuf::from("name.txt.enc"),
+            Extension::Strip,
+            Some(&PathBuf::from("/output/enc")),
+        );
+        assert_eq!(out_pth, PathBuf::from("/output/enc/name.txt"));
+    }
+
+    #[test]
+    fn strip_without_extension() {
+        let out_pth = determine_output_path(
+            &PathBuf::from("name"),
+            Extension::Strip,
+            None,
+        );
+        assert_eq!(out_pth, PathBuf::from("name~"));
     }
 }
