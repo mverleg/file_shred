@@ -1,7 +1,7 @@
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::config::typ::EndecConfig;
+use crate::config::typ::{EndecConfig, Extension};
 use crate::header::strategy::Verbosity;
 use crate::key::Key;
 
@@ -66,6 +66,13 @@ impl EndecConfig for DecryptConfig {
     }
 
     fn output_dir(&self) -> Option<&Path> {
-        unimplemented!()
+        match &self.output_dir {
+            Some(pth) => Some(pth),
+            None => None
+        }
+    }
+
+    fn extension(&self) -> Extension {
+        Extension::Strip
     }
 }

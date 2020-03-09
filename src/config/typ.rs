@@ -5,6 +5,11 @@ use ::std::path::PathBuf;
 use crate::header::strategy::Verbosity;
 use crate::key::Key;
 
+pub enum Extension<'a> {
+    Add(&'a str),
+    Strip,
+}
+
 pub trait EndecConfig: Debug {
     fn files(&self) -> &[PathBuf];
 
@@ -25,6 +30,8 @@ pub trait EndecConfig: Debug {
     fn delete_input(&self) -> bool;
 
     fn output_dir(&self) -> Option<&Path>;
+
+    fn extension(&self) -> Extension;
 }
 
 #[cfg(test)]
@@ -65,5 +72,9 @@ impl EndecConfig for MockEndecConfig {
             Some(dir) => Some(dir.as_path()),
             None => None,
         }
+    }
+
+    fn extension(&self) -> Extension {
+        Extension::Add(".enc")
     }
 }
