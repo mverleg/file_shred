@@ -71,8 +71,4 @@ impl EndecConfig for DecryptConfig {
             None => None
         }
     }
-
-    fn extension(&self) -> Extension {
-        Extension::Strip
-    }
 }

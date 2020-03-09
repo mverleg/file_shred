@@ -1,7 +1,7 @@
 use ::std::fs;
 
 use crate::config::enc::EncryptConfig;
-use crate::config::typ::EndecConfig;
+use crate::config::typ::{EndecConfig, Extension};
 use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
@@ -24,7 +24,13 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     }
     let version = get_current_version();
     let strategy = get_current_version_strategy(config.debug());
-    let files_info = inspect_files(config)?;
+    let files_info = inspect_files(
+        config.files(),
+        config.verbosity(),
+        config.overwrite(),
+        Extension::Add(config.output_extension()),
+        config.output_dir(),
+    )?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let salt = Salt::generate_random()?;
     let stretched_key = stretch_key(

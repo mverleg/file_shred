@@ -82,8 +82,4 @@ impl EndecConfig for EncryptConfig {
             None => None,
         }
     }
-
-    fn extension(&self) -> Extension {
-        Extension::Add(&self.output_extension)
-    }
 }

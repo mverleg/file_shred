@@ -3,7 +3,7 @@ use ::std::fs;
 
 use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
-use crate::config::typ::EndecConfig;
+use crate::config::typ::{EndecConfig, Extension};
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::{compress_file, decompress_file};
 use crate::files::file_meta::inspect_files;
@@ -25,7 +25,13 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
     }
-    let files_info = inspect_files(unimplemented!()/*config*/)?;
+    let files_info = inspect_files(
+        config.files(),
+        config.verbosity(),
+        config.overwrite(),
+        Extension::Strip,
+        config.output_dir(),
+    )?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let mut key_cache: HashMap<Salt, StretchKey> = HashMap::new();
     for file in &files_info {

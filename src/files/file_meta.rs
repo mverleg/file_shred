@@ -3,10 +3,10 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 
 use crate::config::EncryptConfig;
-use crate::config::typ::{EndecConfig, Extension};
 use crate::header::strategy::Verbosity;
 use crate::util::FedResult;
 use crate::util::pth::determine_output_path;
+use crate::config::typ::Extension;
 
 #[derive(Debug)]
 pub struct FileInfo<'a> {
@@ -24,9 +24,8 @@ impl<'a> FileInfo<'a> {
 }
 
 pub fn inspect_files<'a>(
-    //config: &EncryptConfig,
     files: &'a [PathBuf],
-    verbosity: &Verbosity,
+    verbosity: Verbosity,
     overwrite: bool,
     extension: Extension,
     output_dir: Option<&Path>
@@ -98,6 +97,8 @@ mod tests {
     use ::tempfile::NamedTempFile;
     use ::tempfile::TempDir;
 
+    use crate::config::typ::EndecConfig;
+    use crate::config::typ::Extension;
     use crate::header::strategy::Verbosity;
     use crate::key::Key;
 
@@ -108,7 +109,7 @@ mod tests {
         let pth = TempDir::new().unwrap();
         let in_file_1 = NamedTempFile::new_in(pth.path()).unwrap();
         let in_file_2 = NamedTempFile::new_in(pth.path()).unwrap();
-        let conf = EncryptConfig::new(
+        let config = EncryptConfig::new(
             vec![in_file_1.path().to_owned(), in_file_2.path().to_owned()],
             Key::new("secret"),
             Verbosity::Debug,
@@ -118,7 +119,13 @@ mod tests {
             ".enc".to_owned(),
             false,
         );
-        let out_files = inspect_files(&conf).unwrap();
+        let out_files = inspect_files(
+            config.files(),
+            config.verbosity(),
+            config.overwrite(),
+            Extension::Add(".enc"),
+            config.output_dir(),
+        ).unwrap();
         assert_eq!(2, out_files.len());
         let expected_out_pth_1 = format!("{}.enc", in_file_1.path().to_str().unwrap());
         let expected_out_pth_2 = format!("{}.enc", in_file_2.path().to_str().unwrap());
