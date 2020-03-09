@@ -41,7 +41,7 @@ impl PartialEq for Key {
 
 impl Eq for Key {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct StretchKey {
     pub key_data: SecVec<u8>,
 }

@@ -1,41 +1,49 @@
+use ::std::collections::HashMap;
 use ::std::fs;
 
+use crate::config::DecryptConfig;
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
-use crate::config::DecryptConfig;
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::{compress_file, decompress_file};
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
-use crate::header::strategy::get_current_version_strategy;
-use crate::header::Header;
+use crate::header::{get_version_strategy, Header};
 use crate::header::HEADER_MARKER;
-use crate::key::stretch::stretch_key;
+use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
-use crate::symmetric::encrypt::encrypt_file;
-use crate::util::errors::wrap_io;
-use crate::util::version::get_current_version;
-use crate::util::FedResult;
+use crate::key::stretch::stretch_key;
 use crate::orchestrate::common_steps::read_file;
 use crate::symmetric::decrypt::decrypt_file;
+use crate::symmetric::encrypt::encrypt_file;
+use crate::util::errors::wrap_io;
+use crate::util::FedResult;
+use crate::util::version::get_current_version;
+use crate::key::key::StretchKey;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
     }
-    let version = get_current_version();
-    let strategy = get_current_version_strategy(config.debug());
     let files_info = inspect_files(unimplemented!()/*config*/)?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
-    let salt = Salt::generate_random()?;
-    let stretched_key = stretch_key(
-        config.raw_key(),
-        &salt,
-        strategy.stretch_count,
-        &strategy.key_hash_algorithms,
-    );
-    //TODO @mark: progress logging
+    let mut key_cache: HashMap<Salt, StretchKey> = HashMap::new();
     for file in &files_info {
+        let version = unimplemented!();
+        let salt = unimplemented!();
+        let strategy = get_version_strategy(&version, config.debug())?;
+        let stretched_key = if let Some(sk) = key_cache.get(&salt) {
+            sk.clone()
+        } else {
+            let sk = stretch_key(
+                config.raw_key(),
+                &salt,
+                strategy.stretch_count,
+                &strategy.key_hash_algorithms,
+            );
+            key_cache.insert(salt, sk.clone());
+            sk
+        };
         let data = read_file(file, &config.verbosity())?;
         let checksum = calculate_checksum(&data);
         let small = decompress_file(data, &strategy.compression_algorithm)?;
@@ -74,13 +82,13 @@ mod tests {
     use ::secstr::SecVec;
     use ::semver::Version;
 
+    use crate::{decrypt, encrypt};
     use crate::config::{DecryptConfig, EncryptConfig};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
-    use crate::{decrypt, encrypt};
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 

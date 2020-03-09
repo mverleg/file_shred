@@ -16,6 +16,7 @@ use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
 use crate::util::version::get_current_version;
 use crate::util::FedResult;
+use crate::orchestrate::common_steps::read_file;
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -34,23 +35,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     );
     //TODO @mark: progress logging
     for file in &files_info {
-        if config.debug() {
-            println!("encrypting {}", file.path_str());
-        }
-        if !config.quiet() && file.size_kb > 1024 * 1024 {
-            eprintln!(
-                "warning: reading {} Mb file '{}' into RAM",
-                file.size_kb / 1024,
-                file.path_str()
-            );
-        }
-        let data = wrap_io(|| "could not read input file", fs::read(file.in_path))?;
-        if !config.quiet() && data.starts_with(HEADER_MARKER.as_bytes()) {
-            eprintln!(
-                "warning: file '{}' seems to already be encrypted",
-                file.path_str()
-            );
-        }
+        let data = read_file(file, &config.verbosity())?;
         let checksum = calculate_checksum(&data);
         let small = compress_file(data, &strategy.compression_algorithm)?;
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);

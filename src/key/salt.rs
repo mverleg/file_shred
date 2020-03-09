@@ -1,9 +1,11 @@
 use ::std::fmt::Debug;
 use ::std::fmt::Error;
 use ::std::fmt::Formatter;
+use ::std::hash::Hash;
+use ::std::hash::Hasher;
 
-use ::rand::rngs::OsRng;
 use ::rand::RngCore;
+use ::rand::rngs::OsRng;
 
 use crate::util::base64::base64str_to_u8s;
 use crate::util::base64::u8s_to_base64str;
@@ -32,6 +34,12 @@ impl PartialEq for Salt {
 }
 
 impl Eq for Salt {}
+
+impl Hash for Salt {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write(&self.salt)
+    }
+}
 
 impl Debug for Salt {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
