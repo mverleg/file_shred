@@ -20,6 +20,7 @@ use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 use crate::util::version::get_current_version;
 use crate::key::key::StretchKey;
+use std::io::{Read, BufRead};
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -53,6 +54,10 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
             key_cache.insert(salt.clone(), sk.clone());
             sk
         };
+        let mut buf = [0; 50];
+        reader.read_exact(&mut buf).unwrap();
+        println!("LINE = {}", String::from_utf8_lossy(&buf));
+        unimplemented!();  //TODO @mark: TEMPORARY! REMOVE THIS!
         let data = read_file(&mut reader, &file.path_str(), file.size_kb, &config.verbosity())?;
         let checksum = calculate_checksum(&data);
         let small = decompress_file(data, &strategy.compression_algorithm)?;

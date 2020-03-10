@@ -32,13 +32,13 @@ pub fn brotli_compress(data: &[u8]) -> FedResult<Vec<u8>> {
                 Err("No data was read during compression".to_owned())
             }
         }
-        Err(err) => Err(format!("Brotli error: {}", err)),
+        Err(err) => Err(format!("Brotli compress error: {}", err)),
     }
 }
 
 pub fn decompress_file(data: Vec<u8>, alg: &CompressionAlg) -> FedResult<Vec<u8>> {
     match alg {
-        CompressionAlg::Brotli => brotli_compress(&data),
+        CompressionAlg::Brotli => brotli_decompress(&data),
         CompressionAlg::None => Ok(data),
     }
 }
@@ -48,7 +48,7 @@ pub fn brotli_decompress(data: &[u8]) -> FedResult<Vec<u8>> {
     let mut output = Vec::with_capacity(data.len());
     match decompress.read_to_end(&mut output) {
         Ok(_) => Ok(output),
-        Err(err) => Err(format!("Brotli error: {}", err)),
+        Err(err) => Err(format!("Brotli decompress error: {}", err)),
     }
 }
 
