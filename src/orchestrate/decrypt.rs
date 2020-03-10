@@ -59,7 +59,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
         };
         let mut buf = [0; 50];
         reader.read_exact(&mut buf).unwrap();
-        let data = read_file(&mut reader, &file.path_str(), file.size_kb, &config.verbosity())?;
+        let data = read_file(&mut reader, &file.path_str(), file.size_kb, config.verbosity())?;
         let secret = decrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
         let big = decompress_file(secret, &strategy.compression_algorithm)?;
         let actual_checksum = calculate_checksum(&big);
@@ -101,7 +101,7 @@ pub fn validate_checksum_matches(actual_checksum: &Checksum, expected_checksum: 
               "".to_owned()
           }
     );
-    return false;
+    false
 }
 
 /// The demo used in this blog post:
@@ -110,27 +110,22 @@ pub fn validate_checksum_matches(actual_checksum: &Checksum, expected_checksum: 
 mod tests {
     use ::std::fs::File;
     use ::std::io::Read;
-    use std::env::temp_dir;
-    use std::fs;
+    
+    
 
-    use ::aes::Aes256;
-    use ::block_modes::block_padding::Iso7816;
-    use ::block_modes::BlockMode;
-    use ::block_modes::Cbc;
     use ::lazy_static::lazy_static;
     use ::regex::Regex;
-    use ::secstr::SecVec;
+    
     use ::semver::Version;
 
-    use crate::{decrypt, encrypt};
-    use crate::config::{DecryptConfig, EncryptConfig};
+    use crate::{decrypt};
+    use crate::config::{DecryptConfig};
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
-    use crate::util::version::get_current_version;
+    
 
-    type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");

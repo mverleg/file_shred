@@ -18,7 +18,7 @@ pub fn determine_output_path(
         Extension::Strip => {
             let mut new_name = input_path.file_stem().unwrap().to_os_string();
             let original_name = input_path.file_name().unwrap().to_os_string();
-            if &original_name == &new_name {
+            if original_name == new_name {
                 eprintln!("warning: encrypted file {} has no extension, so `~` will be appended \
                 to make output name differ from input", original_name.to_string_lossy());
                 new_name.push("~");

@@ -35,10 +35,10 @@ pub mod orchestrate;
 /// https://markv.nl/blog/symmetric-encryption-in-rust
 #[cfg(test)]
 mod tests {
-    use ::std::fs::File;
-    use ::std::io::Read;
-    use std::env::temp_dir;
-    use std::fs;
+    
+    
+    
+    
 
     use ::aes::Aes256;
     use ::block_modes::block_padding::Iso7816;
@@ -47,15 +47,15 @@ mod tests {
     use ::lazy_static::lazy_static;
     use ::regex::Regex;
     use ::secstr::SecVec;
-    use ::semver::Version;
+    
 
-    use crate::{decrypt, encrypt};
-    use crate::config::{DecryptConfig, EncryptConfig};
-    use crate::files::scan::get_enc_files_direct;
-    use crate::files::scan::TEST_FILE_DIR;
-    use crate::header::strategy::Verbosity;
+    
+    
+    
+    
+    
     use crate::key::key::Key;
-    use crate::util::version::get_current_version;
+    
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 

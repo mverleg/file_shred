@@ -19,7 +19,7 @@ pub fn open_reader(file: &FileInfo, verbosity: Verbosity) -> FedResult<BufReader
     }
 }
 
-pub fn read_file(reader: &mut BufReader<File>, path_str: &str, size_kb: u64, verbosity: &Verbosity) -> FedResult<Vec<u8>> {
+pub fn read_file(reader: &mut BufReader<File>, path_str: &str, size_kb: u64, verbosity: Verbosity) -> FedResult<Vec<u8>> {
     if verbosity.debug() {
         println!("reading {}", path_str);
     }

@@ -18,12 +18,12 @@ impl Default for Verbosity {
 }
 
 impl Verbosity {
-    pub fn debug(&self) -> bool {
-        Verbosity::Debug == *self
+    pub fn debug(self) -> bool {
+        Verbosity::Debug == self
     }
 
-    pub fn quiet(&self) -> bool {
-        Verbosity::Quiet == *self
+    pub fn quiet(self) -> bool {
+        Verbosity::Quiet == self
     }
 
 }
