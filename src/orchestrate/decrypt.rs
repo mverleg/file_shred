@@ -8,12 +8,12 @@ use crate::files::checksum::calculate_checksum;
 use crate::files::compress::{compress_file, decompress_file};
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
-use crate::header::{get_version_strategy, Header};
+use crate::header::{get_version_strategy, Header, parse_header};
 use crate::header::HEADER_MARKER;
 use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;
-use crate::orchestrate::common_steps::read_file;
+use crate::orchestrate::common_steps::{read_file, open_reader};
 use crate::symmetric::decrypt::decrypt_file;
 use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
@@ -34,9 +34,12 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     )?;
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let mut key_cache: HashMap<Salt, StretchKey> = HashMap::new();
+    //TODO @mark: if I want to do time logging well, I need to scan headers to see how many salts
     for file in &files_info {
-        let version = unimplemented!();
-        let salt = unimplemented!();
+        let mut reader = open_reader(&file, config.verbosity())?;
+        let header = parse_header(&mut reader, config.verbosity().debug())?;
+        let version = header.version();
+        let salt = header.salt().clone();
         let strategy = get_version_strategy(&version, config.debug())?;
         let stretched_key = if let Some(sk) = key_cache.get(&salt) {
             sk.clone()
@@ -47,10 +50,10 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
                 strategy.stretch_count,
                 &strategy.key_hash_algorithms,
             );
-            key_cache.insert(salt, sk.clone());
+            key_cache.insert(salt.clone(), sk.clone());
             sk
         };
-        let data = read_file(file, &config.verbosity())?;
+        let data = read_file(&mut reader, &file.path_str(), file.size_kb, &config.verbosity())?;
         let checksum = calculate_checksum(&data);
         let small = decompress_file(data, &strategy.compression_algorithm)?;
         let secret = decrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms)?;

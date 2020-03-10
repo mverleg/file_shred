@@ -16,7 +16,7 @@ use crate::symmetric::encrypt::encrypt_file;
 use crate::util::errors::wrap_io;
 use crate::util::version::get_current_version;
 use crate::util::FedResult;
-use crate::orchestrate::common_steps::read_file;
+use crate::orchestrate::common_steps::{read_file, open_reader};
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -41,7 +41,8 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     );
     //TODO @mark: progress logging
     for file in &files_info {
-        let data = read_file(file, &config.verbosity())?;
+        let mut reader = open_reader(&file, config.verbosity())?;
+        let data = read_file(&mut reader, &file.path_str(), file.size_kb, &config.verbosity())?;
         let checksum = calculate_checksum(&data);
         let small = compress_file(data, &strategy.compression_algorithm)?;
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);

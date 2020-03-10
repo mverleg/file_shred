@@ -83,7 +83,7 @@ fn parse_checksum(
     Checksum::parse(checksum_str)
 }
 
-pub fn parse_header(reader: &mut dyn BufRead, verbose: bool) -> FedResult<Header> {
+pub fn parse_header<R: BufRead>(reader: &mut R, verbose: bool) -> FedResult<Header> {
     let mut line = String::new();
     parse_marker(reader, &mut line, verbose)?;
     let version = parse_version(reader, &mut line, verbose)?;
