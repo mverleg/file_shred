@@ -2,11 +2,10 @@ use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::config::EncryptConfig;
+use crate::config::typ::Extension;
 use crate::header::strategy::Verbosity;
 use crate::util::FedResult;
 use crate::util::pth::determine_output_path;
-use crate::config::typ::Extension;
 
 #[derive(Debug)]
 pub struct FileInfo<'a> {
@@ -97,6 +96,7 @@ mod tests {
     use ::tempfile::NamedTempFile;
     use ::tempfile::TempDir;
 
+    use crate::config::EncryptConfig;
     use crate::config::typ::EndecConfig;
     use crate::config::typ::Extension;
     use crate::header::strategy::Verbosity;

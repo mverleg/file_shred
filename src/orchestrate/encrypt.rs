@@ -1,19 +1,19 @@
-use ::std::fs;
+
 
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::{EndecConfig, Extension};
-use crate::config::DecryptConfig;
+
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
 use crate::header::strategy::get_current_version_strategy;
 use crate::header::Header;
-use crate::header::HEADER_MARKER;
+
 use crate::key::stretch::stretch_key;
 use crate::key::Salt;
 use crate::symmetric::encrypt::encrypt_file;
-use crate::util::errors::wrap_io;
+
 use crate::util::version::get_current_version;
 use crate::util::FedResult;
 use crate::orchestrate::common_steps::{read_file, open_reader};
@@ -54,7 +54,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
                 "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
                 file.path_str(),
                 secret.len() / 1024,
-                &file.out_pth.to_string_lossy()
+                &file.out_pth.to_string_lossy(),
             );
         }
     }

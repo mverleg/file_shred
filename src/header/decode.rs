@@ -111,7 +111,8 @@ mod tests {
     fn stop_read_after_header() {
         let version = Version::parse("1.0.0").unwrap();
         let input =
-            "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAA\ncheck xx_sha256 Ag\ndata:\nthis is the data and should not be read!\nthe end of the data";
+            "github.com/mverleg/file_endec\nv 1.0.0\nsalt AQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAA\
+            \ncheck xx_sha256 Ag\ndata:\nthis is the data and should not be read!\nthe end of the data";
         let mut reader = BufReader::new(input.as_bytes());
         let header = parse_header(&mut reader, true).unwrap();
         let mut remainder = vec![];

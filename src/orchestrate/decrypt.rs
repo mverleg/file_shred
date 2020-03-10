@@ -1,26 +1,28 @@
 use ::std::collections::HashMap;
-use ::std::fs;
+
 
 use crate::config::DecryptConfig;
-use crate::config::enc::EncryptConfig;
+
 use crate::config::typ::{EndecConfig, Extension};
 use crate::files::checksum::calculate_checksum;
-use crate::files::compress::{compress_file, decompress_file};
+use crate::files::compress::{decompress_file};
 use crate::files::file_meta::inspect_files;
-use crate::files::write_output::write_output_file;
-use crate::header::{get_version_strategy, Header, parse_header};
-use crate::header::HEADER_MARKER;
-use crate::header::strategy::get_current_version_strategy;
+
+use crate::header::{get_version_strategy, parse_header};
+
+
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;
 use crate::orchestrate::common_steps::{read_file, open_reader};
 use crate::symmetric::decrypt::decrypt_file;
-use crate::symmetric::encrypt::encrypt_file;
-use crate::util::errors::wrap_io;
+
+
 use crate::util::FedResult;
-use crate::util::version::get_current_version;
+
 use crate::key::key::StretchKey;
-use std::io::{Read, BufRead};
+use std::io::{Read};
+use crate::files::Checksum;
+use crate::header::strategy::Verbosity;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -36,6 +38,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     let _total_size_kb: u64 = files_info.iter().map(|inf| inf.size_kb).sum();
     let mut key_cache: HashMap<Salt, StretchKey> = HashMap::new();
     //TODO @mark: if I want to do time logging well, I need to scan headers to see how many salts
+    let mut checksum_failure_count = 0;
     for file in &files_info {
         let mut reader = open_reader(&file, config.verbosity())?;
         let header = parse_header(&mut reader, config.verbosity().debug())?;
@@ -56,26 +59,49 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
         };
         let mut buf = [0; 50];
         reader.read_exact(&mut buf).unwrap();
-        println!("LINE = {}", String::from_utf8_lossy(&buf));
-        unimplemented!();  //TODO @mark: TEMPORARY! REMOVE THIS!
         let data = read_file(&mut reader, &file.path_str(), file.size_kb, &config.verbosity())?;
-        let checksum = calculate_checksum(&data);
-        let small = decompress_file(data, &strategy.compression_algorithm)?;
-        let secret = decrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
-        let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
+        let secret = decrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
+        let big = decompress_file(secret, &strategy.compression_algorithm)?;
+        let actual_checksum = calculate_checksum(&big);
+        if !validate_checksum_matches(&actual_checksum, header.checksum(), config.verbosity(), &file.path_str()) {
+            checksum_failure_count += 1;
+        }
         if !config.quiet() {
             println!(
-                "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
+                "successfully decrypted '{}' to '{}' ({} kb)",
                 file.path_str(),
-                secret.len() / 1024,
-                &file.out_pth.to_string_lossy()
+                file.out_pth.to_string_lossy(),
+                big.len() / 1024,
             );
         }
     }
     if !config.quiet() {
         println!("encrypted {} files", files_info.len());
     }
+    if checksum_failure_count > 0 {
+        return Err(format!("there were {} files whose checksums did not match; they \
+        likely do not contain real data", checksum_failure_count))
+    }
     Ok(())
+}
+
+pub fn validate_checksum_matches(actual_checksum: &Checksum, expected_checksum: &Checksum, verbosity: Verbosity, file_name: &str) -> bool {
+    if actual_checksum == expected_checksum {
+        return true;
+    }
+    if verbosity.quiet() {
+        return false;
+    }
+    //TODO @mark: test this
+    eprintln!("warning: checksum for '{}' did not match! the decrypted file may contain garbage{}",
+          file_name,
+          if verbosity.debug() {
+              format!(" (expected {}, actually {})", expected_checksum, actual_checksum)
+          } else {
+              "".to_owned()
+          }
+    );
+    return false;
 }
 
 /// The demo used in this blog post:

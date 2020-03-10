@@ -1,7 +1,7 @@
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::config::typ::{EndecConfig, Extension};
+use crate::config::typ::{EndecConfig};
 use crate::header::strategy::Verbosity;
 use crate::key::Key;
 
