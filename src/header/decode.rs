@@ -97,6 +97,7 @@ pub fn parse_header<R: BufRead>(reader: &mut R, verbose: bool) -> FedResult<Head
 #[cfg(test)]
 mod tests {
     use ::std::io::BufReader;
+    use ::std::io::Read;
 
     use ::semver::Version;
 
@@ -105,7 +106,6 @@ mod tests {
     use crate::key::salt::Salt;
 
     use super::parse_header;
-    use std::io::Read;
 
     #[test]
     fn stop_read_after_header() {

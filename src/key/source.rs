@@ -1,6 +1,6 @@
 use ::std::env;
 use ::std::fs;
-use ::std::io::{stdin, BufRead};
+use ::std::io::{BufRead, stdin};
 use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::str::FromStr;

@@ -5,8 +5,8 @@ use ::std::io::Write;
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
 use crate::files::file_meta::FileInfo;
-use crate::header::write_header;
 use crate::header::Header;
+use crate::header::write_header;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 

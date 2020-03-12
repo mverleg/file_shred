@@ -19,9 +19,9 @@
 
 //TODO @mark: make sure public api is as small as possible, perhaps only the two methods below
 
+pub use crate::orchestrate::decrypt::decrypt;
 // These two methods are the main entry points.
 pub use crate::orchestrate::encrypt::encrypt;
-pub use crate::orchestrate::decrypt::decrypt;
 
 pub mod config;
 pub mod files;
@@ -35,11 +35,6 @@ pub mod orchestrate;
 /// https://markv.nl/blog/symmetric-encryption-in-rust
 #[cfg(test)]
 mod tests {
-    
-    
-    
-    
-
     use ::aes::Aes256;
     use ::block_modes::block_padding::Iso7816;
     use ::block_modes::BlockMode;
@@ -47,15 +42,8 @@ mod tests {
     use ::lazy_static::lazy_static;
     use ::regex::Regex;
     use ::secstr::SecVec;
-    
 
-    
-    
-    
-    
-    
     use crate::key::key::Key;
-    
 
     type Aes256Cbc = Cbc<Aes256, Iso7816>;
 

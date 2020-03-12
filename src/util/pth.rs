@@ -44,7 +44,7 @@ pub fn determine_output_path(
 mod tests {
     use super::*;
 
-    //TODO @mark: tests for stripping extension
+//TODO @mark: tests for stripping extension
     //TODO @mark: tests for stripping if no extension
 
     #[test]

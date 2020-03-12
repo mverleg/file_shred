@@ -1,22 +1,17 @@
-
-
 use crate::config::enc::EncryptConfig;
 use crate::config::typ::{EndecConfig, Extension};
-
 use crate::files::checksum::calculate_checksum;
 use crate::files::compress::compress_file;
 use crate::files::file_meta::inspect_files;
 use crate::files::write_output::write_output_file;
-use crate::header::strategy::get_current_version_strategy;
 use crate::header::Header;
-
-use crate::key::stretch::stretch_key;
+use crate::header::strategy::get_current_version_strategy;
 use crate::key::Salt;
+use crate::key::stretch::stretch_key;
+use crate::orchestrate::common_steps::{open_reader, read_file};
 use crate::symmetric::encrypt::encrypt_file;
-
-use crate::util::version::get_current_version;
 use crate::util::FedResult;
-use crate::orchestrate::common_steps::{read_file, open_reader};
+use crate::util::version::get_current_version;
 
 pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -68,22 +63,18 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
 /// https://markv.nl/blog/symmetric-encryption-in-rust
 #[cfg(test)]
 mod tests {
-    
-    
-    use std::env::temp_dir;
-    use std::fs;
+    use ::std::env::temp_dir;
+    use ::std::fs;
 
     use ::lazy_static::lazy_static;
     use ::regex::Regex;
 
-    use crate::config::{EncryptConfig};
-    
+    use crate::config::EncryptConfig;
+    use crate::encrypt;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
-    use crate::{encrypt};
-
 
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");

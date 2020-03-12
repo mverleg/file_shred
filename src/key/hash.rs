@@ -2,11 +2,10 @@ use ::std::num::NonZeroU32;
 
 use ::argon2rs::Argon2;
 use ::argon2rs::Variant;
+use ::bcrypt;
 use ::lazy_static::lazy_static;
 use ::ring::pbkdf2::derive;
 use ::ring::pbkdf2::PBKDF2_HMAC_SHA512;
-
-use ::bcrypt;
 
 use crate::header::KeyHashAlg;
 

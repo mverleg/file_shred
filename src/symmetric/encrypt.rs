@@ -3,7 +3,6 @@ use ::block_modes::BlockMode;
 use crate::header::SymmetricEncryptionAlg;
 use crate::key::key::StretchKey;
 use crate::key::Salt;
-
 use crate::symmetric::{Aes256Cbc, TwofishCbc};
 
 pub fn encrypt_file(

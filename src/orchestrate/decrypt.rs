@@ -1,28 +1,20 @@
 use ::std::collections::HashMap;
-
+use ::std::io::Read;
 
 use crate::config::DecryptConfig;
-
 use crate::config::typ::{EndecConfig, Extension};
+use crate::files::Checksum;
 use crate::files::checksum::calculate_checksum;
-use crate::files::compress::{decompress_file};
+use crate::files::compress::decompress_file;
 use crate::files::file_meta::inspect_files;
-
 use crate::header::{get_version_strategy, parse_header};
-
-
+use crate::header::strategy::Verbosity;
+use crate::key::key::StretchKey;
 use crate::key::Salt;
 use crate::key::stretch::stretch_key;
-use crate::orchestrate::common_steps::{read_file, open_reader};
+use crate::orchestrate::common_steps::{open_reader, read_file};
 use crate::symmetric::decrypt::decrypt_file;
-
-
 use crate::util::FedResult;
-
-use crate::key::key::StretchKey;
-use std::io::{Read};
-use crate::files::Checksum;
-use crate::header::strategy::Verbosity;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -110,22 +102,17 @@ pub fn validate_checksum_matches(actual_checksum: &Checksum, expected_checksum: 
 mod tests {
     use ::std::fs::File;
     use ::std::io::Read;
-    
-    
 
     use ::lazy_static::lazy_static;
     use ::regex::Regex;
-    
     use ::semver::Version;
 
-    use crate::{decrypt};
-    use crate::config::{DecryptConfig};
+    use crate::config::DecryptConfig;
+    use crate::decrypt;
     use crate::files::scan::get_enc_files_direct;
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
-    
-
 
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");

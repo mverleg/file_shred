@@ -1,8 +1,9 @@
-use crate::key::hash::fastish_hash;
 use ::secstr::SecUtf8;
 use ::secstr::SecVec;
-use ::zxcvbn::zxcvbn;
 use ::zxcvbn::Entropy;
+use ::zxcvbn::zxcvbn;
+
+use crate::key::hash::fastish_hash;
 
 #[derive(Debug, Clone)]
 pub struct Key {
