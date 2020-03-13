@@ -1,5 +1,4 @@
 use ::std::collections::HashMap;
-use ::std::io::Read;
 
 use crate::config::DecryptConfig;
 use crate::config::typ::{EndecConfig, Extension};
@@ -17,6 +16,7 @@ use crate::symmetric::decrypt::decrypt_file;
 use crate::util::FedResult;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
+    dbg!(1);  //TODO @mark: TEMPORARY! REMOVE THIS!
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
     }
@@ -31,6 +31,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     let mut key_cache: HashMap<Salt, StretchKey> = HashMap::new();
     //TODO @mark: if I want to do time logging well, I need to scan headers to see how many salts
     let mut checksum_failure_count = 0;
+    dbg!(2);  //TODO @mark: TEMPORARY! REMOVE THIS!
     for file in &files_info {
         let mut reader = open_reader(&file, config.verbosity())?;
         let header = parse_header(&mut reader, config.verbosity().debug())?;
@@ -49,11 +50,11 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
             key_cache.insert(salt.clone(), sk.clone());
             sk
         };
-        let mut buf = [0; 50];
-        reader.read_exact(&mut buf).unwrap();
         let data = read_file(&mut reader, &file.path_str(), file.size_kb, config.verbosity())?;
-        let secret = decrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
-        let big = decompress_file(secret, &strategy.compression_algorithm)?;
+        dbg!(3);  //TODO @mark: TEMPORARY! REMOVE THIS!
+        let revealed = decrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
+        dbg!(4);  //TODO @mark: TEMPORARY! REMOVE THIS!
+        let big = decompress_file(revealed, &strategy.compression_algorithm)?;
         let actual_checksum = calculate_checksum(&big);
         if !validate_checksum_matches(&actual_checksum, header.checksum(), config.verbosity(), &file.path_str()) {
             checksum_failure_count += 1;
@@ -66,6 +67,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
                 big.len() / 1024,
             );
         }
+        dbg!(5);  //TODO @mark: TEMPORARY! REMOVE THIS!
     }
     if !config.quiet() {
         println!("encrypted {} files", files_info.len());

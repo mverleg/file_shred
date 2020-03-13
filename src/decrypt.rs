@@ -108,6 +108,7 @@ impl fmt::Display for DecryptArguments {
 pub fn main() {
     if let Err(err) = go_decrypt() {
         stderr().write_all(err.as_bytes()).unwrap();
+        stderr().write_all(b"\n").unwrap();
         exit(1);
     }
 }
