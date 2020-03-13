@@ -23,6 +23,7 @@ pub fn decrypt_file(
 }
 
 pub fn decrypt_aes256(data: &[u8], key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+    dbg!("data aes256 starts with {}", &data[0..16]);  //TODO @mark: TEMPORARY! REMOVE THIS!
     debug_assert!(key.key_data.unsecure().len() >= 32);
     debug_assert!(salt.salt.len() >= 16);
     let cipher = Aes256Cbc::new_var(&key.key_data.unsecure()[..32], &salt.salt[..16]).unwrap();
@@ -33,6 +34,7 @@ pub fn decrypt_aes256(data: &[u8], key: &StretchKey, salt: &Salt) -> FedResult<V
 }
 
 pub fn decrypt_twofish(data: &[u8], key: &StretchKey, salt: &Salt) -> FedResult<Vec<u8>> {
+    dbg!("data twofish starts with {}", &data[0..16]);  //TODO @mark: TEMPORARY! REMOVE THIS!
     debug_assert!(key.key_data.unsecure().len() >= 16);
     debug_assert!(salt.salt.len() >= 16);
     let cipher = TwofishCbc::new_var(&key.key_data.unsecure()[..16], &salt.salt[..16]).unwrap();

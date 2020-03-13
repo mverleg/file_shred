@@ -64,7 +64,10 @@ pub fn inspect_files<'a>(
             output_dir,
         );
         if !overwrite && output_file.exists() {
-            eprintln!("path '{}' is not a file", file.to_string_lossy());
+            dbg!(file.as_path());  //TODO @mark: TEMPORARY! REMOVE THIS!
+            dbg!(extension);  //TODO @mark: TEMPORARY! REMOVE THIS!
+            dbg!(output_dir);  //TODO @mark: TEMPORARY! REMOVE THIS!
+            eprintln!("output path '{}' already exists", output_file.to_string_lossy());
             output_exists_cnt += 1;
         }
 
@@ -84,8 +87,8 @@ pub fn inspect_files<'a>(
     } else if output_exists_cnt > 0 {
         return Err(format!(
             "aborting because {} output file{} already exist (use --overwrite to overwrite, or --output-dir or -- output-extension to control output location)",
-            not_found_cnt,
-            if not_found_cnt > 1 { "s" } else { "" }
+            output_exists_cnt,
+            if output_exists_cnt > 1 { "s" } else { "" }
         ));
     }
     Ok(infos)
