@@ -13,7 +13,7 @@ pub fn decrypt_file(
     encrypt_algs: &[SymmetricEncryptionAlg],
 ) -> FedResult<Vec<u8>> {
     assert!(!encrypt_algs.is_empty());
-    for encrypt_alg in encrypt_algs {
+    for encrypt_alg in encrypt_algs.iter().rev() {
         data = match encrypt_alg {
             SymmetricEncryptionAlg::Aes256 => decrypt_aes256(&data, key, salt)?,
             SymmetricEncryptionAlg::Twofish => decrypt_twofish(&data, key, salt)?,

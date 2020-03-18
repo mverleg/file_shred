@@ -16,7 +16,6 @@ use crate::symmetric::decrypt::decrypt_file;
 use crate::util::FedResult;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
-    dbg!(1);  //TODO @mark: TEMPORARY! REMOVE THIS!
     if config.delete_input() {
         unimplemented!("deleting input not implemented"); //TODO @mark
     }
@@ -31,7 +30,6 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     let mut key_cache: HashMap<Salt, StretchKey> = HashMap::new();
     //TODO @mark: if I want to do time logging well, I need to scan headers to see how many salts
     let mut checksum_failure_count = 0;
-    dbg!(2);  //TODO @mark: TEMPORARY! REMOVE THIS!
     for file in &files_info {
         let mut reader = open_reader(&file, config.verbosity())?;
         let header = parse_header(&mut reader, config.verbosity().debug())?;
@@ -70,7 +68,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
         dbg!(5);  //TODO @mark: TEMPORARY! REMOVE THIS!
     }
     if !config.quiet() {
-        println!("encrypted {} files", files_info.len());
+        println!("decrypted {} files", files_info.len());
     }
     if checksum_failure_count > 0 {
         return Err(format!("there were {} files whose checksums did not match; they \
