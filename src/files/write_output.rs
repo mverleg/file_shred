@@ -13,7 +13,7 @@ pub fn write_output_file(
     config: &impl EndecConfig,
     file: &FileInfo,
     data: &[u8],
-    header: &Header,
+    header: Option<&Header>,
 ) -> FedResult<()> {
     if file.out_pth.exists() {
         if config.overwrite() {
@@ -38,7 +38,9 @@ pub fn write_output_file(
         },
         File::create(&file.out_pth),
     )?;
-    write_header(&mut out_file, &header, config.debug())?;
+    if let Some(header) = header {
+        write_header(&mut out_file, &header, config.debug())?;
+    }
     wrap_io(
         || {
             format!(

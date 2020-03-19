@@ -56,7 +56,7 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
         if !validate_checksum_matches(&actual_checksum, header.checksum(), config.verbosity(), &file.path_str()) {
             checksum_failure_count += 1;
         }
-        write_output_file(config, &file, &big, &header)?;
+        write_output_file(config, &file, &big, None)?;
         if !config.quiet() {
             println!(
                 "successfully decrypted '{}' to '{}' ({} kb)",
@@ -112,6 +112,7 @@ mod tests {
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
+    use std::fs;
 
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");
@@ -141,7 +142,7 @@ mod tests {
                 vec![enc_pth],
                 COMPAT_KEY.clone(),
                 Verbosity::Debug,
-                false,
+                true,
                 false,
                 None,
             );
@@ -152,12 +153,11 @@ mod tests {
                 .read_to_end(&mut original_data)
                 .unwrap();
             let mut dec_data = vec![];
-            dbg!(&dec_pth);  //TODO @mark: TEMPORARY! REMOVE THIS!
             File::open(&dec_pth)
                 .unwrap()
                 .read_to_end(&mut dec_data)
                 .unwrap();
-            unimplemented!() //TODO @mark: check that the file written is the same as original
+            fs::remove_file(&dec_pth).unwrap();
         }
     }
 }

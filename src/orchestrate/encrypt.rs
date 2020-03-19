@@ -43,7 +43,7 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
         let secret = encrypt_file(small, &stretched_key, &salt, &strategy.symmetric_algorithms);
         let header = Header::new(version.clone(), salt.clone(), checksum, config.debug())?;
         if !config.dry_run() {
-            write_output_file(config, &file, &secret, &header)?;
+            write_output_file(config, &file, &secret, Some(&header))?;
         } else if !config.quiet() {
             println!(
                 "successfully encrypted '{}' ({} kb); not saving to '{}' because of dry-run",
