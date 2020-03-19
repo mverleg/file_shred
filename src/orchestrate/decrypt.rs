@@ -157,7 +157,10 @@ mod tests {
                 .unwrap()
                 .read_to_end(&mut dec_data)
                 .unwrap();
+            assert_eq!(&original_data, &dec_data);
             fs::remove_file(&dec_pth).unwrap();
         }
     }
+
+    //TODO @mark: check that invalid checksum will fail decryption
 }
