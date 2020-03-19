@@ -2,7 +2,6 @@ use ::std::fs;
 use ::std::fs::File;
 use ::std::io::Write;
 
-use crate::config::enc::EncryptConfig;
 use crate::config::typ::EndecConfig;
 use crate::files::file_meta::FileInfo;
 use crate::header::Header;
@@ -11,12 +10,11 @@ use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 
 pub fn write_output_file(
-    config: &EncryptConfig,
+    config: &impl EndecConfig,
     file: &FileInfo,
-    secret: &[u8],
+    data: &[u8],
     header: &Header,
 ) -> FedResult<()> {
-    assert!(!config.dry_run());
     if file.out_pth.exists() {
         if config.overwrite() {
             assert!(file.out_pth.is_file());
@@ -48,7 +46,7 @@ pub fn write_output_file(
                 &file.out_pth.to_string_lossy()
             )
         },
-        out_file.write_all(&secret),
+        out_file.write_all(&data),
     )?;
     if config.debug() {
         println!("encrypted {}", &file.out_pth.to_string_lossy());

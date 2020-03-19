@@ -14,6 +14,7 @@ use crate::key::stretch::stretch_key;
 use crate::orchestrate::common_steps::{open_reader, read_file};
 use crate::symmetric::decrypt::decrypt_file;
 use crate::util::FedResult;
+use crate::files::write_output::write_output_file;
 
 pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
     if config.delete_input() {
@@ -49,14 +50,13 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
             sk
         };
         let data = read_file(&mut reader, &file.path_str(), file.size_kb, config.verbosity())?;
-        dbg!(3);  //TODO @mark: TEMPORARY! REMOVE THIS!
         let revealed = decrypt_file(data, &stretched_key, &salt, &strategy.symmetric_algorithms)?;
-        dbg!(4);  //TODO @mark: TEMPORARY! REMOVE THIS!
         let big = decompress_file(revealed, &strategy.compression_algorithm)?;
         let actual_checksum = calculate_checksum(&big);
         if !validate_checksum_matches(&actual_checksum, header.checksum(), config.verbosity(), &file.path_str()) {
             checksum_failure_count += 1;
         }
+        write_output_file(config, &file, &big, &header)?;
         if !config.quiet() {
             println!(
                 "successfully decrypted '{}' to '{}' ({} kb)",
@@ -65,7 +65,6 @@ pub fn decrypt(config: &DecryptConfig) -> FedResult<()> {
                 big.len() / 1024,
             );
         }
-        dbg!(5);  //TODO @mark: TEMPORARY! REMOVE THIS!
     }
     if !config.quiet() {
         println!("decrypted {} files", files_info.len());
@@ -153,6 +152,7 @@ mod tests {
                 .read_to_end(&mut original_data)
                 .unwrap();
             let mut dec_data = vec![];
+            dbg!(&dec_pth);  //TODO @mark: TEMPORARY! REMOVE THIS!
             File::open(&dec_pth)
                 .unwrap()
                 .read_to_end(&mut dec_data)

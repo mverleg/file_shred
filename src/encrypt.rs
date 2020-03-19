@@ -237,9 +237,14 @@ mod tests {
             "/tmp/hello",
             "--output-extension",
             "secret",
+            "another_file.txt",
+            "there_are_three_files",
         ]);
         let config = args.convert(Key::new("abcdef123!")).unwrap();
         assert!(config.files().contains(&PathBuf::from("file.txt")));
+        assert!(config.files().contains(&PathBuf::from("another_file.txt")));
+        assert!(config.files().contains(&PathBuf::from("there_are_three_files")));
+        assert_eq!(3, config.files().len());
         assert_eq!(config.raw_key().key_data.unsecure(), "abcdef123!");
         assert_eq!(config.verbosity(), Verbosity::Quiet);
         assert_eq!(config.overwrite(), true);
