@@ -23,7 +23,7 @@ impl EncryptConfig {
         files: Vec<PathBuf>,
         raw_key: Key,
         verbosity: Verbosity,
-        mut overwrite: bool,
+        overwrite: bool,
         mut delete_input: bool,
         output_dir: Option<PathBuf>,
         output_extension: String,
@@ -32,7 +32,6 @@ impl EncryptConfig {
         assert!(!files.is_empty());
         if dry_run {
             delete_input = false;
-            overwrite = false;
         }
         EncryptConfig {
             files,
