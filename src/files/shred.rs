@@ -6,8 +6,9 @@ use std::path::Path;
 
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
+use rand::RngCore;
 
-const SHRED_COUNT: u32 = 20;
+const SHRED_COUNT: u32 = 10;
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
 pub fn delete_file(path: &Path) -> FedResult<()> {
@@ -17,11 +18,12 @@ pub fn delete_file(path: &Path) -> FedResult<()> {
             let file_meta = wrap_io("could not inspect file", file.metadata())?;
             assert!(file_meta.is_file());
             let file_size = file_meta.len();
+            debug_assert!(SHRED_COUNT > 4);
             overwrite_constant(&mut file, file_size, 0)?;  // 00000000
             overwrite_constant(&mut file, file_size, 255)?;  // 11111111
             overwrite_constant(&mut file, file_size, 85)?;  // 01010101
             overwrite_constant(&mut file, file_size, 170)?;  // 10101010
-            for _ in 0..SHRED_COUNT {
+            for _ in 0..SHRED_COUNT - 4 {
                 overwrite_random_data(&mut file, file_size)?;
             }
         },
@@ -42,25 +44,27 @@ fn overwrite_constant(
     file_size: u64,
     value: u8,
 ) -> FedResult<()> {
-    // let data = [0u8; 32];
-    // file.write_all(&data);
-    let data: [value; 512];
-    overwrite_data(file, file_size, || &data)
+    let data = [value; 512];
+    overwrite_data(file, file_size, &|| &data)
 }
 
 fn overwrite_random_data(
     file: &mut File,
     file_size: u64,
 ) -> FedResult<()> {
-
-
+    let mut data = [0u8; 512];
+    let mut rng = rand::thread_rng();
+    overwrite_data(file, file_size, &|| {
+        rng.fill_bytes(&mut data);
+        &data
+    })
 }
 
 //TODO @mark: tests
-fn overwrite_data(
+fn overwrite_data<'a>(
     file: &mut File,
     file_size: u64,
-    value_gen: impl FnMut() -> &[u8; 512],
+    value_gen: &'a impl FnMut() -> &'a [u8; 512],
 ) -> FedResult<()> {
     // Jump to start of file
     match file.seek(SeekFrom::Start(0)) {
@@ -69,7 +73,7 @@ fn overwrite_data(
             if verbose {  &format!("; reason: {:?}", err) } else { "" })),
     }
 
-    // Overwrite the data in blocks
+    // Overwrite the data in blocks. Might overwrite a bit at the end.
     let steps = (file_size + 511) / 512;
     for _ in 0..steps {
         for _ in 0..file_size {
@@ -82,10 +86,11 @@ fn overwrite_data(
     }
 
     // Flush to make sure changes are written (barring OS cache)
-    //TODO @mark: prevent OS cache?
-
-    //TODO @mark: jump to start
-
-    //TODO @mark: flush
-    unimplemented!()
+    match file.sync_data() {
+        Ok(size) => Ok(()),
+        Err(err) => Err(format!("could not just to start of file during shredding{}",
+            if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+    }
 }
+
+//TODO @mark: some shredders also do renames, should I do that?
