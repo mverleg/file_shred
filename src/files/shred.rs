@@ -1,10 +1,11 @@
-use crate::util::FedResult;
-use std::path::Path;
 use std::fs;
-use std::fs::{OpenOptions, File};
-use crate::util::errors::wrap_io;
+use std::fs::{File, OpenOptions};
+use std::io::{Seek, SeekFrom, Write};
 use std::os::ios::fs::MetadataExt;
-use std::io::Write;
+use std::path::Path;
+
+use crate::util::errors::wrap_io;
+use crate::util::FedResult;
 
 const SHRED_COUNT: u32 = 20;
 
@@ -43,7 +44,8 @@ fn overwrite_constant(
 ) -> FedResult<()> {
     // let data = [0u8; 32];
     // file.write_all(&data);
-    
+    let data: [value; 512];
+    overwrite_data(file, file_size, || &data)
 }
 
 fn overwrite_random_data(
@@ -57,21 +59,33 @@ fn overwrite_random_data(
 //TODO @mark: tests
 fn overwrite_data(
     file: &mut File,
-    value: Vec<u8>,
+    file_size: u64,
+    value_gen: impl FnMut() -> &[u8; 512],
 ) -> FedResult<()> {
-    //TODO @mark: jump to start
-    let mut remaining = file_size;
-    while remaining >= ::std::u32::MAX {
-        let all_data = vec![value; ::std::u32::MAX];
+    // Jump to start of file
+    match file.seek(SeekFrom::Start(0)) {
+        Ok(size) => assert!(size == 0),
+        Err(err) => return Err(format!("could not just to start of file during shredding{}",
+            if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+    }
+
+    // Overwrite the data in blocks
+    let steps = (file_size + 511) / 512;
+    for _ in 0..steps {
         for _ in 0..file_size {
-            match file.write(&all_data) {
+            match file.write(value_gen()) {
                 Ok(size) => assert!(size == ::std::u32::MAX),
-                Err(_) => return Err(format!("could not shred file{}",
+                Err(err) => return Err(format!("could not overwrite file during shredding{}",
                     if verbose {  &format!("; reason: {:?}", err) } else { "" })),
             }
         }
-        remaining -= ::std::u32::MAX;
     }
+
+    // Flush to make sure changes are written (barring OS cache)
+    //TODO @mark: prevent OS cache?
+
+    //TODO @mark: jump to start
+
     //TODO @mark: flush
     unimplemented!()
 }
