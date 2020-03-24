@@ -1,11 +1,13 @@
-use std::fs;
-use std::fs::{File, OpenOptions};
-use std::io::{Seek, SeekFrom, Write};
-use std::path::Path;
+use ::std::fs;
+use ::std::fs::{File, OpenOptions};
+use ::std::io::{Seek, SeekFrom, Write};
+use ::std::path::Path;
+
+use ::rand::RngCore;
 
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use rand::RngCore;
+use std::rc::Rc;
 
 const SHRED_COUNT: u32 = 10;
 
@@ -43,7 +45,7 @@ fn overwrite_constant(
     verbose: bool,
     value: u8,
 ) -> FedResult<()> {
-    let data = Box::new([value; 512]);
+    let data = Rc::new([value; 512]);
     overwrite_data(file, file_size, verbose, || data.clone())
 }
 
@@ -54,9 +56,9 @@ fn overwrite_random_data(
 ) -> FedResult<()> {
     let mut rng = rand::thread_rng();
     overwrite_data(file, file_size, verbose, || {
-        let mut data = Box::new([0u8; 512]);
-        rng.fill_bytes(&mut *data);
-        data
+        let mut data = [0u8; 512];
+        rng.fill_bytes(&mut data);
+        Rc::new(data)
     })
 }
 
@@ -65,11 +67,11 @@ fn overwrite_data<'a>(
     file: &mut File,
     file_size: u64,
     verbose: bool,
-    value_gen: impl FnMut() -> Box<[u8; 512]>,
+    mut value_gen: impl FnMut() -> Rc<[u8; 512]>,
 ) -> FedResult<()> {
     // Jump to start of file
     match file.seek(SeekFrom::Start(0)) {
-        Ok(size) => assert!(size == 0),
+        Ok(size) => assert_eq!(size, 0),
         Err(err) => return Err(format!("could not just to start of file during shredding{}",
             if verbose {  &format!("; reason: {:?}", err) } else { "" })),
     }
