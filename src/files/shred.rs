@@ -27,13 +27,13 @@ pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
         },
         Err(err) => return Err(format!("could not remove file '{}' because \
             it could not be opened in write mode{}", path.to_string_lossy(),
-            if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+            if verbose {  format!("; reason: {:?}", err) } else { "".to_owned() })),
     }
     match fs::remove_file(path) {
         Ok(_) => Ok(()),
         Err(err) => return Err(format!("could not remove file '{}' because \
             remove operation failed{}", path.to_string_lossy(),
-            if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+            if verbose {  format!("; reason: {:?}", err) } else { "".to_owned() })),
     }
 }
 
@@ -43,8 +43,8 @@ fn overwrite_constant(
     verbose: bool,
     value: u8,
 ) -> FedResult<()> {
-    let data = [value; 512];
-    overwrite_data(file, file_size, verbose, &|| &data)
+    let data = Box::new([value; 512]);
+    overwrite_data(file, file_size, verbose, || data.clone())
 }
 
 fn overwrite_random_data(
@@ -52,11 +52,11 @@ fn overwrite_random_data(
     file_size: u64,
     verbose: bool,
 ) -> FedResult<()> {
-    let mut data = [0u8; 512];
     let mut rng = rand::thread_rng();
-    overwrite_data(file, file_size, verbose, &|| {
-        rng.fill_bytes(&mut data);
-        &data
+    overwrite_data(file, file_size, verbose, || {
+        let mut data = Box::new([0u8; 512]);
+        rng.fill_bytes(&mut *data);
+        data
     })
 }
 
@@ -65,7 +65,7 @@ fn overwrite_data<'a>(
     file: &mut File,
     file_size: u64,
     verbose: bool,
-    value_gen: &'a impl FnMut() -> &'a [u8; 512],
+    value_gen: impl FnMut() -> Box<[u8; 512]>,
 ) -> FedResult<()> {
     // Jump to start of file
     match file.seek(SeekFrom::Start(0)) {
@@ -78,7 +78,7 @@ fn overwrite_data<'a>(
     let steps = (file_size + 511) / 512;
     for _ in 0..steps {
         for _ in 0..file_size {
-            match file.write(value_gen()) {
+            match file.write(&*value_gen()) {
                 Ok(size) => assert_eq!(size, 512),
                 Err(err) => return Err(format!("could not overwrite file during shredding{}",
                     if verbose {  &format!("; reason: {:?}", err) } else { "" })),
@@ -88,7 +88,7 @@ fn overwrite_data<'a>(
 
     // Flush to make sure changes are written (barring OS cache)
     match file.sync_data() {
-        Ok(size) => Ok(()),
+        Ok(_) => Ok(()),
         Err(err) => Err(format!("could not just to start of file during shredding{}",
             if verbose {  &format!("; reason: {:?}", err) } else { "" })),
     }
