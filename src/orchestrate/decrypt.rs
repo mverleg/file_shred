@@ -112,8 +112,8 @@ mod tests {
     use crate::files::scan::TEST_FILE_DIR;
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
-    use std::fs;
     use crate::files::shred::delete_file;
+    use crate::config::typ::EndecConfig;
 
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");
@@ -159,7 +159,7 @@ mod tests {
                 .read_to_end(&mut dec_data)
                 .unwrap();
             assert_eq!(&original_data, &dec_data);
-            delete_file(&dec_pth).unwrap();
+            delete_file(&dec_pth, conf.debug()).unwrap();
         }
     }
 
