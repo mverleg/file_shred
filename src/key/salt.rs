@@ -10,6 +10,7 @@ use ::rand::rngs::OsRng;
 use crate::util::base64::base64str_to_u8s;
 use crate::util::base64::u8s_to_base64str;
 use crate::util::FedResult;
+use crate::util::errors::add_err;
 
 const SALT_LEN: usize = 64; // multiple of 32
 
@@ -77,18 +78,16 @@ impl Salt {
                     Ok(Salt { salt })
                 } else {
                     Err(if verbose {
-                        format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid because it has the wrong length", base64)
+                        format!("could not determine the salt used by fileenc that encrypted this \
+                        file; got {} which is invalid because it has the wrong length", base64)
                     } else {
                         "could not determine the salt used by fileenc to encrypt this file"
                             .to_owned()
                     })
                 }
             }
-            Err(err) => Err(if verbose {
-                format!("could not determine the salt used by fileenc that encrypted this file; got {} which is invalid, reason: {}", base64, err)
-            } else {
-                "could not determine the salt used by fileenc to encrypt this file".to_owned()
-            }),
+            Err(err) => Err(add_err(format!("could not determine the salt used \
+            by fileenc that encrypted this file; got {} which is invalid", base64), verbose, err)),
         }
     }
 

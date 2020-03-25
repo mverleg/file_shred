@@ -12,14 +12,11 @@ use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
 use crate::key::salt::Salt;
 use crate::util::FedResult;
+use crate::util::errors::add_err;
 
 fn wrap_err(res: Result<usize, impl Error>, verbose: bool) -> FedResult<()> {
     if let Err(err) = res {
-        Err(if verbose {
-            "failed to write encryption header".to_owned()
-        } else {
-            format!("failed to write encryption header, reason: {}", err)
-        })
+        Err(add_err("failed to write encryption header", verbose, err))
     } else {
         Ok(())
     }

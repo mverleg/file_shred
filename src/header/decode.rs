@@ -44,8 +44,7 @@ fn parse_marker(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> F
         return Err(if verbose {
             format!("did not recognize encryption header (expected '{}', got '{}'); was this file really encrypted with fileenc?", HEADER_MARKER, line)
         } else {
-            "did not recognize encryption header; was this file really encrypted with fileenc?"
-                .to_owned()
+            "did not recognize encryption header; was this file really encrypted with fileenc?".to_owned()
         });
     }
     Ok(())
@@ -56,11 +55,9 @@ fn parse_version(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> 
     let verion_str = check_prefix(line, HEADER_VERSION_MARKER, verbose)?;
     match Version::parse(verion_str) {
         Ok(version) => Ok(version),
-        Err(err) => Err(if verbose {
-            format!("could not determine the version of fileenc that encrypted this file; got {} which is invalid, reason: {}", verion_str, err)
-        } else {
-            "could not determine the version of fileenc that encrypted this file".to_owned()
-        }),
+        Err(err) => Err(add_err(format!("could not determine the version \
+            of fileenc that encrypted this file; got {} which is invalid", verion_str),
+            verbose, err)),
     }
 }
 
