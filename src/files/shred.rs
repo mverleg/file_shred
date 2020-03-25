@@ -5,7 +5,7 @@ use ::std::path::Path;
 
 use ::rand::RngCore;
 
-use crate::util::errors::wrap_io;
+use crate::util::errors::{wrap_io, add_err};
 use crate::util::FedResult;
 use std::rc::Rc;
 
@@ -27,15 +27,13 @@ pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
                 overwrite_random_data(&mut file, file_size, verbose)?;
             }
         },
-        Err(err) => return Err(format!("could not remove file '{}' because \
-            it could not be opened in write mode{}", path.to_string_lossy(),
-            if verbose {  format!("; reason: {:?}", err) } else { "".to_owned() })),
+        Err(err) => return Err(add_err(format!("could not remove file '{}' because \
+            it could not be opened in write mode", path.to_string_lossy()), verbose, err)),
     }
     match fs::remove_file(path) {
         Ok(_) => Ok(()),
-        Err(err) => return Err(format!("could not remove file '{}' because \
-            remove operation failed{}", path.to_string_lossy(),
-            if verbose {  format!("; reason: {:?}", err) } else { "".to_owned() })),
+        Err(err) => return Err(add_err(format!("could not remove file '{}' because \
+            remove operation failed", path.to_string_lossy()), verbose, err)),
     }
 }
 
@@ -72,8 +70,7 @@ fn overwrite_data<'a>(
     // Jump to start of file
     match file.seek(SeekFrom::Start(0)) {
         Ok(size) => assert_eq!(size, 0),
-        Err(err) => return Err(format!("could not just to start of file during shredding{}",
-            if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+        Err(err) => return Err(add_err("could not just to start of file during shredding", verbose, err)),
     }
 
     // Overwrite the data in blocks. Might overwrite a bit at the end.
@@ -82,8 +79,7 @@ fn overwrite_data<'a>(
         for _ in 0..file_size {
             match file.write(&*value_gen()) {
                 Ok(size) => assert_eq!(size, 512),
-                Err(err) => return Err(format!("could not overwrite file during shredding{}",
-                    if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+                Err(err) => return Err(add_err("could not overwrite file during shredding", verbose, err)),
             }
         }
     }
@@ -91,8 +87,7 @@ fn overwrite_data<'a>(
     // Flush to make sure changes are written (barring OS cache)
     match file.sync_data() {
         Ok(_) => Ok(()),
-        Err(err) => Err(format!("could not just to start of file during shredding{}",
-            if verbose {  &format!("; reason: {:?}", err) } else { "" })),
+        Err(err) => Err(add_err("could not jump to start of file during shredding", verbose, err)),
     }
 }
 

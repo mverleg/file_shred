@@ -11,16 +11,13 @@ use crate::header::HEADER_SALT_MARKER;
 use crate::header::HEADER_VERSION_MARKER;
 use crate::key::salt::Salt;
 use crate::util::FedResult;
+use crate::util::errors::add_err;
 
 fn read_line(reader: &mut dyn BufRead, line: &mut String, verbose: bool) -> FedResult<()> {
     line.clear();
     let res = reader.read_line(line);
     if let Err(err) = res {
-        return Err(if verbose {
-            "could not read file".to_owned()
-        } else {
-            format!("could not read file (error: {})", err)
-        });
+        return Err(add_err("could not read file", verbose, err));
     }
     line.pop();
     Ok(())
