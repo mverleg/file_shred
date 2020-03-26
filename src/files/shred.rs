@@ -2,14 +2,16 @@ use ::std::fs;
 use ::std::fs::{File, OpenOptions};
 use ::std::io::{Seek, SeekFrom, Write};
 use ::std::path::Path;
+use std::rc::Rc;
 
 use ::rand::RngCore;
 
-use crate::util::errors::{wrap_io, add_err};
+use crate::util::base64::{u64_to_base64str, u8s_to_base64str};
+use crate::util::errors::{add_err, wrap_io};
 use crate::util::FedResult;
-use std::rc::Rc;
 
 const SHRED_COUNT: u32 = 10;
+const RENAME_COUNT: u32 = 10;
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
 pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
@@ -30,6 +32,8 @@ pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
         Err(err) => return Err(add_err(format!("could not remove file '{}' because \
             it could not be opened in write mode", path.to_string_lossy()), verbose, err)),
     }
+    //TODO @mark: remove meta data
+    repeatedly_rename_file(RENAME_COUNT)?
     match fs::remove_file(path) {
         Ok(_) => Ok(()),
         Err(err) => return Err(add_err(format!("could not remove file '{}' because \
@@ -91,4 +95,39 @@ fn overwrite_data<'a>(
     }
 }
 
+fn repeatedly_rename_file(original_pth: &Path, reps: usize) -> FedResult<()> {
+    let mut renamed = reps;
+    let mut path = original_pth;
+    for iter in 0..10*reps {}
+        let name = u64_to_base64str(iter)?;
+        if name.exists() {
+            continue;
+        }
+        let new_path = path.set_name();
+        fs::rename();
+        renamed += 1;
+    }
+    unimplemented!()
+}
+
 //TODO @mark: some shredders also do renames, should I do that?
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn overwrite_fixed() {
+        unimplemented!();
+    }
+
+    #[test]
+    fn overwrite_random() {
+        unimplemented!();
+    }
+
+    #[test]
+    fn rename() {
+        unimplemented!();
+    }
+}
