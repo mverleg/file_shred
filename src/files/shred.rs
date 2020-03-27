@@ -6,8 +6,9 @@ use std::rc::Rc;
 
 use ::rand::RngCore;
 
-use crate::util::base64::{u64_to_base64str, u8s_to_base64str};
-use crate::util::errors::{add_err, wrap_io};
+use crate::util::base64::u64_to_base64str;
+use crate::util::errors::add_err;
+use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 
 const SHRED_COUNT: u32 = 10;
@@ -33,7 +34,7 @@ pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
             it could not be opened in write mode", path.to_string_lossy()), verbose, err)),
     }
     //TODO @mark: remove meta data
-    repeatedly_rename_file(RENAME_COUNT)?
+    repeatedly_rename_file(path, RENAME_COUNT, verbose)?;
     match fs::remove_file(path) {
         Ok(_) => Ok(()),
         Err(err) => return Err(add_err(format!("could not remove file '{}' because \
@@ -95,19 +96,32 @@ fn overwrite_data<'a>(
     }
 }
 
-fn repeatedly_rename_file(original_pth: &Path, reps: usize) -> FedResult<()> {
+fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> FedResult<()> {
     let mut renamed = reps;
-    let mut path = original_pth;
-    for iter in 0..10*reps {}
-        let name = u64_to_base64str(iter)?;
-        if name.exists() {
+    let mut old_path = original_pth.to_owned();
+    for iter in 0..100*reps {
+        let name = format!("{}.tmp", &u64_to_base64str(iter as u64)[0..4]);
+        let new_path = {
+            let mut p = old_path.clone();
+            p.set_file_name(name);
+            p
+        };
+        if new_path.exists() {
             continue;
         }
-        let new_path = path.set_name();
-        fs::rename();
-        renamed += 1;
+        dbg!(&new_path);  //TODO @mark: TEMPORARY! REMOVE THIS!
+        match fs::rename(&old_path, &new_path) {
+            Ok(()) => {},
+            Err(err) => return Err(add_err("failed to rename file during shredding", verbose, err)),
+        }
+        old_path =
+            new_path;
+        renamed -= 1;
+        if renamed == 0 {
+            break;
+        }
     }
-    unimplemented!()
+    Ok(())
 }
 
 //TODO @mark: some shredders also do renames, should I do that?
