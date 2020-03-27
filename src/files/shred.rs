@@ -168,11 +168,12 @@ mod tests {
     #[test]
     fn rename() {
         let data = b"hello world, this is test data";
-        let mut path = tempdir().unwrap().path().to_owned();
+        let temp_handle = tempdir().unwrap();
+        let mut path = temp_handle.path().to_owned();
         path.push("original.file");
         fs::write(&path, &data).unwrap();
         let new_pth = repeatedly_rename_file(&path, 5, true).unwrap();
-        assert_eq!("AAAAAA.tmp", new_pth.file_name().unwrap());
+        assert_eq!("BAAA.tmp", new_pth.file_name().unwrap());
         assert_eq!(&*data, fs::read(new_pth).unwrap().as_slice());
     }
 }
