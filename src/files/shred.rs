@@ -176,4 +176,24 @@ mod tests {
         assert_eq!("BAAA.tmp", new_pth.file_name().unwrap());
         assert_eq!(&*data, fs::read(new_pth).unwrap().as_slice());
     }
+
+    #[test]
+    fn rename_collision() {
+        fn make_collision_file(dir: &Path, name: &str) {
+            let mut path = dir.to_owned();
+            path.push(name);
+            let data = format!("collision data at {}", path.to_string_lossy());
+            fs::write(&path, &data).unwrap();
+        }
+        let data = b"hello world, this is test data";
+        let temp_handle = tempdir().unwrap();
+        let mut path = temp_handle.path().to_owned();
+        make_collision_file(&path, "AQAA.tmp");
+        make_collision_file(&path, "BAAA.tmp");
+        path.push("original.file");
+        fs::write(&path, &data).unwrap();
+        let new_pth = repeatedly_rename_file(&path, 5, true).unwrap();
+        assert_eq!("BgAA.tmp", new_pth.file_name().unwrap());
+        assert_eq!(&*data, fs::read(new_pth).unwrap().as_slice());
+    }
 }
