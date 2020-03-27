@@ -1,8 +1,9 @@
 use ::std::fs;
-use ::std::fs::{File, OpenOptions};
+use ::std::fs::OpenOptions;
 use ::std::io::{Seek, SeekFrom, Write};
 use ::std::path::Path;
-use std::rc::Rc;
+use ::std::path::PathBuf;
+use ::std::rc::Rc;
 
 use ::rand::RngCore;
 
@@ -23,27 +24,32 @@ pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
             let file_size = file_meta.len();
             debug_assert!(SHRED_COUNT > 4);
             overwrite_constant(&mut file, file_size, verbose, 0)?;  // 00000000
+            wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             overwrite_constant(&mut file, file_size, verbose, 255)?;  // 11111111
+            wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             overwrite_constant(&mut file, file_size, verbose, 85)?;  // 01010101
+            wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             overwrite_constant(&mut file, file_size, verbose, 170)?;  // 10101010
+            wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             for _ in 0..SHRED_COUNT - 4 {
                 overwrite_random_data(&mut file, file_size, verbose)?;
+                wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             }
         },
         Err(err) => return Err(add_err(format!("could not remove file '{}' because \
             it could not be opened in write mode", path.to_string_lossy()), verbose, err)),
     }
     //TODO @mark: remove meta data
-    repeatedly_rename_file(path, RENAME_COUNT, verbose)?;
-    match fs::remove_file(path) {
+    let renamed_path = repeatedly_rename_file(path, RENAME_COUNT, verbose)?;
+    match fs::remove_file(&renamed_path) {
         Ok(_) => Ok(()),
         Err(err) => return Err(add_err(format!("could not remove file '{}' because \
-            remove operation failed", path.to_string_lossy()), verbose, err)),
+            remove operation failed", &renamed_path.to_string_lossy()), verbose, err)),
     }
 }
 
-fn overwrite_constant(
-    file: &mut File,
+fn overwrite_constant<F: Write + Seek>(
+    file: &mut F,
     file_size: u64,
     verbose: bool,
     value: u8,
@@ -52,8 +58,8 @@ fn overwrite_constant(
     overwrite_data(file, file_size, verbose, || data.clone())
 }
 
-fn overwrite_random_data(
-    file: &mut File,
+fn overwrite_random_data<F: Write + Seek>(
+    file: &mut F,
     file_size: u64,
     verbose: bool,
 ) -> FedResult<()> {
@@ -65,9 +71,10 @@ fn overwrite_random_data(
     })
 }
 
-//TODO @mark: tests
-fn overwrite_data<'a>(
-    file: &mut File,
+/// Overwrite the data with garbage.
+/// It is recommended to sync the file after each step.
+fn overwrite_data<F: Write + Seek>(
+    file: &mut F,
     file_size: u64,
     verbose: bool,
     mut value_gen: impl FnMut() -> Rc<[u8; 512]>,
@@ -80,23 +87,18 @@ fn overwrite_data<'a>(
 
     // Overwrite the data in blocks. Might overwrite a bit at the end.
     let steps = (file_size + 511) / 512;
+    dbg!(steps);
     for _ in 0..steps {
-        for _ in 0..file_size {
-            match file.write(&*value_gen()) {
-                Ok(size) => assert_eq!(size, 512),
-                Err(err) => return Err(add_err("could not overwrite file during shredding", verbose, err)),
-            }
+        match file.write(&*value_gen()) {
+            Ok(size) => assert_eq!(size, 512),
+            Err(err) => return Err(add_err("could not overwrite file during shredding", verbose, err)),
         }
     }
 
-    // Flush to make sure changes are written (barring OS cache)
-    match file.sync_data() {
-        Ok(_) => Ok(()),
-        Err(err) => Err(add_err("could not jump to start of file during shredding", verbose, err)),
-    }
+    Ok(())
 }
 
-fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> FedResult<()> {
+fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> FedResult<PathBuf> {
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
     for iter in 0..100*reps {
@@ -109,7 +111,6 @@ fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> Fed
         if new_path.exists() {
             continue;
         }
-        dbg!(&new_path);  //TODO @mark: TEMPORARY! REMOVE THIS!
         match fs::rename(&old_path, &new_path) {
             Ok(()) => {},
             Err(err) => return Err(add_err("failed to rename file during shredding", verbose, err)),
@@ -121,7 +122,7 @@ fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> Fed
             break;
         }
     }
-    Ok(())
+    Ok(old_path)
 }
 
 //TODO @mark: some shredders also do renames, should I do that?
@@ -129,10 +130,39 @@ fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> Fed
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
+
+    // #[test]
+    // //TODO @mark: TEMPORARY! REMOVE THIS!
+    // fn overwrite_fixed_tmp() {
+    //     // A bunch of scopes here, in an attempt to close the file after each step.
+    //     let in_pth = NamedTempFile::new().unwrap();
+    //     {
+    //         fs::write(&in_pth, b"hello world").unwrap();
+    //     }
+    //     {
+    //         let mut file = OpenOptions::new().read(false).write(true).append(false).open(&in_pth).unwrap();
+    //         let file_size = file.metadata().unwrap().len();
+    //         dbg!(file_size);  //TODO @mark: TEMPORARY! REMOVE THIS!
+    //         overwrite_constant(&mut file, file_size, true, 85).unwrap();
+    //         dbg!(file.metadata().unwrap().len());  //TODO @mark: TEMPORARY! REMOVE THIS!
+    //     }
+    //     let data = {
+    //         fs::read(&in_pth).unwrap()
+    //     };
+    //     assert!(!data.starts_with(b"hello world"));
+    //     assert!(data.starts_with(b"hello"));
+    // }
 
     #[test]
     fn overwrite_fixed() {
-        unimplemented!();
+        // A bunch of scopes here, in an attempt to close the file after each step.
+        let mut mock_file = Cursor::new(b"hello world".to_vec());
+        overwrite_constant(&mut mock_file, 11, true, 85).unwrap();
+        let data = mock_file.get_ref();
+        assert!(!data.starts_with(b"hello world"));
+        assert!(data.starts_with(b"UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"));
+        assert_eq!(data.len(), 512);
     }
 
     #[test]
@@ -141,7 +171,7 @@ mod tests {
     }
 
     #[test]
-    fn rename() {
+    fn rename_collision() {
         unimplemented!();
     }
 }
