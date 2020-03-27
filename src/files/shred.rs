@@ -87,7 +87,6 @@ fn overwrite_data<F: Write + Seek>(
 
     // Overwrite the data in blocks. Might overwrite a bit at the end.
     let steps = (file_size + 511) / 512;
-    dbg!(steps);
     for _ in 0..steps {
         match file.write(&*value_gen()) {
             Ok(size) => assert_eq!(size, 512),
@@ -132,31 +131,18 @@ mod tests {
     use super::*;
     use std::io::Cursor;
 
-    // #[test]
-    // //TODO @mark: TEMPORARY! REMOVE THIS!
-    // fn overwrite_fixed_tmp() {
-    //     // A bunch of scopes here, in an attempt to close the file after each step.
-    //     let in_pth = NamedTempFile::new().unwrap();
-    //     {
-    //         fs::write(&in_pth, b"hello world").unwrap();
-    //     }
-    //     {
-    //         let mut file = OpenOptions::new().read(false).write(true).append(false).open(&in_pth).unwrap();
-    //         let file_size = file.metadata().unwrap().len();
-    //         dbg!(file_size);  //TODO @mark: TEMPORARY! REMOVE THIS!
-    //         overwrite_constant(&mut file, file_size, true, 85).unwrap();
-    //         dbg!(file.metadata().unwrap().len());  //TODO @mark: TEMPORARY! REMOVE THIS!
-    //     }
-    //     let data = {
-    //         fs::read(&in_pth).unwrap()
-    //     };
-    //     assert!(!data.starts_with(b"hello world"));
-    //     assert!(data.starts_with(b"hello"));
-    // }
+    #[test]
+    fn overwrite_long() {
+        let mut mock_file = Cursor::new(vec![0u8; 65_536 + 1]);
+        overwrite_constant(&mut mock_file, 65_536 + 1, false, 'm' as u8).unwrap();
+        let data = mock_file.get_ref();
+        assert!(data.starts_with(b"mmmmmm"));
+        assert!(data.ends_with(b"mmmmmm"));
+        assert_eq!(data.len(), 65_536 + 512);
+    }
 
     #[test]
     fn overwrite_fixed() {
-        // A bunch of scopes here, in an attempt to close the file after each step.
         let mut mock_file = Cursor::new(b"hello world".to_vec());
         overwrite_constant(&mut mock_file, 11, true, 85).unwrap();
         let data = mock_file.get_ref();
@@ -167,7 +153,12 @@ mod tests {
 
     #[test]
     fn overwrite_random() {
-        unimplemented!();
+        let initial = b"hello world this is an unlikely message that shouldn't happen by change!";
+        let mut mock_file = Cursor::new(initial.to_vec());
+        overwrite_constant(&mut mock_file, 11, true, 85).unwrap();
+        let data = mock_file.get_ref();
+        assert!(!data.starts_with(initial));
+        assert_eq!(data.len(), 512);
     }
 
     #[test]
