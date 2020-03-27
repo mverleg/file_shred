@@ -15,6 +15,8 @@ use crate::util::FedResult;
 const SHRED_COUNT: u32 = 10;
 const RENAME_COUNT: u32 = 10;
 
+//TODO @mark: add CLI option for shredding?
+
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
 pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
     match OpenOptions::new().read(false).write(true).append(false).open(path) {
@@ -124,12 +126,15 @@ fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> Fed
     Ok(old_path)
 }
 
-//TODO @mark: some shredders also do renames, should I do that?
-
 #[cfg(test)]
 mod tests {
+    use ::std::env;
+    use ::std::io::Cursor;
+
+    use ::rand::Rng;
+    use ::rand::thread_rng;
+
     use super::*;
-    use std::io::Cursor;
 
     #[test]
     fn overwrite_long() {
@@ -163,6 +168,11 @@ mod tests {
 
     #[test]
     fn rename_collision() {
-        unimplemented!();
+        let mut dir = env::temp_dir();
+        let name = format!("file_endec_test_rename_collision_{}",
+            u64_to_base64str(thread_rng().gen()));
+        dir.push(name);
+        fs::create_dir(&dir).unwrap();
+
     }
 }
