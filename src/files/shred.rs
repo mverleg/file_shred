@@ -15,6 +15,7 @@ use crate::util::FedResult;
 const SHRED_COUNT: u32 = 10;
 const RENAME_COUNT: u32 = 10;
 
+//TODO @mark: make this into separate lib?
 //TODO @mark: add CLI option for shredding?
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
@@ -99,7 +100,7 @@ fn overwrite_data<F: Write + Seek>(
     Ok(())
 }
 
-fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> FedResult<PathBuf> {
+fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
     for iter in 0..100*reps {
@@ -156,7 +157,7 @@ mod tests {
 
     #[test]
     fn overwrite_random() {
-        let initial = b"hello world this is an unlikely message that shouldn't happen by change!";
+        let initial = b"hello world this is an unlikely message that shouldn't happen by chance!";
         let mut mock_file = Cursor::new(initial.to_vec());
         overwrite_constant(&mut mock_file, 11, true, 85).unwrap();
         let data = mock_file.get_ref();
@@ -165,9 +166,13 @@ mod tests {
     }
 
     #[test]
-    fn rename_collision() {
-        let mut dir = tempdir().unwrap();
-
-
+    fn rename() {
+        let data = b"hello world, this is test data";
+        let mut path = tempdir().unwrap().path().to_owned();
+        path.push("original.file");
+        fs::write(&path, &data).unwrap();
+        let new_pth = repeatedly_rename_file(&path, 5, true).unwrap();
+        assert_eq!("AAAAAA.tmp", new_pth.file_name().unwrap());
+        assert_eq!(&*data, fs::read(new_pth).unwrap().as_slice());
     }
 }
