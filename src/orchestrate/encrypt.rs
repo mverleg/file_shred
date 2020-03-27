@@ -63,7 +63,6 @@ pub fn encrypt(config: &EncryptConfig) -> FedResult<()> {
 /// https://markv.nl/blog/symmetric-encryption-in-rust
 #[cfg(test)]
 mod tests {
-    use ::std::env::temp_dir;
     use ::std::fs;
 
     use ::lazy_static::lazy_static;
@@ -75,6 +74,7 @@ mod tests {
     use crate::header::strategy::Verbosity;
     use crate::key::key::Key;
     use crate::util::version::get_current_version;
+    use tempfile::tempdir;
 
     lazy_static! {
         static ref COMPAT_KEY: Key = Key::new(" LP0y#shbogtwhGjM=*jFFZPmNd&qBO+ ");
@@ -83,6 +83,7 @@ mod tests {
 
     #[test]
     fn store_current_version() {
+        let dir = tempdir().unwrap();
         let version = get_current_version();
         let in_pth = {
             let mut p = TEST_FILE_DIR.clone();
@@ -96,12 +97,12 @@ mod tests {
             Verbosity::Debug,
             true,
             false,
-            Some(temp_dir()),
+            Some(dir.path().to_owned()),
             ".enc".to_string(),
             false,
         );
         let tmp_pth = {
-            let mut p = temp_dir();
+            let mut p = dir.into_path();
             p.push("original.png.enc");
             p
         };
@@ -123,6 +124,5 @@ mod tests {
             &tmp_pth.to_string_lossy(),
             version
         );
-        fs::remove_file(tmp_pth).unwrap();
     }
 }

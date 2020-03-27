@@ -128,11 +128,9 @@ fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool,) -> Fed
 
 #[cfg(test)]
 mod tests {
-    use ::std::env;
     use ::std::io::Cursor;
 
-    use ::rand::Rng;
-    use ::rand::thread_rng;
+    use ::tempfile::tempdir;
 
     use super::*;
 
@@ -168,11 +166,8 @@ mod tests {
 
     #[test]
     fn rename_collision() {
-        let mut dir = env::temp_dir();
-        let name = format!("file_endec_test_rename_collision_{}",
-            u64_to_base64str(thread_rng().gen()));
-        dir.push(name);
-        fs::create_dir(&dir).unwrap();
+        let mut dir = tempdir().unwrap();
+
 
     }
 }
