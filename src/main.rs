@@ -5,8 +5,11 @@ use ::std::path::PathBuf;
 use ::std::process::exit;
 
 use ::structopt::StructOpt;
-use ::file_shred::util::FedResult;
-use file_shred::shred;
+use ::file_shred::FedResult;
+use ::file_shred::shred;
+
+//TODO @mark: installation instructions
+//TODO @mark: option to ask if the user is sure?
 
 #[derive(Debug, StructOpt)]
 #[structopt(

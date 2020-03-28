@@ -10,7 +10,12 @@ Functionality:
 * Rename repeatedly to hide that the file ever existed.
 * Remove access adn modification date.
 
-.. note :: While this mostly relies on established hashing and encryption algorithms, there are no security guarantees, and the author is not a professional security expert. Use at your own risk.
+.. note :: There are no security guarantees, and the author is not a professional security expert. Use at your own risk.
+
+Keep in mind that:
+
+* Obviously, be careful. The purpose of this tool is to irrecoverably delete data. I cannot help you get data back if you delete it by accident.
+* Note that data recovery difficulty depends on the environment (operating system, hard disk formatting, physical medium). For some configurations, overwriting may not work.
 
 The code can be used as a binary (`shred -h` for info) or as a library.
 
