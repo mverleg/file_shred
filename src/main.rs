@@ -6,8 +6,8 @@ use ::std::process::exit;
 
 use ::structopt::StructOpt;
 
-use ::file_shred::FedResult;
 use ::file_shred::shred;
+use ::file_shred::FedResult;
 use ::file_shred::ShredConfig;
 use ::file_shred::Verbosity;
 
@@ -65,7 +65,15 @@ impl fmt::Display for ShredArguments {
 
         // Currently, this is always "on", because printing is only used in debug mode.
         f.write_str("  logging: ")?;
-        f.write_str(if self.debug { "verbose (debug)" } else { if self.quiet { "quiet" } else { "standard" } })?;
+        f.write_str(if self.debug {
+            "verbose (debug)"
+        } else {
+            if self.quiet {
+                "quiet"
+            } else {
+                "standard"
+            }
+        })?;
         f.write_str("\n")?;
 
         f.write_str("  after overwrite: ")?;
@@ -91,11 +99,7 @@ impl ShredArguments {
             (false, true) => Verbosity::Quiet,
             (false, false) => Verbosity::Normal,
         };
-        Ok(ShredConfig::new(
-            self.files,
-            verbosity,
-            self.keep,
-        ))
+        Ok(ShredConfig::new(self.files, verbosity, self.keep))
     }
 }
 
@@ -135,10 +139,12 @@ mod tests {
             "there_are_three_files",
         ]);
         let config = args.convert().unwrap();
-        dbg!(&config.files);  //TODO @mverleg: remove
+        dbg!(&config.files); //TODO @mverleg: remove
         assert!(config.files.contains(&PathBuf::from("file.txt")));
         assert!(config.files.contains(&PathBuf::from("another_file.txt")));
-        assert!(config.files.contains(&PathBuf::from("there_are_three_files")));
+        assert!(config
+            .files
+            .contains(&PathBuf::from("there_are_three_files")));
         assert_eq!(3, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);

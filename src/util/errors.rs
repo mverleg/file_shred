@@ -1,5 +1,5 @@
-use ::std::io;
 use ::std::fmt;
+use ::std::io;
 
 pub type FedResult<T> = Result<T, String>;
 

@@ -40,7 +40,13 @@ fn overwrite_data<F: Write + Seek>(
     // Jump to start of file
     match file.seek(SeekFrom::Start(0)) {
         Ok(size) => assert_eq!(size, 0),
-        Err(err) => return Err(add_err("could not just to start of file during shredding", verbose, err)),
+        Err(err) => {
+            return Err(add_err(
+                "could not just to start of file during shredding",
+                verbose,
+                err,
+            ))
+        }
     }
 
     // Overwrite the data in blocks. Might overwrite a bit at the end.
@@ -48,7 +54,13 @@ fn overwrite_data<F: Write + Seek>(
     for _ in 0..steps {
         match file.write(&*value_gen()) {
             Ok(size) => assert_eq!(size, 512),
-            Err(err) => return Err(add_err("could not overwrite file during shredding", verbose, err)),
+            Err(err) => {
+                return Err(add_err(
+                    "could not overwrite file during shredding",
+                    verbose,
+                    err,
+                ))
+            }
         }
     }
 

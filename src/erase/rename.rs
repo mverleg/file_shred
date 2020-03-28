@@ -9,7 +9,7 @@ use crate::util::FedResult;
 pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
-    for iter in 0..100*reps {
+    for iter in 0..100 * reps {
         let name = format!("{}.tmp", &u64_to_base64str(iter as u64)[0..4]);
         let new_path = {
             let mut p = old_path.clone();
@@ -20,11 +20,16 @@ pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> 
             continue;
         }
         match fs::rename(&old_path, &new_path) {
-            Ok(()) => {},
-            Err(err) => return Err(add_err("failed to rename file during shredding", verbose, err)),
+            Ok(()) => {}
+            Err(err) => {
+                return Err(add_err(
+                    "failed to rename file during shredding",
+                    verbose,
+                    err,
+                ))
+            }
         }
-        old_path =
-            new_path;
+        old_path = new_path;
         renamed -= 1;
         if renamed == 0 {
             break;

@@ -1,2 +1,2 @@
-pub mod typ;
 pub mod conf;
+pub mod typ;

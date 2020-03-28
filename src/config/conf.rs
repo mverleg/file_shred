@@ -9,11 +9,7 @@ pub struct ShredConfig {
 }
 
 impl ShredConfig {
-    pub fn new(
-        files: Vec<PathBuf>,
-        verbosity: Verbosity,
-        keep_files: bool,
-    ) -> Self {
+    pub fn new(files: Vec<PathBuf>, verbosity: Verbosity, keep_files: bool) -> Self {
         ShredConfig {
             files,
             verbosity,
