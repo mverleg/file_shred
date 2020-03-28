@@ -1,6 +1,5 @@
 use ::std::fs;
 use ::std::fs::OpenOptions;
-use ::std::io::{Seek, SeekFrom};
 use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::rc::Rc;
@@ -13,6 +12,7 @@ use crate::erase::overwrite::{overwrite_constant, overwrite_random_data};
 use crate::erase::metadata::remove_file_times;
 use crate::erase::rename::repeatedly_rename_file;
 
+//TODO @mark: configurable
 const SHRED_COUNT: u32 = 10;
 const RENAME_COUNT: u32 = 10;
 
