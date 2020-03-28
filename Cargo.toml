@@ -1,6 +1,6 @@
 [package]
 name = "file_shred"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Mark <mverleg.noreply@gmail.com>"]
 edition = "2018"
 
@@ -13,8 +13,9 @@ name = "shred"
 path = "src/main.rs"
 
 [dependencies]
+#TODO @mark: remove unused
 ## command line interaction
-#structopt = { version = "^0.3.7", default-features = false }
+structopt = { version = "^0.3.7", default-features = false }
 #indicatif = "^0.13.0"
 #
 ## encryption key
@@ -34,20 +35,20 @@ path = "src/main.rs"
 #
 ## headers
 #semver = "^0.9.0"
-#data-encoding = "^2.1.2"
+data-encoding = "^2.1.2"
 #
 ## compression
 #brotli = "^3.3.0"
 #
 ## shredding
-#filetime = "^0.2.8"
+filetime = "^0.2.8"
 #
 ## utilities
 #lazy_static = "^1.4.0"
-#rand = "^0.7.2"
+rand = "^0.7.2"
 #block-modes = "^0.3.3"
 #
 #[dev-dependencies]
 #criterion = "^0.3.0"
 #regex = "^1.3.4"
-#tempfile = "^3.1.0"
+tempfile = "^3.1.0"

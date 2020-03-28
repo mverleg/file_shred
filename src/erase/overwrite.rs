@@ -11,9 +11,8 @@ use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use filetime::{set_file_times, FileTime};
 
-fn overwrite_constant<F: Write + Seek>(
+pub fn overwrite_constant<F: Write + Seek>(
     file: &mut F,
     file_size: u64,
     verbose: bool,
@@ -23,7 +22,7 @@ fn overwrite_constant<F: Write + Seek>(
     overwrite_data(file, file_size, verbose, || data.clone())
 }
 
-fn overwrite_random_data<F: Write + Seek>(
+pub fn overwrite_random_data<F: Write + Seek>(
     file: &mut F,
     file_size: u64,
     verbose: bool,

@@ -1,17 +1,17 @@
 use ::std::fs;
 use ::std::fs::OpenOptions;
-use ::std::io::{Seek, SeekFrom, Write};
+use ::std::io::{Seek, SeekFrom};
 use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::rc::Rc;
-
-use ::rand::RngCore;
 
 use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use filetime::{set_file_times, FileTime};
+use crate::erase::overwrite::{overwrite_constant, overwrite_random_data};
+use crate::erase::metadata::remove_file_times;
+use crate::erase::rename::repeatedly_rename_file;
 
 const SHRED_COUNT: u32 = 10;
 const RENAME_COUNT: u32 = 10;

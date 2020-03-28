@@ -5,15 +5,13 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::rc::Rc;
 
-use ::rand::RngCore;
-
 use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 use filetime::{set_file_times, FileTime};
 
-fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {
+pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
     for iter in 0..100*reps {

@@ -111,6 +111,7 @@ mod tests {
     use ::file_endec::config::typ::EndecConfig;
     use ::file_endec::header::strategy::Verbosity;
     use ::file_endec::key::Key;
+    use ::std::iter::FromIterator;
 
     use super::*;
 

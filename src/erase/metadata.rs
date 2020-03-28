@@ -5,15 +5,15 @@ use ::std::path::Path;
 use ::std::path::PathBuf;
 use ::std::rc::Rc;
 
-use ::rand::RngCore;
+use ::filetime::{FileTime, set_file_times};
 
 use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use filetime::{set_file_times, FileTime};
 
-fn remove_file_times(path: &Path, verbose: bool) -> FedResult<()> {
+/// Remove access and modification times by setting to zero timestamp.
+pub fn remove_file_times(path: &Path, verbose: bool) -> FedResult<()> {
     match set_file_times(path, FileTime::zero(), FileTime::zero()) {
         Ok(()) => Ok(()),
         Err(err) => return Err(add_err("failed to set file permissions while shredding", verbose, err)),

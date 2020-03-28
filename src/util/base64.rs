@@ -1,5 +1,6 @@
 
 use ::data_encoding::BASE64URL_NOPAD;
+use ::std::convert::TryInto;
 
 use crate::util::errors::FedResult;
 
