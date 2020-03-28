@@ -2,15 +2,15 @@ use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::FedResult;
+use crate::util::names::generate_name;
 
 pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
     for iter in 0..100 * reps {
-        let name = format!("{}.tmp", &u64_to_base64str(iter as u64)[0..4]);
+        let name = format!("{}.tmp", &generate_name(iter));
         let new_path = {
             let mut p = old_path.clone();
             p.set_file_name(name);

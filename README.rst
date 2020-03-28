@@ -10,7 +10,7 @@ Functionality:
 * Rename repeatedly to hide that the file ever existed.
 * Remove access adn modification date.
 
-.. note :: There are no security guarantees, and the author is not a professional security expert. Use at your own risk.
+_There are no security guarantees, and the author is not a professional security expert. Use at your own risk._
 
 Keep in mind that:
 
