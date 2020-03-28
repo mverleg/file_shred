@@ -1,5 +1,7 @@
-pub use crate::config::conf::ShredConfig;
 use crate::erase::orchestrate::delete_file;
+
+pub use crate::config::conf::ShredConfig;
+pub use crate::config::typ::Verbosity;
 pub use crate::util::errors::FedResult;
 
 mod config;

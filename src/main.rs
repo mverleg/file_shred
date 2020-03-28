@@ -9,6 +9,7 @@ use ::structopt::StructOpt;
 use ::file_shred::FedResult;
 use ::file_shred::shred;
 use ::file_shred::ShredConfig;
+use ::file_shred::Verbosity;
 
 //TODO @mark: installation instructions
 //TODO @mark: option to ask if the user is sure?
@@ -109,8 +110,7 @@ fn go_encrypt() -> FedResult<()> {
 
 #[cfg(test)]
 mod tests {
-    use ::file_endec::header::strategy::Verbosity;
-    use ::file_endec::key::Key;
+    use ::file_shred::Verbosity;
 
     use super::*;
 
@@ -131,11 +131,11 @@ mod tests {
             "file.txt",
             "-q",
             "-k",
-            "/tmp/hello",
             "another_file.txt",
             "there_are_three_files",
         ]);
         let config = args.convert().unwrap();
+        dbg!(&config.files);  //TODO @mverleg: remove
         assert!(config.files.contains(&PathBuf::from("file.txt")));
         assert!(config.files.contains(&PathBuf::from("another_file.txt")));
         assert!(config.files.contains(&PathBuf::from("there_are_three_files")));
