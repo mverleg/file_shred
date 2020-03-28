@@ -1,15 +1,9 @@
-use ::std::fs;
-use ::std::fs::OpenOptions;
 use ::std::io::{Seek, SeekFrom, Write};
-use ::std::path::Path;
-use ::std::path::PathBuf;
 use ::std::rc::Rc;
 
 use ::rand::RngCore;
 
-use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
-use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 
 pub fn overwrite_constant<F: Write + Seek>(
@@ -64,8 +58,6 @@ fn overwrite_data<F: Write + Seek>(
 #[cfg(test)]
 mod tests {
     use ::std::io::Cursor;
-
-    use ::tempfile::tempdir;
 
     use super::*;
 

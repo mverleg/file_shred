@@ -1,10 +1,6 @@
-use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::config::typ::{EndecConfig, Verbosity};
-use crate::header::strategy::Verbosity;
-use crate::key::Key;
-
+use crate::config::typ::Verbosity;
 #[derive(Debug)]
 pub struct ShredConfig {
     pub files: Vec<PathBuf>,
@@ -22,35 +18,6 @@ impl ShredConfig {
             files,
             verbosity,
             keep_files,
-        }
-    }
-}
-
-impl EndecConfig for ShredConfig {
-    fn files(&self) -> &[PathBuf] {
-        &self.files
-    }
-
-    fn raw_key(&self) -> &Key {
-        &self.raw_key
-    }
-
-    fn verbosity(&self) -> Verbosity {
-        self.verbosity
-    }
-
-    fn overwrite(&self) -> bool {
-        self.overwrite
-    }
-
-    fn delete_input(&self) -> bool {
-        self.delete_input
-    }
-
-    fn output_dir(&self) -> Option<&Path> {
-        match &self.output_dir {
-            Some(dir) => Some(dir.as_path()),
-            None => None,
         }
     }
 }

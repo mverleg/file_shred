@@ -1,15 +1,8 @@
-use ::std::fs;
-use ::std::fs::OpenOptions;
-use ::std::io::{Seek, SeekFrom, Write};
 use ::std::path::Path;
-use ::std::path::PathBuf;
-use ::std::rc::Rc;
 
 use ::filetime::{FileTime, set_file_times};
 
-use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
-use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 
 /// Remove access and modification times by setting to zero timestamp.

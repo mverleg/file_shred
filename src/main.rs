@@ -5,8 +5,10 @@ use ::std::path::PathBuf;
 use ::std::process::exit;
 
 use ::structopt::StructOpt;
+
 use ::file_shred::FedResult;
 use ::file_shred::shred;
+use ::file_shred::ShredConfig;
 
 //TODO @mark: installation instructions
 //TODO @mark: option to ask if the user is sure?
@@ -107,10 +109,8 @@ fn go_encrypt() -> FedResult<()> {
 
 #[cfg(test)]
 mod tests {
-    use ::file_endec::config::typ::EndecConfig;
     use ::file_endec::header::strategy::Verbosity;
     use ::file_endec::key::Key;
-    use ::std::iter::FromIterator;
 
     use super::*;
 
@@ -118,9 +118,10 @@ mod tests {
     fn parse_args_minimal() {
         let args = ShredArguments::from_iter(&["shred", "file.txt"]);
         let config = args.convert().unwrap();
-        assert!(config.files().contains(&PathBuf::from("file.txt")));
-        assert_eq!(config.verbosity(), Verbosity::Normal);
-        assert!(!config.keep());
+        assert!(config.files.contains(&PathBuf::from("file.txt")));
+        assert_eq!(1, config.files.len());
+        assert_eq!(config.verbosity, Verbosity::Normal);
+        assert!(!config.keep_files);
     }
 
     #[test]
@@ -135,11 +136,11 @@ mod tests {
             "there_are_three_files",
         ]);
         let config = args.convert().unwrap();
-        assert!(config.files().contains(&PathBuf::from("file.txt")));
-        assert!(config.files().contains(&PathBuf::from("another_file.txt")));
-        assert!(config.files().contains(&PathBuf::from("there_are_three_files")));
-        assert_eq!(3, config.files().len());
-        assert_eq!(config.verbosity(), Verbosity::Quiet);
-        assert!(config.keep());
+        assert!(config.files.contains(&PathBuf::from("file.txt")));
+        assert!(config.files.contains(&PathBuf::from("another_file.txt")));
+        assert!(config.files.contains(&PathBuf::from("there_are_three_files")));
+        assert_eq!(3, config.files.len());
+        assert_eq!(config.verbosity, Verbosity::Quiet);
+        assert!(config.keep_files);
     }
 }

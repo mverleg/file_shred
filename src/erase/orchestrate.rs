@@ -1,14 +1,10 @@
 use ::std::fs;
 use ::std::fs::OpenOptions;
 use ::std::path::Path;
-use ::std::path::PathBuf;
-use ::std::rc::Rc;
 
-use crate::config::ShredConfig;
 use crate::erase::metadata::remove_file_times;
 use crate::erase::overwrite::{overwrite_constant, overwrite_random_data};
 use crate::erase::rename::repeatedly_rename_file;
-use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
@@ -22,22 +18,23 @@ const RENAME_COUNT: u32 = 10;
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
 pub fn delete_file(path: &Path, config: &ShredConfig) -> FedResult<()> {
+    let verbose = config.verbosity.debug();
     match OpenOptions::new().read(false).write(true).append(false).open(path) {
         Ok(mut file) => {
             let file_meta = wrap_io(|| "could not inspect file", file.metadata())?;
             assert!(file_meta.is_file());
             let file_size = file_meta.len();
             debug_assert!(SHRED_COUNT > 4);
-            overwrite_constant(&mut file, file_size, config.debug(), 0)?;  // 00000000
+            overwrite_constant(&mut file, file_size, verbose, 0)?;  // 00000000
             wrap_io(|| "could not persist file while shredding", file.sync_data())?;
-            overwrite_constant(&mut file, file_size, config.debug(), 255)?;  // 11111111
+            overwrite_constant(&mut file, file_size, verbose, 255)?;  // 11111111
             wrap_io(|| "could not persist file while shredding", file.sync_data())?;
-            overwrite_constant(&mut file, file_size, config.debug(), 85)?;  // 01010101
+            overwrite_constant(&mut file, file_size, verbose, 85)?;  // 01010101
             wrap_io(|| "could not persist file while shredding", file.sync_data())?;
-            overwrite_constant(&mut file, file_size, config.debug(), 170)?;  // 10101010
+            overwrite_constant(&mut file, file_size, verbose, 170)?;  // 10101010
             wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             for _ in 0..SHRED_COUNT - 4 {
-                overwrite_random_data(&mut file, file_size, config.debug())?;
+                overwrite_random_data(&mut file, file_size, verbose)?;
                 wrap_io(|| "could not persist file while shredding", file.sync_data())?;
             }
         },

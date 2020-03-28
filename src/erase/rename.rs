@@ -1,15 +1,10 @@
 use ::std::fs;
-use ::std::fs::OpenOptions;
-use ::std::io::{Seek, SeekFrom, Write};
 use ::std::path::Path;
 use ::std::path::PathBuf;
-use ::std::rc::Rc;
 
 use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
-use crate::util::errors::wrap_io;
 use crate::util::FedResult;
-use filetime::{set_file_times, FileTime};
 
 pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {
     let mut renamed = reps;
@@ -40,7 +35,6 @@ pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> 
 
 #[cfg(test)]
 mod tests {
-    use ::std::io::Cursor;
 
     use ::tempfile::tempdir;
 
