@@ -1,31 +1,20 @@
 
-File encrypt/decrypt
+File shred (Rust)
 ===============================
 
-Command line utility that encrypts and decrypts files.
+Command line utility that safely deletes files.
 
 Functionality:
 
-* Encryption and decryption using established algorithms.
-* Compression.
-* Key stretching.
-* Salts.
-* Checksums.
-* Backward-compatibility.
-* Pass keys by prompt, argument, environment, file or pipe.
-* Warnings for weak keys.
+* Repeatedly overwrite the file content with random data and specific patterns.
+* Rename repeatedly to hide that the file ever existed.
+* Remove access adn modification date.
 
-Note that:
+.. note :: While this mostly relies on established hashing and encryption algorithms, there are no security guarantees, and the author is not a professional security expert. Use at your own risk.
 
-* Encrypting the same file twice will give different results, which is needed for semantically security. This may be suboptimal for version control.
-* When hashing multiple files, they share the same salt. This choice was made because stretching takes long, and because if one key were to be found somehow, it would work for all files regardless of salts.
+The code can be used as a binary (`shred -h` for info) or as a library.
 
-Possible future plans:
+This was split off from the encryption util file_endec_, which still uses it.
 
-* Only encrypt if it saves more than 5% (or some other number). Needs encryption to be in header.
-* Recursively encrypt and decrypt all files in a directory.
-* Give the encrypted / decrypted file the same owner and permissions as the original.
-* Faster Twofish implementation, or different algorithm (now 6x slower than aes256).
-* Inspect an encrypted file (see algorithms etc) without decrypting.
-* Handle files that do not fit in RAM.
-* Simple graphical interface to drag files to encrypted vault (unlikely).
+.. _file_endec: https://github.com/mverleg/file_endec
+
