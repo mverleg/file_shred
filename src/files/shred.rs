@@ -11,6 +11,7 @@ use crate::util::base64::u64_to_base64str;
 use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
+use filetime::{set_file_times, FileTime};
 
 const SHRED_COUNT: u32 = 10;
 const RENAME_COUNT: u32 = 10;
@@ -43,7 +44,10 @@ pub fn delete_file(path: &Path, verbose: bool) -> FedResult<()> {
             it could not be opened in write mode", path.to_string_lossy()), verbose, err)),
     }
     //TODO @mark: remove meta data
+    //TODO @mark: https://docs.rs/filetime/0.2.8/filetime/
+    remove_file_times(&path, verbose)?;
     let renamed_path = repeatedly_rename_file(path, RENAME_COUNT, verbose)?;
+    //TODO @mark: truncate the file
     match fs::remove_file(&renamed_path) {
         Ok(_) => Ok(()),
         Err(err) => return Err(add_err(format!("could not remove file '{}' because \
@@ -98,6 +102,13 @@ fn overwrite_data<F: Write + Seek>(
     }
 
     Ok(())
+}
+
+fn remove_file_times(path: &Path, verbose: bool) -> FedResult<()> {
+    match set_file_times(path, FileTime::zero(), FileTime::zero()) {
+        Ok(()) => Ok(()),
+        Err(err) => return Err(add_err("failed to set file permissions while shredding", verbose, err)),
+    }
 }
 
 fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> FedResult<PathBuf> {

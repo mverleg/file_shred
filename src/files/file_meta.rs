@@ -13,6 +13,8 @@ pub struct FileInfo<'a> {
     pub size_kb: u64,
     pub out_pth: PathBuf,
     //TODO: make sure encrypted file has same permissions and owner as original
+    //TODO @mark: permissions: https://doc.rust-lang.org/std/fs/fn.set_permissions.html
+    //TODO @mark: owner is not in std
     pub permissions: (),
 }
 

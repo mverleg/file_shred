@@ -21,7 +21,7 @@ name = "file_endec_bench"
 path = "src/bench.rs"
 harness = false
 
-
+#TODO @mark: see if any dependencies are redundant
 [dependencies]
 # command line interaction
 structopt = { version = "^0.3.7", default-features = false }
@@ -48,6 +48,9 @@ data-encoding = "^2.1.2"
 
 # compression
 brotli = "^3.3.0"
+
+# shredding
+filetime = "^0.2.8"
 
 # utilities
 lazy_static = "^1.4.0"

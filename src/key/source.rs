@@ -143,7 +143,6 @@ mod tests {
         );
     }
 
-    //TODO @mark: 'pass:$password', 'env:$var_name', 'file:$path', 'ask', 'askonce', 'pipe'",
     #[test]
     fn valid_env() {
         assert_eq!(

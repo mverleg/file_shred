@@ -1,5 +1,6 @@
 
 //TODO @mark: make sure public api is as small as possible, perhaps only the two methods below
+//TODO @mark: async io
 
 pub use crate::orchestrate::decrypt::decrypt;
 // These two methods are the main entry points.
