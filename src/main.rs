@@ -4,14 +4,8 @@ use ::std::io::Write;
 use ::std::path::PathBuf;
 use ::std::process::exit;
 
-use ::file_endec::config::EncryptConfig;
-use ::file_endec::encrypt;
-use ::file_endec::header::strategy::Verbosity;
-use ::file_endec::key::Key;
-use ::file_endec::key::KeySource;
-use ::file_endec::util::FedResult;
 use ::structopt::StructOpt;
-use file_shred::util::FedResult;
+use ::file_shred::util::FedResult;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
