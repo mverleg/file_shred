@@ -1,4 +1,3 @@
-use ::std::convert::TryInto;
 
 use ::data_encoding::BASE64URL_NOPAD;
 

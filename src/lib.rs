@@ -1,18 +1,9 @@
 
-//TODO @mark: make sure public api is as small as possible, perhaps only the two methods below
-//TODO @mark: async io
-
 pub use crate::orchestrate::decrypt::decrypt;
 // These two methods are the main entry points.
 pub use crate::orchestrate::encrypt::encrypt;
 
-pub mod config;
-pub mod files;
-pub mod header;
-pub mod key;
-pub mod symmetric;
 pub mod util;
-pub mod orchestrate;
 
 /// The demo used in this blog post:
 /// https://markv.nl/blog/symmetric-encryption-in-rust

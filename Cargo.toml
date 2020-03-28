@@ -10,7 +10,7 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "shred"
-path = "src/encrypt.rs"
+path = "src/main.rs"
 
 [dependencies]
 ## command line interaction
