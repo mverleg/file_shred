@@ -6,8 +6,8 @@ use crate::util::cli::confirm_delete;
 pub use crate::util::errors::ShredResult;
 
 mod config;
-mod inspect;
 mod erase;
+mod inspect;
 mod util;
 
 pub fn shred(config: &ShredConfig) -> ShredResult<()> {
@@ -36,8 +36,8 @@ mod tests {
     use ::std::path::Path;
     use ::std::path::PathBuf;
 
-    use ::tempfile::tempdir;
     use crate::{shred, ShredConfig};
+    use ::tempfile::tempdir;
     use std::io::Read;
 
     const PREFIX: &[u8] = b"Test file content to be checked afterwards for filename ";
@@ -53,8 +53,7 @@ mod tests {
 
     fn read_file(pth: &Path) -> Vec<u8> {
         let mut data = vec![];
-        File::open(&pth).unwrap()
-            .read_to_end(&mut data).unwrap();
+        File::open(&pth).unwrap().read_to_end(&mut data).unwrap();
         data
     }
 
@@ -64,12 +63,12 @@ mod tests {
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
         let mut config = ShredConfig::new(
-            vec![pth1.clone(), pth2.clone()],  // files
-            false,  // confirmation_prompt
-            Verbosity::Debug,  // verbosity
-            true,  // keep_files
-            6, // overwrite_count
-            3, // rename_count
+            vec![pth1.clone(), pth2.clone()], // files
+            false,                            // confirmation_prompt
+            Verbosity::Debug,                 // verbosity
+            true,                             // keep_files
+            6,                                // overwrite_count
+            3,                                // rename_count
         );
         assert!(pth1.exists());
         assert!(pth2.exists());

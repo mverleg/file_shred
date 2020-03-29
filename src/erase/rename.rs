@@ -1,7 +1,7 @@
+use ::number2name::BASE32HUMAN;
 use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
-use ::number2name::BASE32HUMAN;
 
 use crate::util::errors::add_err;
 use crate::util::ShredResult;
@@ -13,7 +13,11 @@ fn generate_name(number: u32) -> String {
     name
 }
 
-pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> ShredResult<PathBuf> {
+pub fn repeatedly_rename_file(
+    original_pth: &Path,
+    reps: u32,
+    verbose: bool,
+) -> ShredResult<PathBuf> {
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
     for iter in 0..100 * reps {

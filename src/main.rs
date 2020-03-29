@@ -77,7 +77,15 @@ impl fmt::Display for ShredArguments {
             f.write_str("\n")?;
         }
 
-        write!(f, "mode: {}", if self.no_confirm { "immediately delete" } else { "ask before deleting" })?;
+        write!(
+            f,
+            "mode: {}",
+            if self.no_confirm {
+                "immediately delete"
+            } else {
+                "ask before deleting"
+            }
+        )?;
 
         // Currently, this is always "on", because printing is only used in debug mode.
         f.write_str("  logging: ")?;
@@ -120,7 +128,7 @@ impl ShredArguments {
             (false, false) => Verbosity::Normal,
         };
         if self.overwrite_count == 0 {
-            return Err("overwrite-count is 0, but must be at least 1".to_owned())
+            return Err("overwrite-count is 0, but must be at least 1".to_owned());
         }
         let confirmation_prompt = !self.no_confirm;
         Ok(ShredConfig::new(

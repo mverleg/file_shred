@@ -1,6 +1,6 @@
 use crate::{ShredResult, Verbosity};
 use std::path::PathBuf;
-use std::{fs, fmt};
+use std::{fmt, fs};
 
 #[derive(Debug)]
 pub struct FileInfo {

@@ -9,12 +9,10 @@ use crate::util::ShredResult;
 pub fn remove_file_times(path: &Path, verbose: bool) -> ShredResult<()> {
     match set_file_times(path, FileTime::zero(), FileTime::zero()) {
         Ok(()) => Ok(()),
-        Err(err) => {
-            Err(add_err(
-                "failed to set file permissions while shredding",
-                verbose,
-                err,
-            ))
-        }
+        Err(err) => Err(add_err(
+            "failed to set file permissions while shredding",
+            verbose,
+            err,
+        )),
     }
 }

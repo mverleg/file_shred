@@ -2,10 +2,10 @@ use ::std::path::Path;
 
 use crate::config::conf::ShredConfig;
 use crate::erase::metadata::remove_file_times;
+use crate::erase::overwrite::repeatedly_overwrite;
 use crate::erase::remove::{remove_file, truncate_file};
 use crate::erase::rename::repeatedly_rename_file;
 use crate::util::ShredResult;
-use crate::erase::overwrite::repeatedly_overwrite;
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
 pub fn delete_file(path: &Path, config: &ShredConfig) -> ShredResult<()> {

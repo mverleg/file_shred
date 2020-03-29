@@ -4,7 +4,10 @@ use ::std::io;
 pub type ShredResult<T> = Result<T, String>;
 
 /// Change IO error into FedResult error.
-pub fn wrap_io<T, S: AsRef<str>>(base_msg: impl FnOnce() -> S, res: io::Result<T>) -> ShredResult<T> {
+pub fn wrap_io<T, S: AsRef<str>>(
+    base_msg: impl FnOnce() -> S,
+    res: io::Result<T>,
+) -> ShredResult<T> {
     match res {
         Ok(val) => ShredResult::Ok(val),
         Err(val) => ShredResult::Err(format!("{}: {}", base_msg().as_ref(), val)),
