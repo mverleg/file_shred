@@ -19,7 +19,11 @@ pub fn shred(config: &ShredConfig) -> ShredResult<()> {
         delete_file(&file.path, config)?;
     }
     if !config.verbosity.quiet() {
-        println!("shredded {} files", config.files.len());
+        if config.keep_files {
+            println!("removed data from {} files", config.files.len());
+        } else {
+            println!("shredded and removed {} files", config.files.len());
+        }
     }
     Ok(())
 }
@@ -34,14 +38,24 @@ mod tests {
 
     use ::tempfile::tempdir;
     use crate::{shred, ShredConfig};
+    use std::io::Read;
+
+    const PREFIX: &'static [u8] = b"Test file content to be checked afterwards for filename ";
 
     fn make_file(dir: &Path, name: &str) -> PathBuf {
         let mut pth = dir.to_owned();
         pth.push(name);
         let mut file1 = File::create(&pth).unwrap();
-        file1.write_all(b"Test file content for ").unwrap();
+        file1.write_all(PREFIX).unwrap();
         file1.write_all(name.as_bytes()).unwrap();
         return pth;
+    }
+
+    fn read_file(pth: &Path) -> Vec<u8> {
+        let mut data = vec![];
+        File::open(&pth).unwrap()
+            .read_to_end(&mut data).unwrap();
+        data
     }
 
     #[test]
@@ -49,14 +63,32 @@ mod tests {
         let dir = tempdir().unwrap();
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
-        let config = ShredConfig::new(
-            vec![pth1, pth2],  // files
+        let mut config = ShredConfig::new(
+            vec![pth1.clone(), pth2.clone()],  // files
             false,  // confirmation_prompt
             Verbosity::Debug,  // verbosity
-            false,  // keep_files
+            true,  // keep_files
             6, // overwrite_count
             3, // rename_count
         );
-        shred(&config).unwrap()
+        assert!(pth1.exists());
+        assert!(pth2.exists());
+
+        // Overwrite but don't delete
+        shred(&config).unwrap();
+        assert!(pth1.exists());
+        assert!(pth2.exists());
+        let data1 = read_file(&pth1);
+        assert!(!data1.starts_with(PREFIX));
+        assert!(!data1.ends_with(b"file_1.txt"));
+        let data2 = read_file(&pth2);
+        assert!(!data2.starts_with(PREFIX));
+        assert!(!data2.ends_with(b"other_file.bye"));
+
+        // Delete
+        config.keep_files = false;
+        shred(&config).unwrap();
+        assert!(!pth1.exists());
+        assert!(!pth2.exists());
     }
 }
