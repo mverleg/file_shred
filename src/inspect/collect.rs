@@ -14,7 +14,7 @@ impl fmt::Display for FileInfo {
     }
 }
 
-pub fn collect_file_info(files: Vec<PathBuf>, verbosity: &Verbosity) -> ShredResult<Vec<FileInfo>> {
+pub fn collect_file_info(files: Vec<PathBuf>, verbosity: Verbosity) -> ShredResult<Vec<FileInfo>> {
     let mut infos = Vec::with_capacity(files.len());
     let mut not_found_cnt: u32 = 0;
     for file in files.into_iter() {

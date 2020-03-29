@@ -11,7 +11,7 @@ mod erase;
 mod util;
 
 pub fn shred(config: &ShredConfig) -> ShredResult<()> {
-    let files = collect_file_info(config.files.clone(), &config.verbosity)?;
+    let files = collect_file_info(config.files.clone(), config.verbosity)?;
     if config.confirmation_prompt {
         confirm_delete(&files, config.verbosity.debug())?;
     }
@@ -40,7 +40,7 @@ mod tests {
     use crate::{shred, ShredConfig};
     use std::io::Read;
 
-    const PREFIX: &'static [u8] = b"Test file content to be checked afterwards for filename ";
+    const PREFIX: &[u8] = b"Test file content to be checked afterwards for filename ";
 
     fn make_file(dir: &Path, name: &str) -> PathBuf {
         let mut pth = dir.to_owned();
@@ -48,7 +48,7 @@ mod tests {
         let mut file1 = File::create(&pth).unwrap();
         file1.write_all(PREFIX).unwrap();
         file1.write_all(name.as_bytes()).unwrap();
-        return pth;
+        pth
     }
 
     fn read_file(pth: &Path) -> Vec<u8> {

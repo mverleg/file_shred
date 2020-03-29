@@ -1,5 +1,5 @@
 use ::std::fs;
-use ::std::fs::{File, OpenOptions};
+use ::std::fs::OpenOptions;
 use ::std::path::Path;
 
 use crate::ShredResult;

@@ -148,7 +148,7 @@ mod tests {
     #[test]
     fn overwrite_long() {
         let mut mock_file = Cursor::new(vec![0u8; 65_536 + 1]);
-        overwrite_constant(&mut mock_file, 65_536 + 1, false, 'm' as u8).unwrap();
+        overwrite_constant(&mut mock_file, 65_536 + 1, false, b'm').unwrap();
         let data = mock_file.get_ref();
         assert!(data.starts_with(b"mmmmmm"));
         assert!(data.ends_with(b"mmmmmm"));

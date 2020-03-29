@@ -83,12 +83,10 @@ impl fmt::Display for ShredArguments {
         f.write_str("  logging: ")?;
         f.write_str(if self.debug {
             "verbose (debug)"
+        } else if self.quiet {
+            "quiet"
         } else {
-            if self.quiet {
-                "quiet"
-            } else {
-                "standard"
-            }
+            "standard"
         })?;
         f.write_str("\n")?;
 
@@ -96,10 +94,10 @@ impl fmt::Display for ShredArguments {
         f.write_str(if self.keep { "keep" } else { "delete" })?;
         f.write_str("\n")?;
 
-        write!(f, "overwrite: {} times\n", self.overwrite_count)?;
+        writeln!(f, "overwrite: {} times", self.overwrite_count)?;
         match self.rename_count {
-            Some(rename_count) => write!(f, "rename: {} times\n", rename_count)?,
-            None => write!(f, "rename: not applicable\n")?,
+            Some(rename_count) => writeln!(f, "rename: {} times\n", rename_count)?,
+            None => write!(f, "rename: not applicable")?,
         };
 
         Ok(())

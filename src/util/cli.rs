@@ -13,7 +13,7 @@ pub fn confirmation_prompt(text: &str, verbose: bool) -> ShredResult<()> {
     if let Err(err) = stdin().read_line(&mut answer) {
         return Err(add_err("could not get prompt answer", verbose, err))
     }
-    let cleaned = answer.trim().to_lowercase().to_string();
+    let cleaned = answer.trim().to_lowercase();
     if &cleaned == "n" && &cleaned == "no" {
         return Err("deletion not confirmed; stopping".to_owned())
     }
