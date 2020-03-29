@@ -62,12 +62,11 @@ pub struct ShredArguments {
     //TODO @mark: use
 
     #[structopt(
-        long = "rename-count",
         conflicts_with = "keep",
-        default_value = "10",
+        long = "rename-count",
         help = "Number of times the file is renamed."
     )]
-    rename_count: u32,
+    rename_count: Option<u32>,
     //TODO @mark: use
 }
 
@@ -98,7 +97,10 @@ impl fmt::Display for ShredArguments {
         f.write_str("\n")?;
 
         write!(f, "overwrite: {} times\n", self.overwrite_count)?;
-        write!(f, "rename: {} times\n", self.rename_count)?;
+        match self.rename_count {
+            Some(rename_count) => write!(f, "rename: {} times\n", rename_count)?,
+            None => write!(f, "rename: not applicable\n")?,
+        };
 
         Ok(())
     }
@@ -127,7 +129,7 @@ impl ShredArguments {
             verbosity,
             self.keep,
             self.overwrite_count,
-            self.rename_count,
+            self.rename_count.unwrap_or(10),
         ))
     }
 }
