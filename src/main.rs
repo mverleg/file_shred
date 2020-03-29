@@ -6,10 +6,7 @@ use ::std::process::exit;
 
 use ::structopt::StructOpt;
 
-use ::file_shred::shred;
-use ::file_shred::ShredResult;
-use ::file_shred::ShredConfig;
-use ::file_shred::Verbosity;
+use file_shred::{shred, ShredConfig, ShredResult, Verbosity};
 
 //TODO @mark: installation instructions
 //TODO @mark: option to ask if the user is sure?
@@ -153,7 +150,7 @@ fn go_encrypt() -> ShredResult<()> {
 
 #[cfg(test)]
 mod tests {
-    use ::file_shred::Verbosity;
+    use crate::Verbosity;
 
     use super::*;
 

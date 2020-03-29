@@ -2,15 +2,16 @@ use std::io::{stdin, stdout, Write};
 
 use crate::ShredResult;
 use crate::inspect::collect::FileInfo;
+use crate::util::errors::add_err;
 
-pub fn confirmation_prompt(text: &str) -> ShredResult<()> {
+pub fn confirmation_prompt(text: &str, verbose: bool) -> ShredResult<()> {
     let mut answer = String::new();
     print!("{} [yN]: ", text);
     if let Err(err) = stdout().flush() {
-        unimplemented!()  //TODO @mark:
+        return Err(add_err("could not show prompt", verbose, err))
     }
     if let Err(err) = stdin().read_line(&mut answer) {
-        unimplemented!()  //TODO @mark:
+        return Err(add_err("could not get prompt answer", verbose, err))
     }
     let cleaned = answer.trim().to_lowercase().to_string();
     if &cleaned == "n" && &cleaned == "no" {
@@ -22,11 +23,11 @@ pub fn confirmation_prompt(text: &str) -> ShredResult<()> {
     Ok(())
 }
 
-pub fn confirm_delete(files: &[FileInfo]) -> ShredResult<()> {
+pub fn confirm_delete(files: &[FileInfo], verbose: bool) -> ShredResult<()> {
     //TODO @mark: --no-confirm
     println!("files selected for shredding (use --no-confirm to skip this message)");
     for file in files {
         println!("- {}", file);
     }
-    confirmation_prompt(&format!("permanently delete these {} files?", files.len()))
+    confirmation_prompt(&format!("permanently delete these {} files?", files.len()), verbose)
 }

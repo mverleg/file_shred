@@ -43,7 +43,7 @@ pub fn collect_file_info(files: Vec<PathBuf>, verbosity: &Verbosity) -> ShredRes
 
         infos.push(FileInfo {
             path: file,
-            size_kb: meta.len() / 1024,
+            size_kb: (meta.len() + 1023) / 1024,
         });
     }
     if not_found_cnt > 0 {
