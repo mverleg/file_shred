@@ -7,7 +7,7 @@ use ::std::process::exit;
 use ::structopt::StructOpt;
 
 use ::file_shred::shred;
-use ::file_shred::FedResult;
+use ::file_shred::ShredResult;
 use ::file_shred::ShredConfig;
 use ::file_shred::Verbosity;
 
@@ -114,7 +114,7 @@ pub fn main() {
 }
 
 impl ShredArguments {
-    fn convert(self) -> FedResult<ShredConfig> {
+    fn convert(self) -> ShredResult<ShredConfig> {
         let verbosity = match (self.debug, self.quiet) {
             (true, true) => return Err("cannot use quiet mode and debug mode together".to_owned()),
             (true, false) => Verbosity::Debug,
@@ -134,7 +134,7 @@ impl ShredArguments {
     }
 }
 
-fn go_encrypt() -> FedResult<()> {
+fn go_encrypt() -> ShredResult<()> {
     let args = ShredArguments::from_args();
     if args.debug {
         println!("arguments provided:\n{}", args);
