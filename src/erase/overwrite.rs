@@ -1,3 +1,4 @@
+use ::std::fs::File;
 use ::std::fs::OpenOptions;
 use ::std::io::{Seek, SeekFrom, Write};
 use ::std::path::Path;
@@ -7,6 +8,13 @@ use ::rand::RngCore;
 
 use crate::util::errors::{add_err, wrap_io};
 use crate::util::ShredResult;
+
+fn sync(file: &mut File) -> ShredResult<()> {
+    wrap_io(
+        || "could not persist file while shredding",
+        file.sync_data(),
+    )
+}
 
 pub fn repeatedly_overwrite(path: &Path, overwrite_count: u32, verbose: bool) -> ShredResult<()> {
     match OpenOptions::new()
@@ -22,42 +30,27 @@ pub fn repeatedly_overwrite(path: &Path, overwrite_count: u32, verbose: bool) ->
             let file_size = file_meta.len();
             if count > 1 {
                 overwrite_constant(&mut file, file_size, verbose, 0)?; // 00000000
-                wrap_io(
-                    || "could not persist file while shredding",
-                    file.sync_data(),
-                )?;
+                sync(&mut file)?;
                 count -= 1;
             }
             if count > 1 {
                 overwrite_constant(&mut file, file_size, verbose, 255)?; // 11111111
-                wrap_io(
-                    || "could not persist file while shredding",
-                    file.sync_data(),
-                )?;
+                sync(&mut file)?;
                 count -= 1;
             }
             if count > 1 {
                 overwrite_constant(&mut file, file_size, verbose, 85)?; // 01010101
-                wrap_io(
-                    || "could not persist file while shredding",
-                    file.sync_data(),
-                )?;
+                sync(&mut file)?;
                 count -= 1;
             }
             if count > 1 {
                 overwrite_constant(&mut file, file_size, verbose, 170)?; // 10101010
-                wrap_io(
-                    || "could not persist file while shredding",
-                    file.sync_data(),
-                )?;
+                sync(&mut file)?;
                 count -= 1;
             }
             for _ in 0..count {
                 overwrite_random_data(&mut file, file_size, verbose)?;
-                wrap_io(
-                    || "could not persist file while shredding",
-                    file.sync_data(),
-                )?;
+                sync(&mut file)?;
             }
             Ok(())
         }
