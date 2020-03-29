@@ -24,7 +24,6 @@ pub fn confirmation_prompt(text: &str, verbose: bool) -> ShredResult<()> {
 }
 
 pub fn confirm_delete(files: &[FileInfo], verbose: bool) -> ShredResult<()> {
-    //TODO @mark: --no-confirm
     println!("files selected for shredding (use --no-confirm to skip this message)");
     for file in files {
         println!("- {}", file);

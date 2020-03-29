@@ -8,7 +8,6 @@ use ::structopt::StructOpt;
 
 use file_shred::{shred, ShredConfig, ShredResult, Verbosity};
 
-//TODO @mark: installation instructions
 //TODO @mark: option to ask if the user is sure?
 
 #[derive(Debug, StructOpt)]
