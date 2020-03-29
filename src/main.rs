@@ -180,8 +180,6 @@ mod tests {
             "there_are_three_files",
             "--overwrite-count",
             "7",
-            "--rename-count",
-            "12",
         ]);
         let config = args.convert().unwrap();
         assert!(config.files.contains(&PathBuf::from("file.txt")));
@@ -191,6 +189,6 @@ mod tests {
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);
         assert_eq!(config.overwrite_count, 7);
-        assert_eq!(config.rename_count, 13);
+        assert_eq!(config.rename_count, 10);
     }
 }
