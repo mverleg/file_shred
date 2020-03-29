@@ -10,8 +10,6 @@ use crate::util::errors::add_err;
 use crate::util::errors::wrap_io;
 use crate::util::FedResult;
 
-const RENAME_COUNT: u32 = 10;
-
 //TODO @mark: option to not delete file
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
@@ -93,7 +91,7 @@ pub fn delete_file(path: &Path, config: &ShredConfig) -> FedResult<()> {
     //TODO @mark: remove meta data
     //TODO @mark: https://docs.rs/filetime/0.2.8/filetime/
     remove_file_times(&path, verbose)?;
-    let renamed_path = repeatedly_rename_file(path, RENAME_COUNT, verbose)?;
+    let renamed_path = repeatedly_rename_file(path, config.rename_count, verbose)?;
     //TODO @mark: truncate the file
     match fs::remove_file(&renamed_path) {
         Ok(_) => Ok(()),
