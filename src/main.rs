@@ -31,6 +31,13 @@ pub struct ShredArguments {
     files: Vec<PathBuf>,
 
     #[structopt(
+        short = "y",
+        long = "no-confirm",
+        help = "Delete files without asking for confirmation."
+    )]
+    no_confirm: bool,
+
+    #[structopt(
         short = "v",
         long,
         help = "Show debug information, especially on errors."
@@ -75,6 +82,8 @@ impl fmt::Display for ShredArguments {
             f.write_str(file.to_string_lossy().as_ref())?;
             f.write_str("\n")?;
         }
+
+        write!(f, "mode: {}", if self.no_confirm { "immediately delete" } else { "ask before deleting" })?;
 
         // Currently, this is always "on", because printing is only used in debug mode.
         f.write_str("  logging: ")?;
@@ -121,8 +130,10 @@ impl ShredArguments {
         if self.overwrite_count == 0 {
             return Err("overwrite-count is 0, but must be at least 1".to_owned())
         }
+        let confirmation_prompt = !self.no_confirm;
         Ok(ShredConfig::new(
             self.files,
+            confirmation_prompt,
             verbosity,
             self.keep,
             self.overwrite_count,
