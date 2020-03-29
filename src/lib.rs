@@ -4,6 +4,7 @@ use crate::erase::orchestrate::delete_file;
 use crate::inspect::collect::collect_file_info;
 use crate::util::cli::confirm_delete;
 pub use crate::util::errors::ShredResult;
+use ::indicatif::ProgressBar;
 
 mod config;
 mod erase;
@@ -12,11 +13,26 @@ mod util;
 
 pub fn shred(config: &ShredConfig) -> ShredResult<()> {
     let files = collect_file_info(config.files.clone(), config.verbosity)?;
+    let total_kb = files.iter().map(|f| f.size_kb).sum::<u64>() + 10_000;
+    let progress = if config.progress_bar {
+        Some(ProgressBar::new(total_kb))
+    } else {
+        None
+    };
     if config.confirmation_prompt {
         confirm_delete(&files, config.verbosity.debug())?;
     }
+    if let Some(ref pb) = progress {
+        pb.inc(10_000);
+    }
     for file in &files {
         delete_file(&file.path, config)?;
+        if let Some(ref pb) = progress {
+            pb.inc(file.size_kb);
+        }
+    }
+    if let Some(ref pb) = progress {
+        pb.finish_with_message("done");
     }
     if !config.verbosity.quiet() {
         if config.keep_files {
@@ -62,9 +78,8 @@ mod tests {
         let dir = tempdir().unwrap();
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
-        let mut config = ShredConfig::new(
+        let mut config = ShredConfig::non_interactive(
             vec![pth1.clone(), pth2.clone()], // files
-            false,                            // confirmation_prompt
             Verbosity::Debug,                 // verbosity
             true,                             // keep_files
             6,                                // overwrite_count

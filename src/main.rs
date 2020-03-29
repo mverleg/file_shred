@@ -131,7 +131,7 @@ impl ShredArguments {
             return Err("overwrite-count is 0, but must be at least 1".to_owned());
         }
         let confirmation_prompt = !self.no_confirm;
-        Ok(ShredConfig::new(
+        Ok(ShredConfig::interactive(
             self.files,
             confirmation_prompt,
             verbosity,
@@ -186,9 +186,7 @@ mod tests {
         let config = args.convert().unwrap();
         assert!(config.files.contains(&PathBuf::from("file.txt")));
         assert!(config.files.contains(&PathBuf::from("another_file.txt")));
-        assert!(config
-            .files
-            .contains(&PathBuf::from("there_are_three_files")));
+        assert!(config.files.contains(&PathBuf::from("there_are_three_files")));
         assert_eq!(3, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);

@@ -18,6 +18,7 @@ pub fn delete_file(path: &Path, config: &ShredConfig) -> ShredResult<()> {
     }
 
     // Remove metadata.
+    //TODO @mark: remove permissions (on some platforms?)
     remove_file_times(&path, verbose)?;
 
     // Rename the file.

@@ -9,10 +9,29 @@ pub struct ShredConfig {
     pub keep_files: bool,
     pub overwrite_count: u32,
     pub rename_count: u32,
+    pub progress_bar: bool,
 }
 
 impl ShredConfig {
-    pub fn new(
+    pub fn non_interactive(
+        files: Vec<PathBuf>,
+        verbosity: Verbosity,
+        keep_files: bool,
+        overwrite_count: u32,
+        rename_count: u32,
+    ) -> Self {
+        ShredConfig {
+            files,
+            confirmation_prompt: false,
+            verbosity,
+            keep_files,
+            overwrite_count,
+            rename_count,
+            progress_bar: false,
+        }
+    }
+
+    pub fn interactive(
         files: Vec<PathBuf>,
         confirmation_prompt: bool,
         verbosity: Verbosity,
@@ -27,6 +46,7 @@ impl ShredConfig {
             keep_files,
             overwrite_count,
             rename_count,
+            progress_bar: !verbosity.quiet(),
         }
     }
 }
