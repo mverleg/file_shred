@@ -4,6 +4,7 @@ pub use crate::config::conf::ShredConfig;
 pub use crate::config::typ::Verbosity;
 pub use crate::util::errors::ShredResult;
 use crate::inspect::collect::collect_file_info;
+use crate::util::cli::{confirmation_prompt, confirm_delete};
 
 mod config;
 mod inspect;
@@ -12,11 +13,9 @@ mod util;
 
 pub fn shred(config: &ShredConfig) -> ShredResult<()> {
     let files = collect_file_info(config.files.clone(), &config.verbosity)?;
-    println!("shred these files? (use -y to )");
-    for file in &files {
-        println!("- {}", file);
+    if config.confirmation_prompt {
+        confirm_delete(&files)?;
     }
-
     for file in &files {
         delete_file(&file.path, config)?;
     }
