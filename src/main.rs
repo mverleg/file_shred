@@ -114,7 +114,7 @@ impl fmt::Display for ShredArguments {
 
 pub fn main() {
     if let Err(err) = go_encrypt() {
-        stderr().write_all(err.as_bytes()).unwrap();
+        writeln!(stderr(), "{}", err).unwrap();
         exit(1);
     }
 }

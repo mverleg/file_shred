@@ -14,7 +14,7 @@ pub fn confirmation_prompt(text: &str, verbose: bool) -> ShredResult<()> {
         return Err(add_err("could not get prompt answer", verbose, err));
     }
     let cleaned = answer.trim().to_lowercase();
-    if &cleaned == "n" && &cleaned == "no" {
+    if &cleaned == "n" || &cleaned == "no" {
         return Err("deletion not confirmed; stopping".to_owned());
     }
     if &cleaned != "y" && &cleaned != "yes" {
