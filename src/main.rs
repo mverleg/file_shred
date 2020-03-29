@@ -51,7 +51,6 @@ pub struct ShredArguments {
         help = "Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices."
     )]
     keep: bool,
-    //TODO @mark: use
 
     #[structopt(
         long = "overwrite-count",
@@ -59,7 +58,6 @@ pub struct ShredArguments {
         help = "Number of times the file is overwritten (at least 1)."
     )]
     overwrite_count: u32,
-    //TODO @mark: use
 
     #[structopt(
         conflicts_with = "keep",
@@ -67,7 +65,6 @@ pub struct ShredArguments {
         help = "Number of times the file is renamed."
     )]
     rename_count: Option<u32>,
-    //TODO @mark: use
 }
 
 impl fmt::Display for ShredArguments {
