@@ -10,7 +10,7 @@ pub fn repeatedly_rename_file(original_pth: &Path, reps: u32, verbose: bool) -> 
     let mut renamed = reps;
     let mut old_path = original_pth.to_owned();
     for iter in 0..100 * reps {
-        let name = format!("{}.tmp", &generate_name(iter));
+        let name = format!("{}.tmp", &generate_name(iter as u64));
         let new_path = {
             let mut p = old_path.clone();
             p.set_file_name(name);
