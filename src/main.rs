@@ -52,6 +52,23 @@ pub struct ShredArguments {
     )]
     keep: bool,
     //TODO @mark: use
+
+    #[structopt(
+        long = "overwrite-count",
+        default_value = "10",
+        help = "Number of times the file is overwritten (at least 1)."
+    )]
+    overwrite_count: u32,
+    //TODO @mark: use
+
+    #[structopt(
+        long = "rename-count",
+        conflicts_with = "keep",
+        default_value = "10",
+        help = "Number of times the file is renamed."
+    )]
+    rename_count: u32,
+    //TODO @mark: use
 }
 
 impl fmt::Display for ShredArguments {
@@ -80,6 +97,9 @@ impl fmt::Display for ShredArguments {
         f.write_str(if self.keep { "keep" } else { "delete" })?;
         f.write_str("\n")?;
 
+        write!(f, "overwrite: {} times\n", self.overwrite_count)?;
+        write!(f, "rename: {} times\n", self.rename_count)?;
+
         Ok(())
     }
 }
@@ -99,7 +119,16 @@ impl ShredArguments {
             (false, true) => Verbosity::Quiet,
             (false, false) => Verbosity::Normal,
         };
-        Ok(ShredConfig::new(self.files, verbosity, self.keep))
+        if self.overwrite_count == 0 {
+            return Err("overwrite-count is 0, but must be at least 1".to_owned())
+        }
+        Ok(ShredConfig::new(
+            self.files,
+            verbosity,
+            self.keep,
+            self.overwrite_count,
+            self.rename_count,
+        ))
     }
 }
 
@@ -126,6 +155,8 @@ mod tests {
         assert_eq!(1, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Normal);
         assert!(!config.keep_files);
+        assert_eq!(config.overwrite_count, 10);
+        assert_eq!(config.rename_count, 10);
     }
 
     #[test]
@@ -137,9 +168,12 @@ mod tests {
             "-k",
             "another_file.txt",
             "there_are_three_files",
+            "--overwrite-count",
+            "7",
+            "--rename-count",
+            "12",
         ]);
         let config = args.convert().unwrap();
-        dbg!(&config.files); //TODO @mverleg: remove
         assert!(config.files.contains(&PathBuf::from("file.txt")));
         assert!(config.files.contains(&PathBuf::from("another_file.txt")));
         assert!(config
@@ -148,5 +182,7 @@ mod tests {
         assert_eq!(3, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);
+        assert_eq!(config.overwrite_count, 7);
+        assert_eq!(config.rename_count, 13);
     }
 }
