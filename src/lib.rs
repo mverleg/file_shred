@@ -13,7 +13,7 @@ mod inspect;
 mod util;
 
 pub fn shred<P: AsRef<Path>>(config: &ShredConfig<P>) -> ShredResult<()> {
-    let files: Vec<_> = config.files.iter().map(|f| (**f).as_ref()).collect();
+    let files: Vec<_> = config.files.iter().map(|f| (*f).as_ref()).collect();
     let files = collect_file_info(&files, config.verbosity)?;
     let total_kb = files.iter().map(|f| f.size_kb).sum::<u64>() + 10_000;
     let progress = if config.progress_bar {
@@ -92,7 +92,7 @@ mod tests {
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
         let mut config = ShredConfig::non_interactive(
-            vec![&pth1, &pth2],                // files
+            vec![&pth1, &pth2],               // files
             Verbosity::Debug,                 // verbosity
             true,                             // keep_files
             6,                                // overwrite_count
@@ -125,9 +125,9 @@ mod tests {
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
         let config = ShredConfig::<PathBuf>::non_interactive(
-            vec![&pth1, &pth2], // files
+            vec![pth1.clone(), pth2.clone()],  // files
             Verbosity::Debug,                 // verbosity
-            false,                             // keep_files
+            false,                            // keep_files
             6,                                // overwrite_count
             3,                                // rename_count
         );

@@ -3,8 +3,8 @@ use ::std::path::Path;
 use crate::config::typ::Verbosity;
 
 #[derive(Debug)]
-pub struct ShredConfig<'a, P: AsRef<Path> + ?Sized> {
-    pub files: Vec<&'a P>,
+pub struct ShredConfig<P: AsRef<Path>> {
+    pub files: Vec<P>,
     pub confirmation_prompt: bool,
     pub verbosity: Verbosity,
     pub keep_files: bool,
@@ -13,9 +13,9 @@ pub struct ShredConfig<'a, P: AsRef<Path> + ?Sized> {
     pub progress_bar: bool,
 }
 
-impl <'a, P: AsRef<Path> + ?Sized> ShredConfig<'a, P> {
+impl <P: AsRef<Path>> ShredConfig<P> {
     pub fn non_interactive(
-        files: Vec<&'a P>,
+        files: Vec<P>,
         verbosity: Verbosity,
         keep_files: bool,
         overwrite_count: u32,
@@ -33,7 +33,7 @@ impl <'a, P: AsRef<Path> + ?Sized> ShredConfig<'a, P> {
     }
 
     pub fn interactive(
-        files: Vec<&'a P>,
+        files: Vec<P>,
         confirmation_prompt: bool,
         verbosity: Verbosity,
         keep_files: bool,
