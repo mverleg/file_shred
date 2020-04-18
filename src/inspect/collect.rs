@@ -8,13 +8,16 @@ pub struct FileInfo<'a> {
     pub size_kb: u64,
 }
 
-impl <'a> fmt::Display for &'a FileInfo<'a> {
+impl<'a> fmt::Display for &'a FileInfo<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} ({} kb)", self.path.to_string_lossy(), self.size_kb)
     }
 }
 
-pub fn collect_file_info<'a>(files: &'a [&'a Path], verbosity: Verbosity) -> ShredResult<Vec<FileInfo<'a>>> {
+pub fn collect_file_info<'a>(
+    files: &'a [&'a Path],
+    verbosity: Verbosity,
+) -> ShredResult<Vec<FileInfo<'a>>> {
     let mut infos = Vec::with_capacity(files.len());
     let mut not_found_cnt: u32 = 0;
     for file in files.into_iter() {

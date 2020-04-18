@@ -13,7 +13,7 @@ pub struct ShredConfig<P: AsRef<Path>> {
     pub progress_bar: bool,
 }
 
-impl <P: AsRef<Path>> ShredConfig<P> {
+impl<P: AsRef<Path>> ShredConfig<P> {
     pub fn non_interactive(
         files: Vec<P>,
         verbosity: Verbosity,

@@ -1,11 +1,13 @@
+use ::std::path::Path;
+
+use ::indicatif::ProgressBar;
+
 pub use crate::config::conf::ShredConfig;
 pub use crate::config::typ::Verbosity;
 use crate::erase::orchestrate::delete_file;
 use crate::inspect::collect::collect_file_info;
 use crate::util::cli::confirm_delete;
 pub use crate::util::errors::ShredResult;
-use ::indicatif::ProgressBar;
-use ::std::path::Path;
 
 mod config;
 mod erase;
@@ -49,25 +51,27 @@ pub fn shred<P: AsRef<Path>>(config: &ShredConfig<P>) -> ShredResult<()> {
 /// Easy-use wrapper for `shred` that uses defaults for most options and shreds only one file.
 pub fn shred_file(path: &Path) -> ShredResult<()> {
     shred(&ShredConfig::non_interactive(
-        vec![&path],  // files
-        Verbosity::Quiet,  // verbosity
-        false,  // keep_files
-        10,  // overwrite_count
-        10,  // rename_count
+        vec![&path],      // files
+        Verbosity::Quiet, // verbosity
+        false,            // keep_files
+        10,               // overwrite_count
+        10,               // rename_count
     ))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use ::std::fs::File;
+    use ::std::io::Read;
     use ::std::io::Write;
     use ::std::path::Path;
     use ::std::path::PathBuf;
 
-    use crate::{shred, ShredConfig};
     use ::tempfile::tempdir;
-    use ::std::io::Read;
+
+    use crate::{shred, ShredConfig};
+
+    use super::*;
 
     const PREFIX: &[u8] = b"Test file content to be checked afterwards for filename ";
 
@@ -92,11 +96,11 @@ mod tests {
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
         let mut config = ShredConfig::non_interactive(
-            vec![&pth1, &pth2],               // files
-            Verbosity::Debug,                 // verbosity
-            true,                             // keep_files
-            6,                                // overwrite_count
-            3,                                // rename_count
+            vec![&pth1, &pth2], // files
+            Verbosity::Debug,   // verbosity
+            true,               // keep_files
+            6,                  // overwrite_count
+            3,                  // rename_count
         );
         assert!(pth1.exists());
         assert!(pth2.exists());
@@ -125,7 +129,7 @@ mod tests {
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
         let config = ShredConfig::<PathBuf>::non_interactive(
-            vec![pth1.clone(), pth2.clone()],  // files
+            vec![pth1.clone(), pth2.clone()], // files
             Verbosity::Debug,                 // verbosity
             false,                            // keep_files
             6,                                // overwrite_count

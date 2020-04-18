@@ -185,7 +185,9 @@ mod tests {
         //TODO @mark: why so many &
         assert!(config.files.contains(&PathBuf::from("file.txt")));
         assert!(config.files.contains(&PathBuf::from("another_file.txt")));
-        assert!(config.files.contains(&PathBuf::from("there_are_three_files")));
+        assert!(config
+            .files
+            .contains(&PathBuf::from("there_are_three_files")));
         assert_eq!(3, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);
