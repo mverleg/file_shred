@@ -1,9 +1,11 @@
 use ::std::path::PathBuf;
 
 use crate::config::typ::Verbosity;
+use std::path::Path;
+
 #[derive(Debug)]
-pub struct ShredConfig {
-    pub files: Vec<PathBuf>,
+pub struct ShredConfig<'a> {
+    pub files: Vec<&'a Path>,
     pub confirmation_prompt: bool,
     pub verbosity: Verbosity,
     pub keep_files: bool,
@@ -14,7 +16,7 @@ pub struct ShredConfig {
 
 impl ShredConfig {
     pub fn non_interactive(
-        files: Vec<PathBuf>,
+        files: Vec<&Path>,
         verbosity: Verbosity,
         keep_files: bool,
         overwrite_count: u32,
@@ -32,7 +34,7 @@ impl ShredConfig {
     }
 
     pub fn interactive(
-        files: Vec<PathBuf>,
+        files: Vec<&Path>,
         confirmation_prompt: bool,
         verbosity: Verbosity,
         keep_files: bool,

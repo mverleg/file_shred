@@ -5,6 +5,7 @@ use crate::inspect::collect::collect_file_info;
 use crate::util::cli::confirm_delete;
 pub use crate::util::errors::ShredResult;
 use ::indicatif::ProgressBar;
+use std::path::Path;
 
 mod config;
 mod erase;
@@ -12,7 +13,8 @@ mod inspect;
 mod util;
 
 pub fn shred(config: &ShredConfig) -> ShredResult<()> {
-    let files = collect_file_info(config.files.clone(), config.verbosity)?;
+    //TODO @mark: get rid of this clone
+    let files = collect_file_info(config.files, config.verbosity)?;
     let total_kb = files.iter().map(|f| f.size_kb).sum::<u64>() + 10_000;
     let progress = if config.progress_bar {
         Some(ProgressBar::new(total_kb))
@@ -42,6 +44,17 @@ pub fn shred(config: &ShredConfig) -> ShredResult<()> {
         }
     }
     Ok(())
+}
+
+/// Easy-use wrapper for `shred` that uses defaults for most options and shreds only one file.
+pub fn shred_file(path: impl AsRef<Path>) -> ShredResult<()> {
+    shred(&ShredConfig::non_interactive(
+        vec![path],  // files
+        Verbosity::Quiet,  // verbosity
+        false,  // keep_files
+        10,  // overwrite_count
+        10,  // rename_count
+    ))
 }
 
 #[cfg(test)]
@@ -104,5 +117,13 @@ mod tests {
         shred(&config).unwrap();
         assert!(!pth1.exists());
         assert!(!pth2.exists());
+    }
+
+    #[test]
+    fn test_shred_file() {
+        let dir = tempdir().unwrap();
+        let pth1 = make_file(dir.path(), "shred.me");
+        shred_file(&pth1).unwrap();
+        assert!(!pth1.exists());
     }
 }
