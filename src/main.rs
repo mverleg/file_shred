@@ -7,6 +7,7 @@ use ::std::process::exit;
 use ::structopt::StructOpt;
 
 use file_shred::{shred, ShredConfig, ShredResult, Verbosity};
+use std::path::Path;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -71,7 +72,7 @@ pub struct ShredArguments {
 impl fmt::Display for ShredArguments {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         f.write_str("  files:\n")?;
-        for file in self.files.clone().into_iter() {
+        for file in &self.files {
             f.write_str("  - ")?;
             f.write_str(file.to_string_lossy().as_ref())?;
             f.write_str("\n")?;
@@ -120,7 +121,7 @@ pub fn main() {
 }
 
 impl ShredArguments {
-    fn convert(&self) -> ShredResult<ShredConfig> {
+    fn convert(&self) -> ShredResult<ShredConfig<Path>> {
         let verbosity = match (self.debug, self.quiet) {
             (true, true) => return Err("cannot use quiet mode and debug mode together".to_owned()),
             (true, false) => Verbosity::Debug,
@@ -131,8 +132,9 @@ impl ShredArguments {
             return Err("overwrite-count is 0, but must be at least 1".to_owned());
         }
         let confirmation_prompt = !self.no_confirm;
+        let files: Vec<&Path> = self.files.iter().map(|f| *f.as_ref()).collect();
         Ok(ShredConfig::interactive(
-            self.files.iter().map(|f| f.as_path()).collect(),
+            files,
             confirmation_prompt,
             verbosity,
             self.keep,
@@ -161,7 +163,7 @@ mod tests {
     fn parse_args_minimal() {
         let args = ShredArguments::from_iter(&["shred", "file.txt"]);
         let config = args.convert().unwrap();
-        assert!(config.files.contains(&PathBuf::from("file.txt").as_path()));
+        assert!(config.files.contains(&&PathBuf::from("file.txt").as_path()));
         assert_eq!(1, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Normal);
         assert!(!config.keep_files);
@@ -182,9 +184,10 @@ mod tests {
             "7",
         ]);
         let config = args.convert().unwrap();
-        assert!(config.files.contains(&PathBuf::from("file.txt").as_path()));
-        assert!(config.files.contains(&PathBuf::from("another_file.txt").as_path()));
-        assert!(config.files.contains(&PathBuf::from("there_are_three_files").as_path()));
+        //TODO @mark: why so many &
+        assert!(config.files.contains(&&PathBuf::from("file.txt").as_path()));
+        assert!(config.files.contains(&&PathBuf::from("another_file.txt").as_path()));
+        assert!(config.files.contains(&&PathBuf::from("there_are_three_files").as_path()));
         assert_eq!(3, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);

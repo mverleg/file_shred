@@ -12,9 +12,9 @@ mod erase;
 mod inspect;
 mod util;
 
-pub fn shred(config: &ShredConfig) -> ShredResult<()> {
-    //TODO @mark: get rid of this clone
-    let files = collect_file_info(&config.files, config.verbosity)?;
+pub fn shred<P: AsRef<Path>>(config: &ShredConfig<P>) -> ShredResult<()> {
+    let files: Vec<_> = config.files.iter().map(|f| (**f).as_ref()).collect();
+    let files = collect_file_info(&files, config.verbosity)?;
     let total_kb = files.iter().map(|f| f.size_kb).sum::<u64>() + 10_000;
     let progress = if config.progress_bar {
         Some(ProgressBar::new(total_kb))
@@ -49,7 +49,7 @@ pub fn shred(config: &ShredConfig) -> ShredResult<()> {
 /// Easy-use wrapper for `shred` that uses defaults for most options and shreds only one file.
 pub fn shred_file(path: &Path) -> ShredResult<()> {
     shred(&ShredConfig::non_interactive(
-        vec![path],  // files
+        vec![&path],  // files
         Verbosity::Quiet,  // verbosity
         false,  // keep_files
         10,  // overwrite_count
@@ -114,6 +114,25 @@ mod tests {
 
         // Delete
         config.keep_files = false;
+        shred(&config).unwrap();
+        assert!(!pth1.exists());
+        assert!(!pth2.exists());
+    }
+
+    #[test]
+    fn owned_paths() {
+        let dir = tempdir().unwrap();
+        let pth1 = make_file(dir.path(), "file_1.txt");
+        let pth2 = make_file(dir.path(), "other_file.bye");
+        let config = ShredConfig::<PathBuf>::non_interactive(
+            vec![&pth1, &pth2], // files
+            Verbosity::Debug,                 // verbosity
+            false,                             // keep_files
+            6,                                // overwrite_count
+            3,                                // rename_count
+        );
+        assert!(pth1.exists());
+        assert!(pth2.exists());
         shred(&config).unwrap();
         assert!(!pth1.exists());
         assert!(!pth2.exists());

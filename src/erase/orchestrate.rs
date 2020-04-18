@@ -8,7 +8,7 @@ use crate::erase::rename::repeatedly_rename_file;
 use crate::util::ShredResult;
 
 /// Shred a file, overwriting it with random data repeatedly, and subsequently deleting.
-pub fn delete_file(path: &Path, config: &ShredConfig) -> ShredResult<()> {
+pub fn delete_file<P: AsRef<Path>>(path: &Path, config: &ShredConfig<P>) -> ShredResult<()> {
     let verbose = config.verbosity.debug();
 
     // Overwrite the file.
