@@ -1,25 +1,25 @@
 use crate::{ShredResult, Verbosity};
-use std::path::{PathBuf, Path};
+use std::path::Path;
 use std::{fmt, fs};
 
 #[derive(Debug)]
-pub struct FileInfo {
-    pub path: PathBuf,
+pub struct FileInfo<'a> {
+    pub path: &'a Path,
     pub size_kb: u64,
 }
 
-impl fmt::Display for FileInfo {
+impl <'a> fmt::Display for &'a FileInfo<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} ({} kb)", self.path.to_string_lossy(), self.size_kb)
     }
 }
 
-pub fn collect_file_info(files: Vec<&Path>, verbosity: Verbosity) -> ShredResult<Vec<FileInfo>> {
+pub fn collect_file_info<'a>(files: &'a [&'a Path], verbosity: Verbosity) -> ShredResult<Vec<FileInfo<'a>>> {
     let mut infos = Vec::with_capacity(files.len());
     let mut not_found_cnt: u32 = 0;
     for file in files.into_iter() {
         // Input file
-        let meta = match fs::metadata(&file) {
+        let meta = match fs::metadata(file) {
             Ok(meta) => meta,
             Err(err) => {
                 if verbosity.debug() {

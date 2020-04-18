@@ -120,7 +120,7 @@ pub fn main() {
 }
 
 impl ShredArguments {
-    fn convert(self) -> ShredResult<ShredConfig> {
+    fn convert(&self) -> ShredResult<ShredConfig> {
         let verbosity = match (self.debug, self.quiet) {
             (true, true) => return Err("cannot use quiet mode and debug mode together".to_owned()),
             (true, false) => Verbosity::Debug,
@@ -132,7 +132,7 @@ impl ShredArguments {
         }
         let confirmation_prompt = !self.no_confirm;
         Ok(ShredConfig::interactive(
-            self.files,
+            self.files.iter().map(|f| f.as_path()).collect(),
             confirmation_prompt,
             verbosity,
             self.keep,
@@ -161,7 +161,7 @@ mod tests {
     fn parse_args_minimal() {
         let args = ShredArguments::from_iter(&["shred", "file.txt"]);
         let config = args.convert().unwrap();
-        assert!(config.files.contains(&PathBuf::from("file.txt")));
+        assert!(config.files.contains(&PathBuf::from("file.txt").as_path()));
         assert_eq!(1, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Normal);
         assert!(!config.keep_files);
@@ -182,9 +182,9 @@ mod tests {
             "7",
         ]);
         let config = args.convert().unwrap();
-        assert!(config.files.contains(&PathBuf::from("file.txt")));
-        assert!(config.files.contains(&PathBuf::from("another_file.txt")));
-        assert!(config.files.contains(&PathBuf::from("there_are_three_files")));
+        assert!(config.files.contains(&PathBuf::from("file.txt").as_path()));
+        assert!(config.files.contains(&PathBuf::from("another_file.txt").as_path()));
+        assert!(config.files.contains(&PathBuf::from("there_are_three_files").as_path()));
         assert_eq!(3, config.files.len());
         assert_eq!(config.verbosity, Verbosity::Quiet);
         assert!(config.keep_files);

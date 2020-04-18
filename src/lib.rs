@@ -5,7 +5,7 @@ use crate::inspect::collect::collect_file_info;
 use crate::util::cli::confirm_delete;
 pub use crate::util::errors::ShredResult;
 use ::indicatif::ProgressBar;
-use std::path::Path;
+use ::std::path::Path;
 
 mod config;
 mod erase;
@@ -14,7 +14,7 @@ mod util;
 
 pub fn shred(config: &ShredConfig) -> ShredResult<()> {
     //TODO @mark: get rid of this clone
-    let files = collect_file_info(config.files, config.verbosity)?;
+    let files = collect_file_info(&config.files, config.verbosity)?;
     let total_kb = files.iter().map(|f| f.size_kb).sum::<u64>() + 10_000;
     let progress = if config.progress_bar {
         Some(ProgressBar::new(total_kb))
@@ -47,7 +47,7 @@ pub fn shred(config: &ShredConfig) -> ShredResult<()> {
 }
 
 /// Easy-use wrapper for `shred` that uses defaults for most options and shreds only one file.
-pub fn shred_file(path: impl AsRef<Path>) -> ShredResult<()> {
+pub fn shred_file(path: &Path) -> ShredResult<()> {
     shred(&ShredConfig::non_interactive(
         vec![path],  // files
         Verbosity::Quiet,  // verbosity
@@ -67,7 +67,7 @@ mod tests {
 
     use crate::{shred, ShredConfig};
     use ::tempfile::tempdir;
-    use std::io::Read;
+    use ::std::io::Read;
 
     const PREFIX: &[u8] = b"Test file content to be checked afterwards for filename ";
 
@@ -92,7 +92,7 @@ mod tests {
         let pth1 = make_file(dir.path(), "file_1.txt");
         let pth2 = make_file(dir.path(), "other_file.bye");
         let mut config = ShredConfig::non_interactive(
-            vec![pth1.clone(), pth2.clone()], // files
+            vec![&pth1, &pth2],                // files
             Verbosity::Debug,                 // verbosity
             true,                             // keep_files
             6,                                // overwrite_count
