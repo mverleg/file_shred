@@ -1,6 +1,6 @@
 [package]
 name = "file_shred"
-version = "1.0.0"
+version = "1.1.0"
 description = "Library and binary to securily delete files, overwriting and moving them before removal."
 authors = ["Mark <mverleg.noreply@gmail.com>"]
 homepage = "https://github.com/mverleg/file_shred"

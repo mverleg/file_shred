@@ -20,7 +20,7 @@ pub fn collect_file_info<'a>(
 ) -> ShredResult<Vec<FileInfo<'a>>> {
     let mut infos = Vec::with_capacity(files.len());
     let mut not_found_cnt: u32 = 0;
-    for file in files.into_iter() {
+    for file in files.iter() {
         // Input file
         let meta = match fs::metadata(file) {
             Ok(meta) => meta,

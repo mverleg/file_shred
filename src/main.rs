@@ -1,6 +1,4 @@
 use ::std::fmt;
-use ::std::io::stderr;
-use ::std::io::Write;
 use ::std::path::PathBuf;
 use ::std::process::exit;
 
@@ -114,7 +112,7 @@ impl fmt::Display for ShredArguments {
 
 pub fn main() {
     if let Err(err) = go_shred() {
-        writeln!(stderr(), "{}", err).unwrap();
+        eprintln!("{}", err);
         exit(1);
     }
 }
