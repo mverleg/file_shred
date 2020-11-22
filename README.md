@@ -1,5 +1,5 @@
 
-File shred (Rust)
+File shred
 ===============================
 
 Command line utility that safely deletes files.
@@ -21,7 +21,7 @@ Run the shredder with Docker::
 
 You can mount any directory in which you want to shred files; the above example uses the current directory `$(pwd)`.
 
-To build the image yourself (instead of downloading from Dockerhub), clone the project and run::
+To build the image yourself (instead of downloading from Dockerhub), clone the Github project and run::
 
     docker build -t file_shred .
 
