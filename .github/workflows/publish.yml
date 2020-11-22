@@ -1,0 +1,27 @@
+
+name: 'Publish file_shred'
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  push_to_registry:
+    name: Publish (Dockerhub)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Push to DockerHub
+        if: ${{ env.LATEST_IS_FRESH }}
+        uses: docker/build-push-action@v1
+        with:
+          dockerfile: Dockerfile
+          username: mverleg
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          repository: mverleg/file_shred
+          tags: stable
+
