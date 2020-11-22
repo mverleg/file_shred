@@ -19,11 +19,11 @@ name = "shred"
 path = "src/main.rs"
 
 [dependencies]
-filetime = "^0.2.8"
-indicatif = "^0.14.0"
-number2name = "^1.0.0"
-rand = "^0.7.2"
-structopt = { version = "^0.3.7", default-features = false }
+filetime = "^0.2.13"
+indicatif = "^0.15.0"
+number2name = "^1.0.1"
+rand = "^0.7.3"
+structopt = { version = "^0.3.20", default-features = false }
 
 [dev-dependencies]
 tempfile = "^3.1.0"
