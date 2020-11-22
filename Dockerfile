@@ -2,6 +2,9 @@
 FROM ekidd/rust-musl-builder:1.48.0 AS build
 
 ENV RUST_BACKTRACE=1
+ENV CARGO_HOME=/home/rust/.cargo
+ENV RUSTUP_HOME=/home/rust/.rustup
+USER root
 
 RUN rustup component add rustfmt
 RUN rustup component add clippy

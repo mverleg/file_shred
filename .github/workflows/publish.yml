@@ -1,5 +1,5 @@
 
-name: 'Publish file_shred'
+name: 'Publish file_endec'
 
 on:
   push:
@@ -21,6 +21,6 @@ jobs:
           dockerfile: Dockerfile
           username: mverleg
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: mverleg/file_shred
+          repository: mverleg/file_endec
           tags: stable
 

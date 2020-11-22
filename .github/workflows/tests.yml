@@ -1,5 +1,5 @@
 
-name: 'Test file_shred'
+name: 'Test file_endec'
 
 on:
   push:
