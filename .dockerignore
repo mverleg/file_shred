@@ -1,0 +1,9 @@
+
+# Put only whitelisted things in the Docker build context.
+# First remove everything:
+*
+
+# Now explicitly add the source code and Cargo files:
+!src/
+!Cargo.toml
+!Cargo.lock
