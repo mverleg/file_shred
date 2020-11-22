@@ -21,6 +21,6 @@ jobs:
           dockerfile: Dockerfile
           username: mverleg
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: mverleg/file_shred
+          repository: mverleg/file-shred
           tags: latest
 

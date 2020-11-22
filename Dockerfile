@@ -16,7 +16,7 @@ WORKDIR /app
 
 # Compile dependencies first
 
-COPY --chown=rust ./Cargo.toml ./Cargo.lock ./
+COPY ./Cargo.toml ./Cargo.lock ./
 
 RUN mkdir -p ./src && \
     printf 'fn main() { println!("placeholder for compiling dependencies") }' | tee src/main.rs | tee src/lib.rs
@@ -25,7 +25,7 @@ RUN cargo build --all-targets --all-features --release --tests
 
 # Code changes invalidate cache beyond here main code separately
 
-COPY --chown=rust ./src/ src/
+COPY ./src/ src/
 RUN bash -c 'touch -c src/*'
 
 # Build
