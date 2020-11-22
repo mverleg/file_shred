@@ -12,6 +12,21 @@ Functionality
 * Remove access- and modification time.
 * Truncate then delete the file.
 
+In Docker
+-------------------------------
+
+Run the shredder with Docker::
+
+    docker run --rm -it -v "$(pwd):/data" file_shred -- file.txt
+
+You can mount any directory in which you want to shred files; the above example uses the current directory `$(pwd)`.
+
+To build the image yourself (instead of downloading from Dockerhub), clone the project and run::
+
+    docker build -t file_shred .
+
+This will also run the tests and lints, to verify that your version is okay.
+
 As binary
 -------------------------------
 
