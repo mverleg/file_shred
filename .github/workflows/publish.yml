@@ -16,7 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Push to DockerHub
-        if: ${{ env.LATEST_IS_FRESH }}
         uses: docker/build-push-action@v1
         with:
           dockerfile: Dockerfile
