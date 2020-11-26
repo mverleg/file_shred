@@ -19,13 +19,13 @@ Functionality
 In Docker
 -------------------------------
 
-Run the shredder with Docker::
+Run the shredder with Docker:
 
     docker run --rm -it -v "$(pwd):/data" mverleg/file-shred -- file.txt
 
 You can mount any directory in which you want to shred files; the above example uses the current directory `$(pwd)`.
 
-To build the image yourself (instead of downloading from Dockerhub), clone the Github project and run::
+To build the image yourself (instead of downloading from Dockerhub), clone the Github project and run:
 
     docker build -t mverleg/file-shred .
 
