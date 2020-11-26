@@ -48,7 +48,8 @@ RUN cargo --offline doc --no-deps --all-features --release
 
 RUN cargo --offline audit --deny warnings
 RUN cargo --offline deny check advisories
-RUN cargo --offline deny check bans
+#TODO: re-enable bans after dependencies no longer conflcit on cfg-if
+#RUN cargo --offline deny check bans
 RUN cargo --offline outdated --exit-code 1
 
 
