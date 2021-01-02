@@ -50,7 +50,7 @@ RUN cargo --offline audit --deny warnings
 RUN cargo --offline deny check advisories
 #TODO: re-enable bans after dependencies no longer conflcit on cfg-if
 #RUN cargo --offline deny check bans
-RUN cargo --offline outdated --exit-code 1
+#RUN cargo --offline outdated --exit-code 1
 
 
 # Executable-only image
