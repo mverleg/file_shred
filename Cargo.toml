@@ -1,6 +1,6 @@
 [package]
 name = "file_shred"
-version = "1.1.2"
+version = "1.1.3"
 description = "Library and binary to securily delete files, overwriting and moving them before removal."
 authors = ["Mark <mverleg.noreply@gmail.com>"]
 homepage = "https://github.com/mverleg/file_shred"
@@ -8,7 +8,7 @@ repository = "https://github.com/mverleg/file_shred"
 readme = "README.md"
 license = "BSD-3-Clause"
 keywords = ["files"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "file_shred"
@@ -19,14 +19,14 @@ name = "shred"
 path = "src/main.rs"
 
 [dependencies]
-filetime = "0.2.20"
+filetime = "0.2.21"
 indicatif = "0.17.3"
 number2name = "1.1.2"
 rand = "0.8.5"
 structopt = { version = "0.3.26", default-features = false }
 
 [dev-dependencies]
-tempfile = "3.3.0"
+tempfile = "3.5.0"
 
 [profile.release]
 lto = 'thin'
