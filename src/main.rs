@@ -2,65 +2,66 @@ use ::std::fmt;
 use ::std::path::PathBuf;
 use ::std::process::exit;
 
-use ::structopt::StructOpt;
+use ::clap::Parser;
 
-use ::file_shred::{shred, ShredConfig, ShredResult, Verbosity};
+use ::file_shred::shred;
+use ::file_shred::ShredConfig;
+use ::file_shred::ShredResult;
+use ::file_shred::Verbosity;
 
-#[derive(Debug, StructOpt)]
-#[structopt(
+#[derive(Debug, Parser)]
+#[clap(
     name = "Shred",
     author = "github.com/mverleg/file_shred",
     about = "Securely erase one or more files."
 )]
 pub struct ShredArguments {
-    #[structopt(
+    #[clap(
         name = "FILES",
-        parse(from_os_str),
         required = true,
-        min_values = 1,
         help = "One or more paths to input files (absolute or relative)"
     )]
     files: Vec<PathBuf>,
 
-    #[structopt(
-        short = "y",
-        long = "no-confirm",
+    #[clap(
+        short = 'y',
+        long,
         help = "Delete files without asking for confirmation."
     )]
     no_confirm: bool,
 
-    #[structopt(
-        short = "v",
+    #[clap(
+        short = 'v',
         long,
         help = "Show debug information, especially on errors."
     )]
     debug: bool,
 
-    #[structopt(
+    #[clap(
         conflicts_with = "debug",
-        short = "q",
-        long = "quiet",
+        short = 'q',
+        long,
         help = "Do not show progress or other non-critical output."
     )]
     quiet: bool,
 
-    #[structopt(
-        short = "k",
-        long = "keep",
+    #[clap(
+        short = 'k',
+        long,
         help = "Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices."
     )]
     keep: bool,
 
-    #[structopt(
-        long = "overwrite-count",
+    #[clap(
+        long,
         default_value = "10",
         help = "Number of times the file is overwritten (at least 1)."
     )]
     overwrite_count: u32,
 
-    #[structopt(
+    #[clap(
         conflicts_with = "keep",
-        long = "rename-count",
+        long,
         help = "Number of times the file is renamed."
     )]
     rename_count: Option<u32>,
@@ -141,7 +142,7 @@ impl ShredArguments {
 }
 
 fn go_shred() -> ShredResult<()> {
-    let args = ShredArguments::from_args();
+    let args = ShredArguments::parse();
     if args.debug {
         println!("arguments provided:\n{}", args);
     }
@@ -157,7 +158,7 @@ mod tests {
 
     #[test]
     fn parse_args_minimal() {
-        let args = ShredArguments::from_iter(&["shred", "file.txt"]);
+        let args = ShredArguments::parse_from(&["shred", "file.txt"]);
         let config = args.convert().unwrap();
         assert!(config.files.contains(&PathBuf::from("file.txt")));
         assert_eq!(1, config.files.len());
