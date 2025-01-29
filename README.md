@@ -36,23 +36,27 @@ You can shred files like
 
 There are command line options for various things::
 
-    USAGE:
-        shred [FLAGS] [OPTIONS] <FILES>...
+    Arguments:
+    <FILES>...  One or more paths to input files (absolute or relative)
     
-    FLAGS:
-        -v, --debug         Show debug information, especially on errors.
-        -h, --help          Prints help information
-        -k, --keep          Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices.
-        -y, --no-confirm   Delete files without asking for confirmation.
-        -q, --quiet         Do not show progress or other non-critical output.
-        -V, --version       Prints version information
-    
-    OPTIONS:
-            --overwrite-count <overwrite-count>    Number of times the file is overwritten (at least 1). [default: 10]
-            --rename-count <rename-count>          Number of times the file is renamed.
+    Options:
+    -y, --no-confirm
+    Delete files without asking for confirmation
+    -v, --debug
+    Show debug information, especially on errors
+    -q, --quiet
+    Do not show progress or other non-critical output
+    -k, --keep
+    Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices
+    --overwrite-count <OVERWRITE_COUNT>
+    Number of times the file is overwritten (at least 1) [default: 10]
+    --rename-count <RENAME_COUNT>
+    Number of times the file is renamed
 
 As library
 -------------------------------
+
+To use default options on a single file, ues `shred_file`. To customize:
 
 * Create an instance of `::file_shred::ShredConfig`, options largely correspond to the command-line ones.
 * In particular note `confirmation_prompt=false` if there might not be an interactive session present.
