@@ -41,17 +41,17 @@ There are command line options for various things::
     
     Options:
     -y, --no-confirm
-    Delete files without asking for confirmation
+            Delete files without asking for confirmation
     -v, --debug
-    Show debug information, especially on errors
+            Show debug information, especially on errors
     -q, --quiet
-    Do not show progress or other non-critical output
+            Do not show progress or other non-critical output
     -k, --keep
-    Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices
+            Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices
     --overwrite-count <OVERWRITE_COUNT>
-    Number of times the file is overwritten (at least 1) [default: 10]
+            Number of times the file is overwritten (at least 1) [default: 10]
     --rename-count <RENAME_COUNT>
-    Number of times the file is renamed
+            Number of times the file is renamed
 
 As library
 -------------------------------
