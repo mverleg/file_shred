@@ -30,7 +30,7 @@ pub fn shred<P: AsRef<Path>>(config: &ShredConfig<P>) -> ShredResult<()> {
         pb.inc(10_000);
     }
     for file in &files {
-        delete_file(&file.path, config)?;
+        delete_file(file.path, config)?;
         if let Some(ref pb) = progress {
             pb.inc(file.size_kb);
         }

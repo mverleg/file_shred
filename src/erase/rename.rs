@@ -1,16 +1,18 @@
-use ::number2name::BASE32HUMAN;
+use crate::util::errors::add_err;
+use crate::util::ShredResult;
+use ::base64::prelude::*;
+use ::sha2::Digest;
+use ::sha2::Sha256;
 use ::std::fs;
 use ::std::path::Path;
 use ::std::path::PathBuf;
 
-use crate::util::errors::add_err;
-use crate::util::ShredResult;
-
-fn generate_name(number: u32) -> String {
-    // Character set: abcdefghjkmnpqrstuvwxyz23456789_
-    let mut name = BASE32HUMAN.encode(number as u64);
-    name.push_str(".tmp");
-    name
+fn generate_name(name: &str, number: u32) -> String {
+    let mut hash = Sha256::new();
+    hash.update(name.as_bytes());
+    hash.update(number.to_le_bytes());
+    let str = BASE64_URL_SAFE_NO_PAD.encode(hash.finalize());
+    format!("tmp{}", &str[..20])
 }
 
 pub fn repeatedly_rename_file(
@@ -23,7 +25,10 @@ pub fn repeatedly_rename_file(
     for iter in 0..100 * reps {
         let new_path = {
             let mut p = old_path.clone();
-            p.set_file_name(generate_name(iter));
+            p.set_file_name(generate_name(
+                old_path.to_str().expect("filename must be utf8"),
+                iter,
+            ));
             p
         };
         if new_path.exists() {
@@ -50,7 +55,6 @@ pub fn repeatedly_rename_file(
 
 #[cfg(test)]
 mod tests {
-
     use ::tempfile::tempdir;
 
     use super::*;

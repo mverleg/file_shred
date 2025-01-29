@@ -27,7 +27,7 @@ pub fn truncate_file(path: &Path, verbose: bool) -> ShredResult<()> {
 }
 
 pub fn remove_file(path: &Path, verbose: bool) -> ShredResult<()> {
-    match fs::remove_file(&path) {
+    match fs::remove_file(path) {
         Ok(_) => Ok(()),
         Err(err) => Err(add_err(
             format!(

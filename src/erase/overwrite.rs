@@ -1,12 +1,15 @@
 use ::std::fs::File;
 use ::std::fs::OpenOptions;
-use ::std::io::{Seek, SeekFrom, Write};
+use ::std::io::Seek;
+use ::std::io::SeekFrom;
+use ::std::io::Write;
 use ::std::path::Path;
 use ::std::rc::Rc;
 
 use ::rand::RngCore;
 
-use crate::util::errors::{add_err, wrap_io};
+use crate::util::errors::add_err;
+use crate::util::errors::wrap_io;
 use crate::util::ShredResult;
 
 fn sync(file: &mut File) -> ShredResult<()> {
@@ -93,7 +96,7 @@ pub fn overwrite_random_data<F: Write + Seek>(
     file_size: u64,
     verbose: bool,
 ) -> ShredResult<()> {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     overwrite_data(file, file_size, verbose, || {
         let mut data = [0u8; 512];
         rng.fill_bytes(&mut data);

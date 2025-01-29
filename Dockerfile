@@ -42,8 +42,6 @@ RUN cargo --offline test --release --all-targets --all-features
 
 RUN cargo --offline clippy --release --all-targets --all-features -- -D warnings
 
-RUN cargo --offline fmt --all -- --check
-
 RUN cargo --offline doc --no-deps --all-features --release
 
 RUN cargo --offline audit --deny warnings

@@ -19,7 +19,7 @@ pub fn delete_file<P: AsRef<Path>>(path: &Path, config: &ShredConfig<P>) -> Shre
 
     // Remove metadata.
     //TODO @mark: remove permissions (on some platforms?)
-    remove_file_times(&path, verbose)?;
+    remove_file_times(path, verbose)?;
 
     // Rename the file.
     let renamed_path = repeatedly_rename_file(path, config.rename_count, verbose)?;
