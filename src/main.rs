@@ -16,54 +16,32 @@ use ::file_shred::Verbosity;
     about = "Securely erase one or more files."
 )]
 pub struct ShredArguments {
-    #[clap(
-        name = "FILES",
-        required = true,
-        help = "One or more paths to input files (absolute or relative)"
-    )]
+    #[clap(name = "FILES", required = true)]
+    /// One or more paths to input files (absolute or relative)
     files: Vec<PathBuf>,
 
-    #[clap(
-        short = 'y',
-        long,
-        help = "Delete files without asking for confirmation."
-    )]
+    #[clap(short = 'y', long)]
+    /// Delete files without asking for confirmation.
     no_confirm: bool,
 
-    #[clap(
-        short = 'v',
-        long,
-        help = "Show debug information, especially on errors."
-    )]
+    #[clap(short = 'v', long)]
+    /// Show debug information, especially on errors.
     debug: bool,
 
-    #[clap(
-        conflicts_with = "debug",
-        short = 'q',
-        long,
-        help = "Do not show progress or other non-critical output."
-    )]
+    #[clap(conflicts_with = "debug", short = 'q', long)]
+    /// Do not show progress or other non-critical output.
     quiet: bool,
 
-    #[clap(
-        short = 'k',
-        long,
-        help = "Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices."
-    )]
+    #[clap(short = 'k', long)]
+    /// Destroy the data, but do not rename or delete the file. Useful for non-regular files like special system devices.
     keep: bool,
 
-    #[clap(
-        long,
-        default_value = "10",
-        help = "Number of times the file is overwritten (at least 1)."
-    )]
+    #[clap(long, default_value = "10")]
+    /// Number of times the file is overwritten (at least 1).
     overwrite_count: u32,
 
-    #[clap(
-        conflicts_with = "keep",
-        long,
-        help = "Number of times the file is renamed."
-    )]
+    #[clap(conflicts_with = "keep", long)]
+    /// Number of times the file is renamed.
     rename_count: Option<u32>,
 }
 

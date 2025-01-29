@@ -1,8 +1,4 @@
 
-[![Tests](https://github.com/mverleg/file_shred/workflows/Test%20file_shred/badge.svg)](https://github.com/mverleg/file_shred/actions)
-
-[![Dependencies](https://deps.rs/repo/github/mverleg/file_shred/status.svg)](https://deps.rs/repo/github/mverleg/file_shred)
-
 File shred
 ===============================
 
