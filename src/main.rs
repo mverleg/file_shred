@@ -148,7 +148,7 @@ mod tests {
 
     #[test]
     fn parse_args_long() {
-        let args = ShredArguments::from_iter(&[
+        let args = ShredArguments::parse_from(&[
             "shred",
             "file.txt",
             "-q",

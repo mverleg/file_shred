@@ -25,10 +25,11 @@ pub fn repeatedly_rename_file(
     for iter in 0..100 * reps {
         let new_path = {
             let mut p = old_path.clone();
-            p.set_file_name(generate_name(
-                old_path.to_str().expect("filename must be utf8"),
-                iter,
-            ));
+            let base_name = match old_path.file_name() {
+                Some(name) => name.to_str().expect("filename must be utf8"),
+                None => "",
+            };
+            p.set_file_name(generate_name(base_name, iter));
             p
         };
         if new_path.exists() {
@@ -67,7 +68,7 @@ mod tests {
         path.push("original.file");
         fs::write(&path, &data).unwrap();
         let new_pth = repeatedly_rename_file(&path, 5, true).unwrap();
-        assert_eq!("e.tmp", new_pth.file_name().unwrap());
+        assert_eq!("tmpBkn0XzxIhgz0iWJWFT_V", new_pth.file_name().unwrap());
         assert_eq!(&*data, fs::read(new_pth).unwrap().as_slice());
     }
 
@@ -89,7 +90,7 @@ mod tests {
         path.push("original.file");
         fs::write(&path, &data).unwrap();
         let new_pth = repeatedly_rename_file(&path, 30, true).unwrap();
-        assert_eq!("ab.tmp", new_pth.file_name().unwrap());
+        assert_eq!("tmpN47WM5FoYFZzHy_xCspx", new_pth.file_name().unwrap());
         assert_eq!(&*data, fs::read(new_pth).unwrap().as_slice());
     }
 }
